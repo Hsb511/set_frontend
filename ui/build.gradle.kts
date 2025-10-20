@@ -66,7 +66,12 @@ kotlin {
         }
 
         androidMain {
-            dependencies { }
+            dependencies {
+                implementation(libs.androidx.ui.tooling)
+                implementation(libs.androidx.poolingcontainer)
+                implementation(libs.androidx.activity)
+                implementation(libs.androidx.activity.compose)
+            }
         }
 
 
