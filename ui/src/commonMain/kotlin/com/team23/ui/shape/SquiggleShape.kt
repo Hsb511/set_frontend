@@ -1,4 +1,4 @@
-package com.team23.ui.shape.view
+package com.team23.ui.shape
 
 
 import androidx.compose.foundation.Canvas
@@ -15,16 +15,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.team23.ui.shape.model.FillingType
-import com.team23.ui.shape.utils.SampleFillingTypeProvider
-import com.team23.ui.shape.utils.previewModifier
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 
 @Composable
 fun SquiggleShape(
     color: Color,
-    fillingType: FillingType,
+    fillingTypeUiModel: FillingTypeUiModel,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier
 ) {
@@ -33,10 +30,10 @@ fun SquiggleShape(
         modifier = modifier,
     ) {
         SquigglePath(color = color, drawStyle = Stroke(), contentModifier)
-        when (fillingType) {
-            FillingType.Outlined -> Unit
-            FillingType.Filled -> SquigglePath(color = color, drawStyle = Fill, contentModifier)
-            FillingType.Striped -> Canvas(modifier = contentModifier) {
+        when (fillingTypeUiModel) {
+            FillingTypeUiModel.Outlined -> Unit
+            FillingTypeUiModel.Filled -> SquigglePath(color = color, drawStyle = Fill, contentModifier)
+            FillingTypeUiModel.Striped -> Canvas(modifier = contentModifier) {
                 val width = size.width
 
                 drawStrokeLine(color, size, -7, 0.15f * width, 0.72f * width)
@@ -125,11 +122,11 @@ fun SquigglePath(
 
 @Composable
 @Preview(showBackground = true)
-fun SquiggleShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingType: FillingType) {
+fun SquiggleShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
     MaterialTheme {
         SquiggleShape(
             color = Color.Red,
-            fillingType = fillingType,
+            fillingTypeUiModel = fillingTypeUiModel,
             contentModifier = previewModifier,
         )
     }

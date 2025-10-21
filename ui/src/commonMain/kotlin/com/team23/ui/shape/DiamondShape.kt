@@ -1,4 +1,4 @@
-package com.team23.ui.shape.view
+package com.team23.ui.shape
 
 
 import androidx.compose.foundation.Canvas
@@ -13,9 +13,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import com.team23.ui.shape.model.FillingType
-import com.team23.ui.shape.utils.SampleFillingTypeProvider
-import com.team23.ui.shape.utils.previewModifier
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import kotlin.math.abs
@@ -23,7 +20,7 @@ import kotlin.math.abs
 @Composable
 fun DiamondShape(
     color: Color,
-    fillingType: FillingType,
+    fillingTypeUiModel: FillingTypeUiModel,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
 ) {
@@ -33,10 +30,10 @@ fun DiamondShape(
     ) {
         DiamondPath(color = color, drawStyle = Stroke(), modifier = contentModifier)
 
-        when (fillingType) {
-            FillingType.Outlined -> Unit
-            FillingType.Filled -> DiamondPath(color = color, drawStyle = Fill, modifier = contentModifier)
-            FillingType.Striped -> Canvas(modifier = contentModifier) {
+        when (fillingTypeUiModel) {
+            FillingTypeUiModel.Outlined -> Unit
+            FillingTypeUiModel.Filled -> DiamondPath(color = color, drawStyle = Fill, modifier = contentModifier)
+            FillingTypeUiModel.Striped -> Canvas(modifier = contentModifier) {
                 val width = size.width
                 val height = size.height
 
@@ -89,11 +86,11 @@ private fun DiamondPath(
 
 @Composable
 @Preview(showBackground = true)
-fun DiamondShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingType: FillingType) {
+fun DiamondShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
     MaterialTheme {
         DiamondShape(
             color = Color.Green,
-            fillingType = fillingType,
+            fillingTypeUiModel = fillingTypeUiModel,
             contentModifier = previewModifier,
         )
     }
