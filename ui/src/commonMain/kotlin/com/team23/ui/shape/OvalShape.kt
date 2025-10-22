@@ -128,7 +128,7 @@ internal fun OvalPath(
 
 @Composable
 @Preview(showBackground = true)
-fun OvalShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
+private fun OvalShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
     SetTheme {
         OvalShape(
             color = Color.Blue,

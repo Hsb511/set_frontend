@@ -148,7 +148,7 @@ private fun CardContainer(
 
 @Composable
 @Preview(showBackground = true)
-fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: CardUiModel) {
+private fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: CardUiModel) {
     SetTheme {
         SetCard(
             card = card,
@@ -168,7 +168,6 @@ private class SampleCardProvider : PreviewParameterProvider<CardUiModel> {
                         fillingType = fillingType,
                         shape = shape,
                         selected = false,
-                        visible = true,
                         isPortraitMode = false,
                     )
                 }

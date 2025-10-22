@@ -122,7 +122,7 @@ fun SquigglePath(
 
 @Composable
 @Preview(showBackground = true)
-fun SquiggleShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
+private fun SquiggleShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
     SetTheme {
         SquiggleShape(
             color = Color.Red,

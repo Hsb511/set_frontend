@@ -86,7 +86,7 @@ private fun DiamondPath(
 
 @Composable
 @Preview(showBackground = true)
-fun DiamondShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
+private fun DiamondShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
     SetTheme {
         DiamondShape(
             color = Color.Green,
