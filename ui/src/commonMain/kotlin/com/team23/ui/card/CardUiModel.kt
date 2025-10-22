@@ -9,8 +9,7 @@ data class CardUiModel(
     val color: Color,
     val fillingType: FillingTypeUiModel,
     val shape: Shape,
-    val selected: Boolean,
-    val visible: Boolean,
+    val selected: Boolean = false,
     val isPortraitMode: Boolean,
 ) {
 
