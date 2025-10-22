@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -23,6 +22,8 @@ import com.team23.ui.shape.DiamondShape
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.shape.OvalShape
 import com.team23.ui.shape.SquiggleShape
+import com.team23.ui.theming.LocalSpacings
+import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -33,7 +34,7 @@ fun SetCard(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.background,
         border = BorderStroke(
             width = 1.dp,
@@ -114,7 +115,7 @@ private fun CardContainer(
     isPortraitMode: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val arrangement = Arrangement.spacedBy(8.dp)
+    val arrangement = Arrangement.spacedBy(LocalSpacings.current.medium)
 
     if (isPortraitMode) {
         Column(
@@ -122,7 +123,7 @@ private fun CardContainer(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = LocalSpacings.current.medium),
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -136,7 +137,7 @@ private fun CardContainer(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 8.dp),
+                .padding(vertical = LocalSpacings.current.medium),
         ) {
             Row(horizontalArrangement = arrangement) {
                 content()
@@ -148,7 +149,7 @@ private fun CardContainer(
 @Composable
 @Preview(showBackground = true)
 fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: CardUiModel) {
-    MaterialTheme {
+    SetTheme {
         SetCard(
             card = card,
             modifier = Modifier.size(width = 160.dp, height = 90.dp)
