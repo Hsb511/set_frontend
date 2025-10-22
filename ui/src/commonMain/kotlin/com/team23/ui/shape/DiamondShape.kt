@@ -3,7 +3,6 @@ package com.team23.ui.shape
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,6 +12,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import kotlin.math.abs
@@ -87,7 +87,7 @@ private fun DiamondPath(
 @Composable
 @Preview(showBackground = true)
 fun DiamondShapePreview(@PreviewParameter(SampleFillingTypeProvider::class) fillingTypeUiModel: FillingTypeUiModel) {
-    MaterialTheme {
+    SetTheme {
         DiamondShape(
             color = Color.Green,
             fillingTypeUiModel = fillingTypeUiModel,
