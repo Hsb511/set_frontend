@@ -11,3 +11,12 @@ kotlin {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
     }
 }
+
+dependencies {
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.testng)
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
