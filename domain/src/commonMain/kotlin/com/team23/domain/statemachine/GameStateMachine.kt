@@ -33,9 +33,9 @@ class GameStateMachine {
         val newState = state.copy(selected = event.selectedCards)
         if (event.selectedCards.size != 3) return newState
 
-        val updatedDeck = state.deck.drop(3)
-        val newCards = state.deck.take(3)
-        val newTable = state.table - event.selectedCards + newCards
+        val updatedDeck = newState.deck.drop(3)
+        val newCards = newState.deck.take(3).toMutableList()
+        val newTable = replaceCardsInTable(newState.table, newState.selected, newCards)
 
         val isDeckEmpty = updatedDeck.isEmpty()
         val isTableEmpty = newTable.isEmpty()
@@ -45,6 +45,19 @@ class GameStateMachine {
         } else {
             GameState.Playing(deck = updatedDeck, table = newTable)
         }
+    }
+
+    private fun replaceCardsInTable(
+        table: List<Card>,
+        cardsToRemove: Set<Card>,
+        cardsToAdd: MutableList<Card>
+    ): List<Card> {
+        val newTable = table.toMutableList()
+        cardsToRemove.onEach { cardToRemove ->
+            val index = table.indexOf(cardToRemove)
+            newTable[index] = cardsToAdd.removeFirst()
+        }
+        return newTable
     }
 
     private fun createFullDeck(): List<Card> {
