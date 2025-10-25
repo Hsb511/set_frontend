@@ -50,13 +50,23 @@ class GameStateMachine {
     private fun replaceCardsInTable(
         table: List<Card>,
         cardsToRemove: Set<Card>,
-        cardsToAdd: MutableList<Card>
+        cardsFromDeck: List<Card>
     ): List<Card> {
         val newTable = table.toMutableList()
+        val cardsToAdd = if (cardsFromDeck.isEmpty()) {
+            table.takeLast(3).toMutableList().also {
+                newTable.removeAll(it)
+            }
+        } else {
+            cardsFromDeck.toMutableList()
+        }
         cardsToRemove.onEach { cardToRemove ->
             val index = table.indexOf(cardToRemove)
-            newTable[index] = cardsToAdd.removeFirst()
+            if (index < newTable.size) {
+                newTable[index] = cardsToAdd.removeFirst()
+            }
         }
+
         return newTable
     }
 
