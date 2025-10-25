@@ -1,10 +1,15 @@
 package com.team23.ui
 
 import androidx.compose.runtime.Composable
-import com.team23.ui.card.CardUiModel
-import com.team23.ui.gameZone.GameZone
-import com.team23.ui.gameZone.GameZoneUiModel
-import com.team23.ui.shape.FillingTypeUiModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.team23.domain.statemachine.GameStateMachine
+import com.team23.ui.card.CardUiMapper
+import com.team23.ui.game.GameViewModel
+import com.team23.ui.game.Game
+import com.team23.ui.game.GameUiMapper
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -12,19 +17,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     SetTheme {
-        GameZone(
-            gameZone = GameZoneUiModel(
-                cards = List(12) { index ->
-                    CardUiModel(
-                        patternAmount = (1..3).random(),
-                        color = CardUiModel.Color.entries.random(),
-                        fillingType = FillingTypeUiModel.entries.random(),
-                        shape = CardUiModel.Shape.entries.random(),
-                        isPortraitMode = true,
-                    )
-                },
-                isPortrait = true,
-            )
+        val gameSM by remember { mutableStateOf(GameStateMachine()) }
+        val cardUiMapper by remember { mutableStateOf(CardUiMapper()) }
+        val gameUiMapper by remember { mutableStateOf( GameUiMapper(cardUiMapper)) }
+        val gameVM by remember { mutableStateOf( GameViewModel(gameSM, gameUiMapper, cardUiMapper)) }
+        val game by gameVM.gameUiModelFlow.collectAsState()
+
+        Game(
+            game = game,
+            onAction = gameVM::onAction,
         )
     }
 }

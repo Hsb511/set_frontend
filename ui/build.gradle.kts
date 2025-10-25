@@ -51,34 +51,27 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlin.stdlib)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.ui)
-                implementation(compose.components.resources)
-                implementation(compose.components.uiToolingPreview)
-                implementation(libs.androidx.lifecycle.viewmodelCompose)
-                implementation(libs.androidx.lifecycle.runtimeCompose)
-                implementation(projects.domain)
-            }
+        commonMain.dependencies {
+            implementation(libs.kotlin.stdlib)
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(projects.domain)
         }
 
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.ui.tooling)
-                implementation(libs.androidx.poolingcontainer)
-                implementation(libs.androidx.activity)
-                implementation(libs.androidx.activity.compose)
-            }
+        androidMain.dependencies {
+            implementation(libs.androidx.ui.tooling)
+            implementation(libs.androidx.poolingcontainer)
+            implementation(libs.androidx.activity)
+            implementation(libs.androidx.activity.compose)
         }
 
 
-        iosMain {
-            dependencies { }
-        }
+        iosMain { }
     }
-
 }

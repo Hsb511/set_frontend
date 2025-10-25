@@ -1,7 +1,7 @@
 package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
-import org.junit.jupiter.api.BeforeEach
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -11,7 +11,7 @@ class GameStateMachineTest {
 
     private lateinit var machine: GameStateMachine
 
-    @BeforeEach
+    @BeforeTest
     fun setup() {
         machine = GameStateMachine()
     }
@@ -41,7 +41,7 @@ class GameStateMachineTest {
         val selected = table.take(3)
 
         // When
-        val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected))
+        val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected.toSet()))
 
         // Then
         assertIs<GameState.Playing>(newState)
@@ -52,20 +52,23 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `when selecting less than 3 cards then state does not change`() {
+    fun `when selecting less than 3 cards only selected cards changes`() {
         // Given
         val fullDeck = createFullDeck().shuffled()
         val table = fullDeck.take(12)
         val deck = fullDeck.drop(12)
         val initialState = GameState.Playing(deck = deck, table = table)
 
-        val selected = table.take(2)
+        val selected = table.take(2).toSet()
 
         // When
         val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected))
 
         // Then
-        assertEquals(initialState, newState)
+        assertIs<GameState.Playing>(newState)
+        assertEquals(initialState.table, newState.table)
+        assertEquals(initialState.deck, newState.deck)
+        assertEquals(selected, newState.selected)
     }
 
     @Test
@@ -80,7 +83,7 @@ class GameStateMachineTest {
         val initialState = GameState.Playing(deck = deck, table = table)
 
         // When
-        val newState = machine.reduce(initialState, GameEvent.CardsSelected(table))
+        val newState = machine.reduce(initialState, GameEvent.CardsSelected(table.toSet()))
 
         // Then
         assertIs<GameState.Finished>(newState)
