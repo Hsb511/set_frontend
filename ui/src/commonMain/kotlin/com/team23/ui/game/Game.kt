@@ -9,14 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.team23.ui.card.CardUiModel
 import com.team23.ui.card.SetCard
@@ -56,6 +59,15 @@ fun Game(
                     .clickable { onAction(GameAction.SelectOrUnselectCard(card)) }
                     .fillMaxWidth()
                     .aspectRatio(getCardAspectRation(game.isPortrait)),
+            )
+        }
+        item(span = { GridItemSpan(columnsCount) }) {
+            Text(
+                text = "${game.cardsInDeck.size} cards remaining in deck",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = LocalSpacings.current.small)
             )
         }
     }
