@@ -1,4 +1,4 @@
-package com.team23.ui.gameZone
+package com.team23.ui.game
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,11 +28,12 @@ import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
-fun GameZone(
-    gameZone: GameZoneUiModel,
+fun Game(
+    game: GameUiModel,
     modifier: Modifier = Modifier,
+    onAction: (GameAction) -> Unit = {},
 ) {
-    val columnsCount = getGridColumnsCount(gameZone.isPortrait)
+    val columnsCount = getGridColumnsCount(game.isPortrait)
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(columnsCount),
@@ -41,7 +42,7 @@ fun GameZone(
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
-        items(gameZone.cards) { card ->
+        items(game.playingCards) { card ->
             SetCard(
                 card = card,
                 modifier = Modifier
@@ -52,9 +53,9 @@ fun GameZone(
                         shape = MaterialTheme.shapes.medium,
                         spotColor = Color.Cyan,
                     )
-                    .clickable { /* TODO */ }
+                    .clickable { onAction(GameAction.SelectOrUnselectCard(card)) }
                     .fillMaxWidth()
-                    .aspectRatio(getCardAspectRation(gameZone.isPortrait)),
+                    .aspectRatio(getCardAspectRation(game.isPortrait)),
             )
         }
     }
@@ -70,9 +71,10 @@ private fun getCardAspectRation(isPortraitMode: Boolean): Float =
 @Preview(showBackground = true)
 private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) isPortrait: Boolean) {
     SetTheme {
-        GameZone(
-            gameZone = GameZoneUiModel(
-                cards = listOf(
+        Game(
+            game = GameUiModel(
+                cardsInDeck = emptyList(),
+                playingCards = listOf(
                     CardUiModel(
                         patternAmount = 1,
                         color = CardUiModel.Color.Primary,

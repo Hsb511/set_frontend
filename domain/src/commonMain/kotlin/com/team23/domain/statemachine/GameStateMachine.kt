@@ -30,7 +30,8 @@ class GameStateMachine {
         state: GameState.Playing,
         event: GameEvent.CardsSelected
     ): GameState {
-        if (event.selectedCards.size != 3) return state
+        val newState = state.copy(selected = event.selectedCards)
+        if (event.selectedCards.size != 3) return newState
 
         val updatedDeck = state.deck.drop(3)
         val newCards = state.deck.take(3)
