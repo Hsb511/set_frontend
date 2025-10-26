@@ -6,7 +6,7 @@ import com.team23.domain.statemachine.GameEvent
 import com.team23.domain.statemachine.GameState
 import com.team23.domain.statemachine.GameStateMachine
 import com.team23.ui.card.CardUiMapper
-import com.team23.ui.card.CardUiModel
+import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +36,7 @@ class GameViewModel(
         }
     }
 
-    private fun selectOrUnselectCard(card: CardUiModel) {
+    private fun selectOrUnselectCard(card: Slot) {
         val currentGame = _gameStateFlow.value
         if (currentGame !is GameState.Playing) return
 

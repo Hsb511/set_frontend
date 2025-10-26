@@ -9,13 +9,13 @@ class CardUiMapper {
         card: Card,
         isSelected: Boolean,
         isPortrait: Boolean,
-    ): CardUiModel = when (card) {
+    ): Slot = when (card) {
         is Card.Data -> toDataUiModel(card, isSelected, isPortrait)
-        is Card.Empty -> CardUiModel.Empty(isPortraitMode = isPortrait)
+        is Card.Empty -> Slot.HoleUiModel(isPortraitMode = isPortrait)
     }
 
     private fun toDataUiModel(card: Card.Data, isSelected: Boolean, isPortrait: Boolean) =
-        CardUiModel.Data(
+        Slot.CardUiModel(
             patternAmount = card.number,
             color = toUiColor(card.color),
             fillingType = toUiFilling(card.fill),
@@ -24,10 +24,10 @@ class CardUiMapper {
             isPortraitMode = isPortrait,
         )
 
-    private fun toUiColor(color: Card.Data.Color): CardUiModel.Color = when (color) {
-        Card.Data.Color.PRIMARY -> CardUiModel.Color.Primary
-        Card.Data.Color.SECONDARY -> CardUiModel.Color.Secondary
-        Card.Data.Color.TERTIARY -> CardUiModel.Color.Tertiary
+    private fun toUiColor(color: Card.Data.Color): Slot.CardUiModel.Color = when (color) {
+        Card.Data.Color.PRIMARY -> Slot.CardUiModel.Color.Primary
+        Card.Data.Color.SECONDARY -> Slot.CardUiModel.Color.Secondary
+        Card.Data.Color.TERTIARY -> Slot.CardUiModel.Color.Tertiary
     }
 
     private fun toUiFilling(filling: Card.Data.Fill): FillingTypeUiModel = when (filling) {
@@ -36,28 +36,28 @@ class CardUiMapper {
         Card.Data.Fill.EMPTY -> FillingTypeUiModel.Outlined
     }
 
-    private fun toUiShape(shape: Card.Data.Shape): CardUiModel.Shape = when (shape) {
-        Card.Data.Shape.OVAL -> CardUiModel.Shape.Oval
-        Card.Data.Shape.DIAMOND -> CardUiModel.Shape.Diamond
-        Card.Data.Shape.SQUIGGLE -> CardUiModel.Shape.Squiggle
+    private fun toUiShape(shape: Card.Data.Shape): Slot.CardUiModel.Shape = when (shape) {
+        Card.Data.Shape.OVAL -> Slot.CardUiModel.Shape.Oval
+        Card.Data.Shape.DIAMOND -> Slot.CardUiModel.Shape.Diamond
+        Card.Data.Shape.SQUIGGLE -> Slot.CardUiModel.Shape.Squiggle
     }
 
-    fun toDomainModel(card: CardUiModel): Card = when(card) {
-        is CardUiModel.Data -> toDataDomainModel(card)
-        is CardUiModel.Empty -> Card.Empty
+    fun toDomainModel(card: Slot): Card = when(card) {
+        is Slot.CardUiModel -> toDataDomainModel(card)
+        is Slot.HoleUiModel -> Card.Empty
     }
 
-    private fun toDataDomainModel(card: CardUiModel.Data) = Card.Data(
+    private fun toDataDomainModel(card: Slot.CardUiModel) = Card.Data(
         color = toDomainColor(card.color),
         shape = toDomainShape(card.shape),
         number = card.patternAmount,
         fill = toDomainFilling(card.fillingType),
     )
 
-    private fun toDomainColor(color: CardUiModel.Color): Card.Data.Color = when (color) {
-        CardUiModel.Color.Primary -> Card.Data.Color.PRIMARY
-        CardUiModel.Color.Secondary -> Card.Data.Color.SECONDARY
-        CardUiModel.Color.Tertiary -> Card.Data.Color.TERTIARY
+    private fun toDomainColor(color: Slot.CardUiModel.Color): Card.Data.Color = when (color) {
+        Slot.CardUiModel.Color.Primary -> Card.Data.Color.PRIMARY
+        Slot.CardUiModel.Color.Secondary -> Card.Data.Color.SECONDARY
+        Slot.CardUiModel.Color.Tertiary -> Card.Data.Color.TERTIARY
     }
 
     private fun toDomainFilling(filling: FillingTypeUiModel): Card.Data.Fill = when (filling) {
@@ -66,9 +66,9 @@ class CardUiMapper {
         FillingTypeUiModel.Outlined -> Card.Data.Fill.EMPTY
     }
 
-    private fun toDomainShape(shape: CardUiModel.Shape): Card.Data.Shape = when (shape) {
-        CardUiModel.Shape.Oval -> Card.Data.Shape.OVAL
-        CardUiModel.Shape.Diamond -> Card.Data.Shape.DIAMOND
-        CardUiModel.Shape.Squiggle -> Card.Data.Shape.SQUIGGLE
+    private fun toDomainShape(shape: Slot.CardUiModel.Shape): Card.Data.Shape = when (shape) {
+        Slot.CardUiModel.Shape.Oval -> Card.Data.Shape.OVAL
+        Slot.CardUiModel.Shape.Diamond -> Card.Data.Shape.DIAMOND
+        Slot.CardUiModel.Shape.Squiggle -> Card.Data.Shape.SQUIGGLE
     }
 }

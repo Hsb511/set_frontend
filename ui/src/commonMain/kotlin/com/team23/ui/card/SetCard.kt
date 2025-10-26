@@ -27,21 +27,12 @@ import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
+import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
+import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
 fun SetCard(
-    card: CardUiModel,
-    modifier: Modifier = Modifier,
-) {
-    when (card) {
-        is CardUiModel.Data -> SetCard(card, modifier)
-        is CardUiModel.Empty -> SetEmptyCard(card.isPortraitMode, modifier)
-    }
-}
-
-@Composable
-private fun SetCard(
-    card: CardUiModel.Data,
+    card: Slot.CardUiModel,
     modifier: Modifier = Modifier,
 ) {
     CardContainer(
@@ -87,45 +78,34 @@ private fun Modifier.portraitRotation(patternAmount: Int, index: Int) = this
 
 @Composable
 private fun CardContent(
-    shape: CardUiModel.Shape,
+    shape: CardShape,
     color: Color,
     fillingType: FillingTypeUiModel,
     containerModifier: Modifier,
     shapeModifier: Modifier,
 ) {
     when (shape) {
-        CardUiModel.Shape.Diamond -> DiamondShape(
+        CardShape.Diamond -> DiamondShape(
             color = color,
             fillingTypeUiModel = fillingType,
             modifier = containerModifier,
             contentModifier = shapeModifier
         )
 
-        CardUiModel.Shape.Oval -> OvalShape(
+        CardShape.Oval -> OvalShape(
             color = color,
             fillingTypeUiModel = fillingType,
             modifier = containerModifier,
             contentModifier = shapeModifier
         )
 
-        CardUiModel.Shape.Squiggle -> SquiggleShape(
+        CardShape.Squiggle -> SquiggleShape(
             color = color,
             fillingTypeUiModel = fillingType,
             modifier = containerModifier,
             contentModifier = shapeModifier
         )
     }
-}
-
-@Composable
-private fun SetEmptyCard(
-    isPortraitMode: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    CardContainer(
-        isPortraitMode = isPortraitMode,
-        modifier = modifier,
-    ) {}
 }
 
 @Composable
@@ -178,7 +158,7 @@ private fun CardContainer(
 
 @Composable
 @Preview(showBackground = true)
-private fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: CardUiModel) {
+private fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: Slot.CardUiModel) {
     SetTheme {
         SetCard(
             card = card,
@@ -187,12 +167,12 @@ private fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: Ca
     }
 }
 
-private class SampleCardProvider : PreviewParameterProvider<CardUiModel> {
-    override val values = CardUiModel.Color.entries.toTypedArray().flatMap { color ->
+private class SampleCardProvider : PreviewParameterProvider<Slot.CardUiModel> {
+    override val values = CardColor.entries.toTypedArray().flatMap { color ->
         FillingTypeUiModel.entries.toTypedArray().flatMap { fillingType ->
-            CardUiModel.Shape.entries.flatMap { shape ->
+            CardShape.entries.flatMap { shape ->
                 (1..3).map { patternAmount ->
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = patternAmount,
                         color = color,
                         fillingType = fillingType,
