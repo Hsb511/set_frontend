@@ -53,10 +53,8 @@ class GameStateMachine {
         cardsFromDeck: List<Card>
     ): List<Card> {
         val newTable = table.toMutableList()
-        val cardsToAdd = if (cardsFromDeck.isEmpty()) {
-            table.takeLast(3).toMutableList().also {
-                newTable.removeAll(it)
-            }
+        val cardsToAdd = if (cardsFromDeck.isEmpty() && table.size <= 12) {
+            MutableList(3) { Card.Empty }
         } else {
             cardsFromDeck.toMutableList()
         }

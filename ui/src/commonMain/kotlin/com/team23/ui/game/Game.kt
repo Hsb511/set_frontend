@@ -91,6 +91,7 @@ private fun Slot(
 
         is Slot.HoleUiModel -> Box(
             Modifier
+                .padding(all = LocalSpacings.current.small)
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait))
         )
