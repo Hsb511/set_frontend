@@ -52,7 +52,7 @@ fun Game(
                     .clip(shape = MaterialTheme.shapes.medium)
                     .padding(all = LocalSpacings.current.small)
                     .shadow(
-                        elevation = if (card.selected) 32.dp else 0.dp,
+                        elevation = if (card is CardUiModel.Data && card.selected) 32.dp else 0.dp,
                         shape = MaterialTheme.shapes.medium,
                         spotColor = Color.Cyan,
                     )
@@ -87,7 +87,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
             game = GameUiModel(
                 cardsInDeck = emptyList(),
                 playingCards = listOf(
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 1,
                         color = CardUiModel.Color.Primary,
                         fillingType = FillingTypeUiModel.Striped,
@@ -95,7 +95,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = true,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 2,
                         color = CardUiModel.Color.Secondary,
                         fillingType = FillingTypeUiModel.Filled,
@@ -103,7 +103,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 3,
                         color = CardUiModel.Color.Tertiary,
                         fillingType = FillingTypeUiModel.Outlined,
@@ -111,7 +111,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 1,
                         color = CardUiModel.Color.Tertiary,
                         fillingType = FillingTypeUiModel.Filled,
@@ -119,7 +119,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 2,
                         color = CardUiModel.Color.Primary,
                         fillingType = FillingTypeUiModel.Outlined,
@@ -127,7 +127,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 3,
                         color = CardUiModel.Color.Secondary,
                         fillingType = FillingTypeUiModel.Striped,
@@ -135,7 +135,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = true,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 1,
                         color = CardUiModel.Color.Secondary,
                         fillingType = FillingTypeUiModel.Outlined,
@@ -143,7 +143,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 2,
                         color = CardUiModel.Color.Tertiary,
                         fillingType = FillingTypeUiModel.Striped,
@@ -151,7 +151,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 3,
                         color = CardUiModel.Color.Primary,
                         fillingType = FillingTypeUiModel.Filled,
@@ -159,7 +159,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 1,
                         color = CardUiModel.Color.Primary,
                         fillingType = FillingTypeUiModel.Filled,
@@ -167,7 +167,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 2,
                         color = CardUiModel.Color.Secondary,
                         fillingType = FillingTypeUiModel.Striped,
@@ -175,7 +175,7 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = 3,
                         color = CardUiModel.Color.Tertiary,
                         fillingType = FillingTypeUiModel.Outlined,

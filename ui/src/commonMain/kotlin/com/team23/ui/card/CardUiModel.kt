@@ -4,14 +4,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.team23.ui.shape.FillingTypeUiModel
 
-data class CardUiModel(
-    val patternAmount: Int,
-    val color: Color,
-    val fillingType: FillingTypeUiModel,
-    val shape: Shape,
-    val selected: Boolean = false,
-    val isPortraitMode: Boolean,
-) {
+sealed interface CardUiModel {
+    val isPortraitMode: Boolean
+
+    data class Empty(override val isPortraitMode: Boolean) : CardUiModel
+
+    data class Data(
+        override val isPortraitMode: Boolean,
+        val patternAmount: Int,
+        val color: Color,
+        val fillingType: FillingTypeUiModel,
+        val shape: Shape,
+        val selected: Boolean = false,
+    ) : CardUiModel
 
     enum class Color {
         Primary, Secondary, Tertiary;

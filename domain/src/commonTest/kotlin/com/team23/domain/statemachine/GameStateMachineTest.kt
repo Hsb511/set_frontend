@@ -1,6 +1,9 @@
 package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
+import com.team23.domain.model.Card.Data.Color
+import com.team23.domain.model.Card.Data.Fill
+import com.team23.domain.model.Card.Data.Shape
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,9 +79,9 @@ class GameStateMachineTest {
         // Given
         val deck = emptyList<Card>()
         val table = listOf(
-            Card(Card.Color.PRIMARY, Card.Shape.OVAL, 1, Card.Fill.SOLID),
-            Card(Card.Color.SECONDARY, Card.Shape.DIAMOND, 2, Card.Fill.STRIPED),
-            Card(Card.Color.TERTIARY, Card.Shape.SQUIGGLE, 3, Card.Fill.EMPTY)
+            Card.Data(Color.PRIMARY, Shape.OVAL, 1, Fill.SOLID),
+            Card.Data(Color.SECONDARY, Shape.DIAMOND, 2, Fill.STRIPED),
+            Card.Data(Color.TERTIARY, Shape.SQUIGGLE, 3, Fill.EMPTY)
         )
         val initialState = GameState.Playing(deck = deck, table = table)
 
@@ -108,16 +111,16 @@ class GameStateMachineTest {
     }
 
     private fun createFullDeck(): List<Card> {
-        val colors = Card.Color.entries.toTypedArray()
-        val shapes = Card.Shape.entries.toTypedArray()
+        val colors = Color.entries.toTypedArray()
+        val shapes = Shape.entries.toTypedArray()
         val numbers = 1..3
-        val fills = Card.Fill.entries.toTypedArray()
+        val fills = Fill.entries.toTypedArray()
 
         return colors.flatMap { color ->
             shapes.flatMap { shape ->
                 numbers.flatMap { number ->
                     fills.map { fill ->
-                        Card(color, shape, number, fill)
+                        Card.Data(color, shape, number, fill)
                     }
                 }
             }
