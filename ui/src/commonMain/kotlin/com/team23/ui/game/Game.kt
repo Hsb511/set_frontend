@@ -1,6 +1,7 @@
 package com.team23.ui.game
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
@@ -21,14 +22,16 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.team23.ui.card.CardUiModel
 import com.team23.ui.card.SetCard
+import com.team23.ui.card.Slot
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
+import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
+import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
 fun Game(
@@ -45,20 +48,11 @@ fun Game(
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
-        items(game.playingCards) { card ->
-            SetCard(
-                card = card,
-                modifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.medium)
-                    .padding(all = LocalSpacings.current.small)
-                    .shadow(
-                        elevation = if (card is CardUiModel.Data && card.selected) 32.dp else 0.dp,
-                        shape = MaterialTheme.shapes.medium,
-                        spotColor = Color.Cyan,
-                    )
-                    .clickable { onAction(GameAction.SelectOrUnselectCard(card)) }
-                    .fillMaxWidth()
-                    .aspectRatio(getCardAspectRation(game.isPortrait)),
+        items(game.playingCards) { slot ->
+            Slot(
+                slot = slot,
+                isPortrait = game.isPortrait,
+                onAction = onAction,
             )
         }
         item(span = { GridItemSpan(columnsCount) }) {
@@ -70,6 +64,36 @@ fun Game(
                     .padding(top = LocalSpacings.current.small)
             )
         }
+    }
+}
+
+@Composable
+private fun Slot(
+    slot: Slot,
+    isPortrait: Boolean,
+    onAction: (GameAction) -> Unit,
+) {
+    when (slot) {
+        is Slot.CardUiModel -> SetCard(
+            card = slot,
+            modifier = Modifier
+                .clip(shape = MaterialTheme.shapes.medium)
+                .padding(all = LocalSpacings.current.small)
+                .shadow(
+                    elevation = if (slot.selected) 32.dp else 0.dp,
+                    shape = MaterialTheme.shapes.medium,
+                    spotColor = Color.Cyan,
+                )
+                .clickable { onAction(GameAction.SelectOrUnselectCard(slot)) }
+                .fillMaxWidth()
+                .aspectRatio(getCardAspectRation(isPortrait)),
+        )
+
+        is Slot.HoleUiModel -> Box(
+            Modifier
+                .fillMaxWidth()
+                .aspectRatio(getCardAspectRation(isPortrait))
+        )
     }
 }
 
@@ -87,99 +111,99 @@ private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) is
             game = GameUiModel(
                 cardsInDeck = emptyList(),
                 playingCards = listOf(
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 1,
-                        color = CardUiModel.Color.Primary,
+                        color = CardColor.Primary,
                         fillingType = FillingTypeUiModel.Striped,
-                        shape = CardUiModel.Shape.Oval,
+                        shape = CardShape.Oval,
                         selected = true,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 2,
-                        color = CardUiModel.Color.Secondary,
+                        color = CardColor.Secondary,
                         fillingType = FillingTypeUiModel.Filled,
-                        shape = CardUiModel.Shape.Diamond,
+                        shape = CardShape.Diamond,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 3,
-                        color = CardUiModel.Color.Tertiary,
+                        color = CardColor.Tertiary,
                         fillingType = FillingTypeUiModel.Outlined,
-                        shape = CardUiModel.Shape.Squiggle,
+                        shape = CardShape.Squiggle,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 1,
-                        color = CardUiModel.Color.Tertiary,
+                        color = CardColor.Tertiary,
                         fillingType = FillingTypeUiModel.Filled,
-                        shape = CardUiModel.Shape.Oval,
+                        shape = CardShape.Oval,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 2,
-                        color = CardUiModel.Color.Primary,
+                        color = CardColor.Primary,
                         fillingType = FillingTypeUiModel.Outlined,
-                        shape = CardUiModel.Shape.Diamond,
+                        shape = CardShape.Diamond,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 3,
-                        color = CardUiModel.Color.Secondary,
+                        color = CardColor.Secondary,
                         fillingType = FillingTypeUiModel.Striped,
-                        shape = CardUiModel.Shape.Squiggle,
+                        shape = CardShape.Squiggle,
                         selected = true,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 1,
-                        color = CardUiModel.Color.Secondary,
+                        color = CardColor.Secondary,
                         fillingType = FillingTypeUiModel.Outlined,
-                        shape = CardUiModel.Shape.Oval,
+                        shape = CardShape.Oval,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 2,
-                        color = CardUiModel.Color.Tertiary,
+                        color = CardColor.Tertiary,
                         fillingType = FillingTypeUiModel.Striped,
-                        shape = CardUiModel.Shape.Diamond,
+                        shape = CardShape.Diamond,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 3,
-                        color = CardUiModel.Color.Primary,
+                        color = CardColor.Primary,
                         fillingType = FillingTypeUiModel.Filled,
-                        shape = CardUiModel.Shape.Squiggle,
+                        shape = CardShape.Squiggle,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 1,
-                        color = CardUiModel.Color.Primary,
+                        color = CardColor.Primary,
                         fillingType = FillingTypeUiModel.Filled,
-                        shape = CardUiModel.Shape.Squiggle,
+                        shape = CardShape.Squiggle,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 2,
-                        color = CardUiModel.Color.Secondary,
+                        color = CardColor.Secondary,
                         fillingType = FillingTypeUiModel.Striped,
-                        shape = CardUiModel.Shape.Oval,
+                        shape = CardShape.Oval,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),
-                    CardUiModel.Data(
+                    Slot.CardUiModel(
                         patternAmount = 3,
-                        color = CardUiModel.Color.Tertiary,
+                        color = CardColor.Tertiary,
                         fillingType = FillingTypeUiModel.Outlined,
-                        shape = CardUiModel.Shape.Diamond,
+                        shape = CardShape.Diamond,
                         selected = false,
                         isPortraitMode = isPortrait,
                     ),

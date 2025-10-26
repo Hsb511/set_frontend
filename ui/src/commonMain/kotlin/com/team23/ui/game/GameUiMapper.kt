@@ -3,7 +3,7 @@ package com.team23.ui.game
 import com.team23.domain.model.Card
 import com.team23.domain.statemachine.GameState
 import com.team23.ui.card.CardUiMapper
-import com.team23.ui.card.CardUiModel
+import com.team23.ui.card.Slot
 
 class GameUiMapper(
     private val cardUiMapper: CardUiMapper,
@@ -27,7 +27,7 @@ class GameUiMapper(
         cards: List<Card>,
         selected: Set<Card>,
         isPortrait: Boolean,
-    ): List<CardUiModel> = cards.map { card ->
+    ): List<Slot> = cards.map { card ->
         cardUiMapper.toUiModel(
             card = card,
             isSelected = card in selected,

@@ -1,10 +1,10 @@
 package com.team23.ui.game
 
-import com.team23.ui.card.CardUiModel
+import com.team23.ui.card.Slot
 
 data class GameUiModel(
-    val cardsInDeck: List<CardUiModel> = emptyList(),
-    val playingCards: List<CardUiModel> = emptyList(),
-    val selectedCards: Set<CardUiModel> = emptySet(),
+    val cardsInDeck: List<Slot> = emptyList(),
+    val playingCards: List<Slot> = emptyList(),
+    val selectedCards: Set<Slot> = emptySet(),
     val isPortrait: Boolean = true,
 )
