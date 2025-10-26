@@ -33,34 +33,39 @@ fun SetCard(
     card: CardUiModel,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.background,
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (card.selected) Color.Cyan else MaterialTheme.colorScheme.onBackground
-        ),
+    when (card) {
+        is CardUiModel.Data -> SetCard(card, modifier)
+        is CardUiModel.Empty -> SetEmptyCard(card.isPortraitMode, modifier)
+    }
+}
+
+@Composable
+private fun SetCard(
+    card: CardUiModel.Data,
+    modifier: Modifier = Modifier,
+) {
+    CardContainer(
+        isPortraitMode = card.isPortraitMode,
+        isSelected = card.selected,
         modifier = modifier,
     ) {
-        CardContainer(card.isPortraitMode) {
-            val color = card.color.toColor()
-            val fillingType = card.fillingType
-            val shapeModifier = Modifier.aspectRatio(ratio = 0.5f)
+        val color = card.color.toColor()
+        val fillingType = card.fillingType
+        val shapeModifier = Modifier.aspectRatio(ratio = 0.5f)
 
-            for (index in 1..card.patternAmount) {
-                val portraitModifier = Modifier.portraitRotation(card.patternAmount, index)
-                val containerModifier =
-                    Modifier
-                        .aspectRatio(ratio = if (card.isPortraitMode) 1f else 0.5f)
-                        .then(if (card.isPortraitMode) portraitModifier else Modifier)
-                CardContent(
-                    shape = card.shape,
-                    color = color,
-                    fillingType = fillingType,
-                    containerModifier = containerModifier,
-                    shapeModifier = shapeModifier,
-                )
-            }
+        for (index in 1..card.patternAmount) {
+            val portraitModifier = Modifier.portraitRotation(card.patternAmount, index)
+            val containerModifier =
+                Modifier
+                    .aspectRatio(ratio = if (card.isPortraitMode) 1f else 0.5f)
+                    .then(if (card.isPortraitMode) portraitModifier else Modifier)
+            CardContent(
+                shape = card.shape,
+                color = color,
+                fillingType = fillingType,
+                containerModifier = containerModifier,
+                shapeModifier = shapeModifier,
+            )
         }
     }
 }
@@ -72,10 +77,10 @@ private fun Modifier.portraitRotation(patternAmount: Int, index: Int) = this
         translationX = when (patternAmount) {
             1 -> 0f
             2 -> if (index == 1) width / 4 else -width / 4
-            else -> when(index) {
+            else -> when (index) {
                 1 -> 0f
-                2 -> - width / 2 - 5
-                else -> - width / 2
+                2 -> -width / 2 - 5
+                else -> -width / 2
             }
         }
     }
@@ -95,12 +100,14 @@ private fun CardContent(
             modifier = containerModifier,
             contentModifier = shapeModifier
         )
+
         CardUiModel.Shape.Oval -> OvalShape(
             color = color,
             fillingTypeUiModel = fillingType,
             modifier = containerModifier,
             contentModifier = shapeModifier
         )
+
         CardUiModel.Shape.Squiggle -> SquiggleShape(
             color = color,
             fillingTypeUiModel = fillingType,
@@ -111,36 +118,59 @@ private fun CardContent(
 }
 
 @Composable
+private fun SetEmptyCard(
+    isPortraitMode: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    CardContainer(
+        isPortraitMode = isPortraitMode,
+        modifier = modifier,
+    ) {}
+}
+
+@Composable
 private fun CardContainer(
     isPortraitMode: Boolean,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val arrangement = Arrangement.spacedBy(LocalSpacings.current.medium)
 
-    if (isPortraitMode) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = LocalSpacings.current.medium),
-        ) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.background,
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (isSelected) Color.Cyan else MaterialTheme.colorScheme.onBackground
+        ),
+        modifier = modifier,
+    ) {
+        if (isPortraitMode) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = arrangement,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = LocalSpacings.current.medium),
             ) {
-                content()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = arrangement,
+                ) {
+                    content()
+                }
             }
-        }
-    } else {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = LocalSpacings.current.medium),
-        ) {
-            Row(horizontalArrangement = arrangement) {
-                content()
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = LocalSpacings.current.medium),
+            ) {
+                Row(horizontalArrangement = arrangement) {
+                    content()
+                }
             }
         }
     }
@@ -162,7 +192,7 @@ private class SampleCardProvider : PreviewParameterProvider<CardUiModel> {
         FillingTypeUiModel.entries.toTypedArray().flatMap { fillingType ->
             CardUiModel.Shape.entries.flatMap { shape ->
                 (1..3).map { patternAmount ->
-                    CardUiModel(
+                    CardUiModel.Data(
                         patternAmount = patternAmount,
                         color = color,
                         fillingType = fillingType,

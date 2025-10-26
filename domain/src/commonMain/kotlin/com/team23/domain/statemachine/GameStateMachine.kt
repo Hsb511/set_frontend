@@ -71,16 +71,16 @@ class GameStateMachine {
     }
 
     private fun createFullDeck(): List<Card> {
-        val colors = Card.Color.entries.toTypedArray()
-        val shapes = Card.Shape.entries.toTypedArray()
+        val colors = Card.Data.Color.entries.toTypedArray()
+        val shapes = Card.Data.Shape.entries.toTypedArray()
         val numbers = 1..3
-        val fills = Card.Fill.entries.toTypedArray()
+        val fills = Card.Data.Fill.entries.toTypedArray()
 
         return colors.flatMap { color ->
             shapes.flatMap { shape ->
                 numbers.flatMap { number ->
                     fills.map { fill ->
-                        Card(color, shape, number, fill)
+                        Card.Data(color, shape, number, fill)
                     }
                 }
             }
