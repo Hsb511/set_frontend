@@ -61,7 +61,7 @@ class GameStateMachine {
         cardsToRemove.onEach { cardToRemove ->
             val index = table.indexOf(cardToRemove)
             if (index < newTable.size) {
-                newTable[index] = cardsToAdd.removeFirst()
+                newTable[index] = cardsToAdd.removeAt(0)
             }
         }
 
