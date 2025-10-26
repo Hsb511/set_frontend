@@ -76,7 +76,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.team23.set"
+        applicationId = "com.team23.set_app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = versionMaj * 10_000 + versionMin * 100 + versionFix
