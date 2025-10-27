@@ -4,7 +4,15 @@ import com.team23.domain.model.Card
 
 class CardDataMapper {
 
+    fun toDomainModel(base10: Int): Card {
+        require(base10 in 0..80) {
+            "Invalid card '$base10': must be between 0 and 80"
+        }
+        return toDomainModel(base10.toString(radix = 3).padStart(4, '0'))
+    }
+
     fun toDomainModel(base3: String): Card {
+        println("HUGO - base3: $base3")
         require(base3_4.matches(base3)) {
             "Invalid card '$base3': expected 4 digits in base 3"
         }
@@ -32,6 +40,11 @@ class CardDataMapper {
         0 -> Card.Data.Fill.EMPTY
         1 -> Card.Data.Fill.STRIPED
         else -> Card.Data.Fill.SOLID
+    }
+
+    fun toBase10Code(card: Card.Data): Int {
+        return toBase3Code(card).toInt(radix = 3).also {
+            println("HUGO - card: $card -> base3: ${toBase3Code(card)} - base10: $it") }
     }
 
     fun toBase3Code(card: Card.Data): String {
