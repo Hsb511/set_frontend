@@ -1,14 +1,13 @@
 package com.team23.ui.game
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -41,28 +41,41 @@ fun Game(
 ) {
     val columnsCount = getGridColumnsCount(game.isPortrait)
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columnsCount),
-        contentPadding = PaddingValues(all = LocalSpacings.current.small),
-        modifier = modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.safeDrawing),
-    ) {
-        items(game.playingCards) { slot ->
-            Slot(
-                slot = slot,
-                isPortrait = game.isPortrait,
-                onAction = onAction,
-            )
+    Box(modifier = modifier) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columnsCount),
+            contentPadding = PaddingValues(all = LocalSpacings.current.small),
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
+            items(game.playingCards) { slot ->
+                Slot(
+                    slot = slot,
+                    isPortrait = game.isPortrait,
+                    onAction = onAction,
+                )
+            }
+            item(span = { GridItemSpan(columnsCount) }) {
+                Text(
+                    text = "${game.cardsInDeck.size} cards remaining in deck",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = LocalSpacings.current.small)
+                )
+            }
         }
-        item(span = { GridItemSpan(columnsCount) }) {
-            Text(
-                text = "${game.cardsInDeck.size} cards remaining in deck",
-                textAlign = TextAlign.Center,
+        if (game.isFinished) {
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = LocalSpacings.current.small)
-            )
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = 0.23f))
+            ) {
+                Column {
+                    Text(text = "Game is finished")
+                }
+            }
         }
     }
 }

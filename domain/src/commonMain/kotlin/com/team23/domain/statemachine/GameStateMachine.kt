@@ -1,6 +1,7 @@
 package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
+import com.team23.domain.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.usecase.IsSetUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.launch
 
 class GameStateMachine(
     private val isSetUseCase: IsSetUseCase,
+    private val containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase,
     private val coroutineScope: CoroutineScope,
 ) {
     private val _gameSideEffect: MutableSharedFlow<GameSideEffect> = MutableSharedFlow()
@@ -59,10 +61,10 @@ class GameStateMachine(
         val newTable = replaceCardsInTable(newState.table, newState.selected, newCards)
 
         val isDeckEmpty = updatedDeck.isEmpty()
-        val isTableEmpty = newTable.isEmpty()
+        val tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
 
-        return if (isDeckEmpty && isTableEmpty) {
-            GameState.Finished
+        return if (isDeckEmpty && tableContainsNoSet) {
+            GameState.Finished(cards = newTable)
         } else {
             GameState.Playing(deck = updatedDeck, table = newTable)
         }

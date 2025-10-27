@@ -20,7 +20,10 @@ class GameUiMapper(
             isPortrait = isPortrait,
         )
 
-        is GameState.Finished -> GameUiModel()
+        is GameState.Finished -> GameUiModel(
+            playingCards = mapCards(gameState.cards, emptySet(), isPortrait),
+            isFinished = true,
+        )
     }
 
     private fun mapCards(
