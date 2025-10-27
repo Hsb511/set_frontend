@@ -9,6 +9,7 @@ import com.team23.domain.statemachine.GameState
 import com.team23.domain.statemachine.GameStateMachine
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
+import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,13 +39,18 @@ class GameViewModel(
         .shareIn(viewModelScope, SharingStarted.Lazily)
 
     init {
-        _gameStateFlow.value = stateMachine.reduce(_gameStateFlow.value, GameEvent.Init)
+        startGame()
     }
 
     fun onAction(action: GameAction) {
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
+            is Restart -> startGame()
         }
+    }
+
+    private fun startGame() {
+        _gameStateFlow.value = stateMachine.reduce(GameState.EmptyDeck, GameEvent.Init)
     }
 
     private fun selectOrUnselectCard(card: Slot) {

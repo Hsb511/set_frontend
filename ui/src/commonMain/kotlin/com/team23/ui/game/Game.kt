@@ -1,27 +1,29 @@
 package com.team23.ui.game
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.shape.FillingTypeUiModel
@@ -33,6 +35,7 @@ import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Game(
     game: GameUiModel,
@@ -52,6 +55,7 @@ fun Game(
                 Slot(
                     slot = slot,
                     isPortrait = game.isPortrait,
+                    isFinished = game.isFinished,
                     onAction = onAction,
                 )
             }
@@ -66,16 +70,30 @@ fun Game(
             }
         }
         if (game.isFinished) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                .matchParentSize()
-                .background(Color.Black.copy(alpha = 0.23f))
-            ) {
-                Column {
-                    Text(text = "Game is finished")
-                }
-            }
+            AlertDialog(
+                onDismissRequest = { },
+                confirmButton = {
+                    Button(
+                        onClick = { onAction(GameAction.Restart) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Play again")
+                    }
+                },
+                text = {
+                    Text(
+                        text = "Game is finished",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
+                properties = DialogProperties(
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
+                ),
+                modifier = Modifier.width(280.dp)
+            )
         }
     }
 }
@@ -84,6 +102,7 @@ fun Game(
 private fun Slot(
     slot: Slot,
     isPortrait: Boolean,
+    isFinished: Boolean,
     onAction: (GameAction) -> Unit,
 ) {
     when (slot) {
@@ -97,13 +116,13 @@ private fun Slot(
                     shape = MaterialTheme.shapes.medium,
                     spotColor = Color.Cyan,
                 )
-                .clickable { onAction(GameAction.SelectOrUnselectCard(slot)) }
+                .clickable(enabled = !isFinished) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait)),
         )
 
         is Slot.HoleUiModel -> Box(
-            Modifier
+            modifier = Modifier
                 .padding(all = LocalSpacings.current.small)
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait))
