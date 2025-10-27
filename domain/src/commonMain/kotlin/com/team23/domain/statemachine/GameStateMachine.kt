@@ -2,10 +2,17 @@ package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
 import com.team23.domain.usecase.IsSetUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 class GameStateMachine(
     private val isSetUseCase: IsSetUseCase,
+    private val coroutineScope: CoroutineScope,
 ) {
+    private val _gameSideEffect: MutableSharedFlow<GameSideEffect> = MutableSharedFlow()
+    val gameSideEffect: SharedFlow<GameSideEffect> = _gameSideEffect
 
     fun reduce(state: GameState, event: GameEvent): GameState = when (state) {
 
@@ -35,7 +42,9 @@ class GameStateMachine(
     ): GameState {
         if (!isSetUseCase.invoke(event.selectedCards)) {
             val selectedCards = if (event.selectedCards.size == 3) {
-                // TODO SEND SIDE EFFECT
+                coroutineScope.launch {
+                    _gameSideEffect.emit(GameSideEffect.InvalidSet)
+                }
                 emptySet()
             } else {
                 event.selectedCards
