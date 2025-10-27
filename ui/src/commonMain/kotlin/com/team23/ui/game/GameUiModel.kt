@@ -7,4 +7,5 @@ data class GameUiModel(
     val playingCards: List<Slot> = emptyList(),
     val selectedCards: Set<Slot> = emptySet(),
     val isPortrait: Boolean = true,
+    val isFinished: Boolean = false,
 )
