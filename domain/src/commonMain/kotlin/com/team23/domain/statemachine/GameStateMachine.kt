@@ -1,8 +1,11 @@
 package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
+import com.team23.domain.usecase.IsSetUseCase
 
-class GameStateMachine {
+class GameStateMachine(
+    private val isSetUseCase: IsSetUseCase,
+) {
 
     fun reduce(state: GameState, event: GameEvent): GameState = when (state) {
 
@@ -30,8 +33,17 @@ class GameStateMachine {
         state: GameState.Playing,
         event: GameEvent.CardsSelected
     ): GameState {
+        if (!isSetUseCase.invoke(event.selectedCards)) {
+            val selectedCards = if (event.selectedCards.size == 3) {
+                // TODO SEND SIDE EFFECT
+                emptySet()
+            } else {
+                event.selectedCards
+            }
+            return state.copy(selected = selectedCards)
+        }
+
         val newState = state.copy(selected = event.selectedCards)
-        if (event.selectedCards.size != 3) return newState
 
         val updatedDeck = newState.deck.drop(3)
         val newCards = newState.deck.take(3).toMutableList()
