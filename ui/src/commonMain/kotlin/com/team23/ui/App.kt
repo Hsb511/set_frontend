@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.team23.domain.statemachine.GameStateMachine
+import com.team23.domain.usecase.IsSetUseCase
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.game.GameViewModel
 import com.team23.ui.game.Game
@@ -17,7 +18,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     SetTheme {
-        val gameSM by remember { mutableStateOf(GameStateMachine()) }
+        val gameSM by remember { mutableStateOf(GameStateMachine(IsSetUseCase())) }
         val cardUiMapper by remember { mutableStateOf(CardUiMapper()) }
         val gameUiMapper by remember { mutableStateOf( GameUiMapper(cardUiMapper)) }
         val gameVM by remember { mutableStateOf( GameViewModel(gameSM, gameUiMapper, cardUiMapper)) }
