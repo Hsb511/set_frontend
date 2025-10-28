@@ -43,31 +43,42 @@ class GameStateMachine(
         event: GameEvent.CardsSelected
     ): GameState {
         if (!isSetUseCase.invoke(event.selectedCards)) {
-            val selectedCards = if (event.selectedCards.size == 3) {
-                coroutineScope.launch {
-                    _gameSideEffect.emit(GameSideEffect.InvalidSet)
-                }
-                emptySet()
-            } else {
-                event.selectedCards
-            }
-            return state.copy(selected = selectedCards)
+            val newSelectedCards = handleCardSelectionWhenNotASet(event.selectedCards)
+            return state.copy(selected = newSelectedCards)
         }
 
-        val newState = state.copy(selected = event.selectedCards)
+        // TODO HANDLE CASE WHEN TABLE SIZE > 12 && NEW TABLE - 3 cards is valid. i. e. from 15 to 12
+        var updatedDeck = state.deck.drop(3)
+        var newCards = state.deck.take(3).toMutableList()
+        val newTable = replaceCardsInTable(
+            table = state.table,
+            cardsToRemove = event.selectedCards,
+            cardsFromDeck = newCards
+        ).toMutableList()
 
-        val updatedDeck = newState.deck.drop(3)
-        val newCards = newState.deck.take(3).toMutableList()
-        val newTable = replaceCardsInTable(newState.table, newState.selected, newCards)
+        var tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
 
-        val isDeckEmpty = updatedDeck.isEmpty()
-        val tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
+        while (tableContainsNoSet && updatedDeck.isNotEmpty()) {
+            newCards = updatedDeck.take(3).toMutableList()
+            updatedDeck = updatedDeck.drop(3)
+            newTable.addAll(newCards)
+            tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
+        }
 
-        return if (isDeckEmpty && tableContainsNoSet) {
+        return if (updatedDeck.isEmpty() && tableContainsNoSet) {
             GameState.Finished(cards = newTable)
         } else {
             GameState.Playing(deck = updatedDeck, table = newTable)
         }
+    }
+
+    private fun handleCardSelectionWhenNotASet(selectedCards: Set<Card>): Set<Card> = if (selectedCards.size == 3) {
+        coroutineScope.launch {
+            _gameSideEffect.emit(GameSideEffect.InvalidSet)
+        }
+        emptySet()
+    } else {
+        selectedCards
     }
 
     private fun replaceCardsInTable(
@@ -76,7 +87,7 @@ class GameStateMachine(
         cardsFromDeck: List<Card>
     ): List<Card> {
         val newTable = table.toMutableList()
-        val cardsToAdd = if (cardsFromDeck.isEmpty() && table.size <= 12) {
+        val cardsToAdd = if (cardsFromDeck.isEmpty()) {
             MutableList(3) { Card.Empty }
         } else {
             cardsFromDeck.toMutableList()
