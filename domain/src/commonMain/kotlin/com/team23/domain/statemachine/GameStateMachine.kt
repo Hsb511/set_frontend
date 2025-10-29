@@ -1,8 +1,8 @@
 package com.team23.domain.statemachine
 
 import com.team23.domain.model.Card
-import com.team23.domain.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.usecase.IsSetUseCase
+import com.team23.domain.usecase.UpdateGameAfterSetFoundUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 class GameStateMachine(
     private val isSetUseCase: IsSetUseCase,
-    private val containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase,
+    private val updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase,
     private val coroutineScope: CoroutineScope,
 ) {
     private val _gameSideEffect: MutableSharedFlow<GameSideEffect> = MutableSharedFlow()
@@ -47,29 +47,11 @@ class GameStateMachine(
             return state.copy(selected = newSelectedCards)
         }
 
-        // TODO HANDLE CASE WHEN TABLE SIZE > 12 && NEW TABLE - 3 cards is valid. i. e. from 15 to 12
-        var updatedDeck = state.deck.drop(3)
-        var newCards = state.deck.take(3).toMutableList()
-        val newTable = replaceCardsInTable(
+        return updateGameAfterSetFoundUseCase.invoke(
             table = state.table,
-            cardsToRemove = event.selectedCards,
-            cardsFromDeck = newCards
-        ).toMutableList()
-
-        var tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
-
-        while (tableContainsNoSet && updatedDeck.isNotEmpty()) {
-            newCards = updatedDeck.take(3).toMutableList()
-            updatedDeck = updatedDeck.drop(3)
-            newTable.addAll(newCards)
-            tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
-        }
-
-        return if (updatedDeck.isEmpty() && tableContainsNoSet) {
-            GameState.Finished(cards = newTable)
-        } else {
-            GameState.Playing(deck = updatedDeck, table = newTable)
-        }
+            setFound = event.selectedCards,
+            deck = state.deck,
+        )
     }
 
     private fun handleCardSelectionWhenNotASet(selectedCards: Set<Card>): Set<Card> = if (selectedCards.size == 3) {
@@ -79,27 +61,6 @@ class GameStateMachine(
         emptySet()
     } else {
         selectedCards
-    }
-
-    private fun replaceCardsInTable(
-        table: List<Card>,
-        cardsToRemove: Set<Card>,
-        cardsFromDeck: List<Card>
-    ): List<Card> {
-        val newTable = table.toMutableList()
-        val cardsToAdd = if (cardsFromDeck.isEmpty()) {
-            MutableList(3) { Card.Empty }
-        } else {
-            cardsFromDeck.toMutableList()
-        }
-        cardsToRemove.onEach { cardToRemove ->
-            val index = table.indexOf(cardToRemove)
-            if (index < newTable.size) {
-                newTable[index] = cardsToAdd.removeAt(0)
-            }
-        }
-
-        return newTable
     }
 
     private fun createFullDeck(): List<Card> {

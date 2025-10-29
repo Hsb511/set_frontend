@@ -6,6 +6,7 @@ import com.team23.domain.model.Card.Data.Fill
 import com.team23.domain.model.Card.Data.Shape
 import com.team23.domain.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.usecase.IsSetUseCase
+import com.team23.domain.usecase.UpdateGameAfterSetFoundUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.BeforeTest
@@ -18,14 +19,16 @@ class GameStateMachineTest {
     private lateinit var machine: GameStateMachine
     private lateinit var isSetUseCase: IsSetUseCase
     private lateinit var containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase
+    private lateinit var updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase
     private lateinit var coroutineScope: CoroutineScope
 
     @BeforeTest
     fun setup() {
         isSetUseCase = IsSetUseCase()
         containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(isSetUseCase)
+        updateGameAfterSetFoundUseCase = UpdateGameAfterSetFoundUseCase(containsAtLeastOneSetUseCase)
         coroutineScope = CoroutineScope(EmptyCoroutineContext)
-        machine = GameStateMachine(isSetUseCase, containsAtLeastOneSetUseCase, coroutineScope)
+        machine = GameStateMachine(isSetUseCase, updateGameAfterSetFoundUseCase, coroutineScope)
     }
 
     @Test
@@ -64,10 +67,10 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `Given a 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() {
+    fun `Given a 12 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() {
         // Given
-        val table = createTableFor15Cards()
-        val deck = createDeckFor15Cards()
+        val table = createTableFor12to15Cards()
+        val deck = createDeckFor12to15Cards()
         val initialState = GameState.Playing(deck = deck, table = table)
 
         val selected = table.take(3)
@@ -79,6 +82,48 @@ class GameStateMachineTest {
         assertIs<GameState.Playing>(newState)
         assertEquals(15, newState.table.size)
         assertEquals(0, newState.deck.size)
+    }
+
+    @Test
+    fun `Given a 15 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() {
+        // Given
+        val table = createTableFor15to15Cards()
+        val deck = createDeckFor15to15Cards()
+        val initialState = GameState.Playing(deck = deck, table = table)
+
+        val selected = table.take(3)
+
+        // When
+        val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected.toSet()))
+
+        // Then
+        assertIs<GameState.Playing>(newState)
+        assertEquals(15, newState.table.size)
+        assertEquals(0, newState.deck.size)
+    }
+
+    @Test
+    fun `Given a 15 to 12 cards table configuration, When selecting the set, Then the table has 12 cards correctly compacted`() {
+        // Given
+        val table = createTableFor15to12Cards()
+        val deck = createDeckFor15to12Cards()
+        val initialState = GameState.Playing(deck = deck, table = table)
+
+        val selected = table.take(3)
+
+        // When
+        val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected.toSet()))
+
+        // Then
+        assertIs<GameState.Playing>(newState)
+        assertEquals(12, newState.table.size)
+        assertEquals(3, newState.deck.size)
+        val card1 = Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 1, fill = Fill.SOLID)
+        val card2 = Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 2, fill = Fill.STRIPED)
+        val card3 = Card.Data(color = Color.TERTIARY,  shape = Shape.OVAL,     number = 1, fill = Fill.SOLID)
+        assertEquals(newState.table[0], card1)
+        assertEquals(newState.table[1], card2)
+        assertEquals(newState.table[2], card3)
     }
 
     @Test
@@ -154,7 +199,7 @@ class GameStateMachineTest {
         }
     }
 
-    private fun createTableFor15Cards() : List<Card> = listOf(
+    private fun createTableFor12to15Cards() : List<Card> = listOf(
         // Row 1 with a set
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
@@ -176,12 +221,78 @@ class GameStateMachineTest {
         Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 2, fill = Fill.EMPTY),   // 2SEG
     )
 
-    private fun createDeckFor15Cards(): List<Card> = listOf(
+    private fun createDeckFor12to15Cards(): List<Card> = listOf(
         // Still no set here if you add them to Row 2, 3 and 4
         Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 1, fill = Fill.EMPTY),   // 1SEP
         Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 2, fill = Fill.SOLID),   // 2SFR
         Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 3, fill = Fill.SOLID),   // 3SFR
 
+        // This is a set
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 3, fill = Fill.EMPTY),
+    )
+    private fun createTableFor15to12Cards() : List<Card> = listOf(
+        // Row 1 with a set
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.EMPTY),
+
+        // Row 2 with another set
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 3, fill = Fill.EMPTY),
+
+        // Row 3
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 3, fill = Fill.STRIPED), // 3OSR
+        Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 1, fill = Fill.EMPTY),   // 1SER
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL,     number = 3, fill = Fill.STRIPED), // 3OSG
+
+        // Row 4
+        Card.Data(color = Color.TERTIARY,  shape = Shape.DIAMOND,  number = 2, fill = Fill.EMPTY),   // 2DEP
+        Card.Data(color = Color.TERTIARY,  shape = Shape.SQUIGGLE, number = 2, fill = Fill.SOLID),   // 2SFP
+        Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 2, fill = Fill.EMPTY),   // 2SEG
+
+        // Row 5
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 1, fill = Fill.SOLID),   // 1OFR
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 2, fill = Fill.STRIPED), // 2OSR
+        Card.Data(color = Color.TERTIARY,  shape = Shape.OVAL,     number = 1, fill = Fill.SOLID),   // 1OFP
+    )
+
+    private fun createDeckFor15to12Cards(): List<Card> = listOf(
+        // This is a set
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 3, fill = Fill.EMPTY),
+    )
+    private fun createTableFor15to15Cards() : List<Card> = listOf(
+        // Row 1 with a set
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
+        Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.EMPTY),
+
+        // Row 2
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 1, fill = Fill.SOLID),   // 1OFR
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 2, fill = Fill.STRIPED), // 2OSR
+        Card.Data(color = Color.TERTIARY,  shape = Shape.OVAL,     number = 1, fill = Fill.SOLID),   // 1OFP
+
+        // Row 3
+        Card.Data(color = Color.PRIMARY,   shape = Shape.OVAL,     number = 3, fill = Fill.STRIPED), // 3OSR
+        Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 1, fill = Fill.EMPTY),   // 1SER
+        Card.Data(color = Color.SECONDARY, shape = Shape.OVAL,     number = 3, fill = Fill.STRIPED), // 3OSG
+
+        // Row 4
+        Card.Data(color = Color.TERTIARY,  shape = Shape.DIAMOND,  number = 2, fill = Fill.EMPTY),   // 2DEP
+        Card.Data(color = Color.TERTIARY,  shape = Shape.SQUIGGLE, number = 2, fill = Fill.SOLID),   // 2SFP
+        Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 2, fill = Fill.EMPTY),   // 2SEG
+
+        // Row 5
+        Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 1, fill = Fill.EMPTY),   // 1SEP
+        Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 2, fill = Fill.SOLID),   // 2SFR
+        Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 3, fill = Fill.SOLID),   // 3SFR
+    )
+
+    private fun createDeckFor15to15Cards(): List<Card> = listOf(
         // This is a set
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
