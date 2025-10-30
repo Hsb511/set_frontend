@@ -13,11 +13,13 @@ val uiModule = module {
     factoryOf(::CardUiMapper)
     factoryOf(::GameUiMapper)
 
-    factory { GameViewModel(
-        stateMachine = get(),
-        gameUiMapper = get(),
-        cardUiMapper = get(),
-        dispatcher = Dispatchers.Default,
-        coroutineName = CoroutineName("viewmodel"),
-    ) }
+    factory {
+        GameViewModel(
+            stateMachine = get(),
+            gameUiMapper = get(),
+            cardUiMapper = get(),
+            dispatcher = Dispatchers.Default,
+            coroutineName = CoroutineName("viewmodel"),
+        )
+    }
 }

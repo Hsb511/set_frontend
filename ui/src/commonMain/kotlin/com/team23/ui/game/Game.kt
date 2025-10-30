@@ -3,10 +3,14 @@ package com.team23.ui.game
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,6 +21,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -27,17 +34,41 @@ import androidx.compose.ui.window.DialogProperties
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.shape.FillingTypeUiModel
+import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
+import org.koin.compose.koinInject
 import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
+@Composable
+fun Game() {
+    val gameVM = koinInject<GameViewModel>()
+    val game by gameVM.gameUiModelFlow.collectAsState()
+
+    Box(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .fillMaxSize()
+    ) {
+        SetSnackbar(
+            snackbarDataFlow = gameVM.snackbar,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+
+        Game(
+            game = game,
+            onAction = gameVM::onAction,
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Game(
+private fun Game(
     game: GameUiModel,
     modifier: Modifier = Modifier,
     onAction: (GameAction) -> Unit = {},

@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.domain)
             implementation(libs.koin.compose)
+            implementation(libs.navigation)
         }
 
         androidMain.dependencies {
