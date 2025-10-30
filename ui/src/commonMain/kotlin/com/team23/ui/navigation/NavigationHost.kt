@@ -19,7 +19,7 @@ fun NavigationHost() {
 
         }
         composable(route = NavigationScreen.Login.name)  {
-            LoginScreen()
+            LoginScreen(navController = navController)
         }
         composable(route = NavigationScreen.GameTypeSelection.name) {
 

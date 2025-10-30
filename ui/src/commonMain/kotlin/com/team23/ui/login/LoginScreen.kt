@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.team23.ui.button.ActionButton
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -15,8 +17,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    navController: NavHostController = rememberNavController(),
+) {
     val loginViewModel = koinInject<LoginViewModel>()
+    loginViewModel.setNavController(navController)
 
     LoginScreen(
         onAction = loginViewModel::onAction,
