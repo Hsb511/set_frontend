@@ -1,6 +1,7 @@
 package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
+import androidx.navigation.NavController
 import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
@@ -9,6 +10,7 @@ import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
@@ -30,6 +32,7 @@ class GameViewModel(
     coroutineName: CoroutineName,
 ) {
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
+    private lateinit var navController: NavController
 
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
@@ -46,10 +49,15 @@ class GameViewModel(
         startGame()
     }
 
+    fun setNavController(navController: NavController) {
+        this.navController = navController
+    }
+
     fun onAction(action: GameAction) {
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
             is Restart -> startGame()
+            is GameAction.ChangeGameType -> navController.navigate(NavigationScreen.GameTypeSelection.name)
         }
     }
 
