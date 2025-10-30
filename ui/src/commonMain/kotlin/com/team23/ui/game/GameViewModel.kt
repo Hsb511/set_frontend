@@ -1,8 +1,6 @@
 package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.team23.domain.statemachine.GameEvent
 import com.team23.domain.statemachine.GameSideEffect
 import com.team23.domain.statemachine.GameState
@@ -12,6 +10,9 @@ import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import com.team23.ui.snackbar.SetSnackbarVisuals
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +26,10 @@ class GameViewModel(
     private val stateMachine: GameStateMachine,
     private val gameUiMapper: GameUiMapper,
     private val cardUiMapper: CardUiMapper,
-) : ViewModel() {
+    dispatcher: CoroutineDispatcher,
+    coroutineName: CoroutineName,
+) {
+    private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
 
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
