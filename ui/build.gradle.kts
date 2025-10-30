@@ -71,6 +71,7 @@ kotlin {
             implementation(libs.androidx.poolingcontainer)
             implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.emoji2)
         }
 
 

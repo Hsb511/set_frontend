@@ -1,8 +1,15 @@
 package com.team23.ui.card
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.team23.ui.shape.FillingTypeUiModel
+import com.team23.ui.theming.fuchsia
+import com.team23.ui.theming.kellyGreen
+import com.team23.ui.theming.officeGreen
+import com.team23.ui.theming.purple
+import com.team23.ui.theming.red
+import com.team23.ui.theming.webOrange
 
 sealed interface Slot {
     val isPortraitMode: Boolean
@@ -21,10 +28,18 @@ sealed interface Slot {
             Primary, Secondary, Tertiary;
 
             @Composable
-            fun toColor() = when (this) {
-                Primary -> MaterialTheme.colorScheme.primary
-                Secondary -> MaterialTheme.colorScheme.secondary
-                Tertiary -> MaterialTheme.colorScheme.tertiary
+            fun toColor() = if (isSystemInDarkTheme()) {
+                when (this) {
+                    Primary -> red
+                    Secondary -> officeGreen
+                    Tertiary -> purple
+                }
+            } else {
+                when (this) {
+                    Primary -> webOrange
+                    Secondary -> kellyGreen
+                    Tertiary -> fuchsia
+                }
             }
         }
 

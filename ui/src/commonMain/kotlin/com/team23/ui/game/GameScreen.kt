@@ -45,7 +45,7 @@ import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
-fun Game() {
+fun GameScreen() {
     val gameVM = koinInject<GameViewModel>()
     val game by gameVM.gameUiModelFlow.collectAsState()
 
@@ -59,7 +59,7 @@ fun Game() {
             modifier = Modifier.align(Alignment.BottomCenter),
         )
 
-        Game(
+        GameScreen(
             game = game,
             onAction = gameVM::onAction,
         )
@@ -68,7 +68,7 @@ fun Game() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Game(
+private fun GameScreen(
     game: GameUiModel,
     modifier: Modifier = Modifier,
     onAction: (GameAction) -> Unit = {},
@@ -169,9 +169,9 @@ private fun getCardAspectRation(isPortraitMode: Boolean): Float =
 
 @Composable
 @Preview(showBackground = true)
-private fun GameZonePreview(@PreviewParameter(PortraitPreviewProvider::class) isPortrait: Boolean) {
+private fun GameScreenPreview(@PreviewParameter(PortraitPreviewProvider::class) isPortrait: Boolean) {
     SetTheme {
-        Game(
+        GameScreen(
             game = GameUiModel(
                 cardsInDeck = emptyList(),
                 playingCards = listOf(
