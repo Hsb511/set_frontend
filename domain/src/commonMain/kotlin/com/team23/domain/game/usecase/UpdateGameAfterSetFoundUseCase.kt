@@ -1,7 +1,7 @@
-package com.team23.domain.usecase
+package com.team23.domain.game.usecase
 
-import com.team23.domain.model.Card
-import com.team23.domain.statemachine.GameState
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.statemachine.GameState
 
 
 class UpdateGameAfterSetFoundUseCase(

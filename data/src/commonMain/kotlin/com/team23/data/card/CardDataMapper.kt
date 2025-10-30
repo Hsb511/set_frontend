@@ -1,6 +1,6 @@
 package com.team23.data.card
 
-import com.team23.domain.model.Card
+import com.team23.domain.game.model.Card
 
 class CardDataMapper {
 

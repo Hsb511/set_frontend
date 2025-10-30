@@ -1,12 +1,15 @@
-package com.team23.domain.statemachine
+package com.team23.domain.game.statemachine
 
-import com.team23.domain.model.Card
-import com.team23.domain.model.Card.Data.Color
-import com.team23.domain.model.Card.Data.Fill
-import com.team23.domain.model.Card.Data.Shape
-import com.team23.domain.usecase.ContainsAtLeastOneSetUseCase
-import com.team23.domain.usecase.IsSetUseCase
-import com.team23.domain.usecase.UpdateGameAfterSetFoundUseCase
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.Card.Data.Color
+import com.team23.domain.game.model.Card.Data.Fill
+import com.team23.domain.game.model.Card.Data.Shape
+import com.team23.domain.game.statemachine.GameEvent
+import com.team23.domain.game.statemachine.GameState
+import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
+import com.team23.domain.game.usecase.IsSetUseCase
+import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.BeforeTest

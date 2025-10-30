@@ -1,6 +1,6 @@
-package com.team23.domain.statemachine
+package com.team23.domain.game.statemachine
 
-import com.team23.domain.model.Card
+import com.team23.domain.game.model.Card
 
 sealed class GameState {
     data object EmptyDeck : GameState()

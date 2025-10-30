@@ -1,9 +1,9 @@
 package com.team23.data.card
 
-import com.team23.domain.model.Card
-import com.team23.domain.model.Card.Data.Color
-import com.team23.domain.model.Card.Data.Fill
-import com.team23.domain.model.Card.Data.Shape
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.Card.Data.Color
+import com.team23.domain.game.model.Card.Data.Fill
+import com.team23.domain.game.model.Card.Data.Shape
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
