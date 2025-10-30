@@ -1,10 +1,10 @@
 package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
-import com.team23.domain.statemachine.GameEvent
-import com.team23.domain.statemachine.GameSideEffect
-import com.team23.domain.statemachine.GameState
-import com.team23.domain.statemachine.GameStateMachine
+import com.team23.domain.game.statemachine.GameEvent
+import com.team23.domain.game.statemachine.GameSideEffect
+import com.team23.domain.game.statemachine.GameState
+import com.team23.domain.game.statemachine.GameStateMachine
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart

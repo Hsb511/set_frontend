@@ -1,6 +1,6 @@
 package com.team23.ui.card
 
-import com.team23.domain.model.Card
+import com.team23.domain.game.model.Card
 import com.team23.ui.shape.FillingTypeUiModel
 
 class CardUiMapper {

@@ -1,4 +1,4 @@
-package com.team23.domain.model
+package com.team23.domain.game.model
 
 sealed interface Card {
     data object Empty: Card

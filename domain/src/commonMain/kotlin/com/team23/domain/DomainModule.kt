@@ -1,9 +1,9 @@
 package com.team23.domain
 
-import com.team23.domain.statemachine.GameStateMachine
-import com.team23.domain.usecase.ContainsAtLeastOneSetUseCase
-import com.team23.domain.usecase.IsSetUseCase
-import com.team23.domain.usecase.UpdateGameAfterSetFoundUseCase
+import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
+import com.team23.domain.game.usecase.IsSetUseCase
+import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

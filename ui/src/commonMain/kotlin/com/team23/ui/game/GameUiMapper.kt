@@ -1,7 +1,7 @@
 package com.team23.ui.game
 
-import com.team23.domain.model.Card
-import com.team23.domain.statemachine.GameState
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.statemachine.GameState
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 

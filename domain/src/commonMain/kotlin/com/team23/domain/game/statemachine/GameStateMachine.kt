@@ -1,8 +1,8 @@
-package com.team23.domain.statemachine
+package com.team23.domain.game.statemachine
 
-import com.team23.domain.model.Card
-import com.team23.domain.usecase.IsSetUseCase
-import com.team23.domain.usecase.UpdateGameAfterSetFoundUseCase
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.usecase.IsSetUseCase
+import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

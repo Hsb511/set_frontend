@@ -1,9 +1,11 @@
-package com.team23.domain.usecase
+package com.team23.domain.game.usecase
 
-import com.team23.domain.model.Card
-import com.team23.domain.model.Card.Data.Color
-import com.team23.domain.model.Card.Data.Fill
-import com.team23.domain.model.Card.Data.Shape
+import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.Card.Data.Color
+import com.team23.domain.game.model.Card.Data.Fill
+import com.team23.domain.game.model.Card.Data.Shape
+import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
+import com.team23.domain.game.usecase.IsSetUseCase
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
