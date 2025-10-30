@@ -12,6 +12,7 @@ kotlin = "2.2.20"
 kotlinx-coroutines = "1.10.2"
 kotlinStdlib = "2.2.20"
 mokkery = "2.10.2"
+navigation = "2.9.1"
 poolingcontainer = "1.1.0"
 uiTooling = "1.9.3"
 jetbrainsKotlinJvm = "2.2.20"
@@ -32,9 +33,9 @@ kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-#mokkery = { group = "dev.mokkery", name = "mokkery-gradle", version.ref = "mokkery" }
 mokkery-runtime = { group = "dev.mokkery", name = "mokkery-runtime", version.ref = "mokkery" }
 mokkery-coroutines = { group = "dev.mokkery", name = "mokkery-coroutines", version.ref = "mokkery" }
+navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
