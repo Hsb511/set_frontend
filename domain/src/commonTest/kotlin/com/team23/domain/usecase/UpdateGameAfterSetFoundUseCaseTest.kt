@@ -113,10 +113,24 @@ class UpdateGameAfterSetFoundUseCaseTest {
         // When updating the table after set has been found
         val gameState = useCase.invoke(table, setFound, deck)
         assertIs<GameState.Finished>(gameState)
-        println("containsAtLeastOneSet: " + containsAtLeastOneSetUseCase.invoke(row1+row2+row3+row4))
 
         // Then replace the cards in the table by empty ones
         assertContentEquals(row1 + emptyRow + row3 + emptyRow, gameState.cards)
+    }
+
+    @Test
+    fun `input table with 15 cards, output table with 12 cards and game finished`() {
+        // Given table with 15 cards only 1 set, deck is empty
+        val table = row1 + row2 + set1 + row3 + row4
+        val setFound = set1.toSet()
+        val deck = emptyList<Card>()
+
+        // When updating the table after set has been found
+        val gameState = useCase.invoke(table, setFound, deck)
+        assertIs<GameState.Finished>(gameState)
+
+        // Then replace the cards in the table by empty ones
+        assertContentEquals(row1 + row2 + emptyRow + row3 + row4, gameState.cards)
     }
 
     private fun createCard(color: Color, shape: Shape, number: Int, fill: Fill) = Card.Data(color, shape, number, fill)
