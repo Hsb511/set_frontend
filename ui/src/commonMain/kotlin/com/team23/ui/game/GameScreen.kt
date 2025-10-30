@@ -17,12 +17,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,12 +33,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -45,8 +52,11 @@ import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
-fun GameScreen() {
+fun GameScreen(
+    navController: NavController = rememberNavController(),
+) {
     val gameVM = koinInject<GameViewModel>()
+    gameVM.setNavController(navController)
     val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(
@@ -103,6 +113,18 @@ private fun GameScreen(
         if (game.isFinished) {
             AlertDialog(
                 onDismissRequest = { },
+                dismissButton = {
+                    Button(
+                        onClick = { onAction(GameAction.ChangeGameType) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Change game mode")
+                    }
+                },
                 confirmButton = {
                     Button(
                         onClick = { onAction(GameAction.Restart) },

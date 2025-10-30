@@ -30,15 +30,15 @@ sealed interface Slot {
             @Composable
             fun toColor() = if (isSystemInDarkTheme()) {
                 when (this) {
-                    Primary -> red
-                    Secondary -> officeGreen
-                    Tertiary -> purple
-                }
-            } else {
-                when (this) {
                     Primary -> webOrange
                     Secondary -> kellyGreen
                     Tertiary -> fuchsia
+                }
+            } else {
+                when (this) {
+                    Primary -> red
+                    Secondary -> officeGreen
+                    Tertiary -> purple
                 }
             }
         }

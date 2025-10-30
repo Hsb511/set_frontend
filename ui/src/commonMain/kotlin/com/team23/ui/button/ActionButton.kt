@@ -12,11 +12,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ActionButton(
     text: String,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
+        enabled = enabled,
         contentPadding = PaddingValues(
             horizontal = LocalSpacings.current.extraLargeIncreased,
             vertical = LocalSpacings.current.largeIncreased

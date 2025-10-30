@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.game.GameScreen
+import com.team23.ui.gametype.GameTypeScreen
 import com.team23.ui.login.LoginScreen
 
 @Composable
@@ -22,10 +23,10 @@ fun NavigationHost() {
             LoginScreen(navController = navController)
         }
         composable(route = NavigationScreen.GameTypeSelection.name) {
-
+            GameTypeScreen(navController = navController)
         }
         composable(route = NavigationScreen.Game.name) {
-            GameScreen()
+            GameScreen(navController = navController)
         }
     }
 }
