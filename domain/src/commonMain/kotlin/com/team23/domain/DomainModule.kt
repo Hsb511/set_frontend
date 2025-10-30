@@ -4,6 +4,7 @@ import com.team23.domain.game.statemachine.GameStateMachine
 import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
+import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.domain.startup.usecase.IsDeviceRegisteredUseCase
 import com.team23.domain.startup.usecase.IsDeviceRegisteredUseCaseImpl
 import com.team23.domain.startup.usecase.IsUserSignedInUseCase
@@ -19,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -38,4 +40,5 @@ val domainModule = module {
 
     // Game state machine
     factoryOf(::GameStateMachine)
+    singleOf(::StartupStateMachine)
 }

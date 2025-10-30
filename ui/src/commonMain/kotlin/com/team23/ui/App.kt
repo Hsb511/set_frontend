@@ -1,11 +1,7 @@
 package com.team23.ui
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.team23.ui.game.Game
-import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.navigation.NavigationHost
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -13,24 +9,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     SetTheme {
-        val navController = rememberNavController()
-
-        NavHost(
-            navController = navController,
-            startDestination = NavigationScreen.Game.name
-        ) {
-            composable(route = NavigationScreen.Splash.name) {
-
-            }
-            composable(route = NavigationScreen.SignInUp.name)  {
-
-            }
-            composable(route = NavigationScreen.GameTypeSelection.name) {
-
-            }
-            composable(route = NavigationScreen.Game.name) {
-                Game()
-            }
-        }
+        NavigationHost()
     }
 }
