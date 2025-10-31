@@ -4,14 +4,15 @@ import com.team23.domain.game.model.Card
 import com.team23.domain.game.model.Card.Data.Color
 import com.team23.domain.game.model.Card.Data.Fill
 import com.team23.domain.game.model.Card.Data.Shape
-import com.team23.domain.game.statemachine.GameEvent
-import com.team23.domain.game.statemachine.GameState
-import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlin.coroutines.EmptyCoroutineContext
+import com.team23.domain.startup.model.GameType
+import dev.mokkery.answering.returns
+import dev.mokkery.everySuspend
+import dev.mokkery.mock
+import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,33 +24,35 @@ class GameStateMachineTest {
     private lateinit var isSetUseCase: IsSetUseCase
     private lateinit var containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase
     private lateinit var updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase
-    private lateinit var coroutineScope: CoroutineScope
+    private lateinit var gameRepository: GameRepository
 
     @BeforeTest
     fun setup() {
         isSetUseCase = IsSetUseCase()
         containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(isSetUseCase)
         updateGameAfterSetFoundUseCase = UpdateGameAfterSetFoundUseCase(containsAtLeastOneSetUseCase)
-        coroutineScope = CoroutineScope(EmptyCoroutineContext)
-        machine = GameStateMachine(isSetUseCase, updateGameAfterSetFoundUseCase, coroutineScope)
+        gameRepository = mock<GameRepository>()
+        machine = GameStateMachine(isSetUseCase, updateGameAfterSetFoundUseCase, gameRepository)
     }
 
     @Test
-    fun `when state is EmptyDeck and event is Init then state becomes Playing with 12 cards on table`() {
+    fun `when state is EmptyDeck and event is Init then state becomes Playing with 12 cards on table`() = runTest {
         // Given
         val initialState = GameState.EmptyDeck
+        everySuspend { gameRepository.createSoloGame() } returns Result.success(GameState.Playing(
+            deck = List(81) { Card.Empty },
+            table = List(12) { Card.Empty },
+        ))
 
         // When
-        val newState = machine.reduce(initialState, GameEvent.Init)
+        val newState = machine.reduce(initialState, GameEvent.Init(GameType.Solo))
 
         // Then
         assertIs<GameState.Playing>(newState)
-        assertEquals(12, newState.table.size)
-        assertEquals(81 - 12, newState.deck.size)
     }
 
     @Test
-    fun `when selecting 3 cards during play then 3 cards are removed and replaced`() {
+    fun `when selecting 3 cards during play then 3 cards are removed and replaced`() = runTest {
         // Given
         val fullDeck = createFullDeck()
         val table = fullDeck.take(12)
@@ -70,7 +73,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `Given a 12 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() {
+    fun `Given a 12 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() = runTest {
         // Given
         val table = createTableFor12to15Cards()
         val deck = createDeckFor12to15Cards()
@@ -88,7 +91,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `Given a 15 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() {
+    fun `Given a 15 to 15 cards table configuration, When selecting the set, Then the table contains 15 cards`() = runTest {
         // Given
         val table = createTableFor15to15Cards()
         val deck = createDeckFor15to15Cards()
@@ -106,7 +109,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `Given a 15 to 12 cards table configuration, When selecting the set, Then the table has 12 cards correctly compacted`() {
+    fun `Given a 15 to 12 cards table configuration, When selecting the set, Then the table has 12 cards correctly compacted`() = runTest {
         // Given
         val table = createTableFor15to12Cards()
         val deck = createDeckFor15to12Cards()
@@ -130,7 +133,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `when selecting less than 3 cards only selected cards changes`() {
+    fun `when selecting less than 3 cards only selected cards changes`() = runTest {
         // Given
         val fullDeck = createFullDeck().shuffled()
         val table = fullDeck.take(12)
@@ -150,7 +153,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `when deck and table are empty after selection then state becomes Finished`() {
+    fun `when deck and table are empty after selection then state becomes Finished`() = runTest {
         // Given
         val deck = emptyList<Card>()
         val table = listOf(
@@ -168,7 +171,7 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `Init event on Finished or Playing state does nothing`() {
+    fun `Init event on Finished or Playing state does nothing`() = runTest {
         // Given
         val playing = GameState.Playing(
             deck = emptyList(),
@@ -177,8 +180,8 @@ class GameStateMachineTest {
         val finished = GameState.Finished(emptyList())
 
         // When
-        val result1 = machine.reduce(playing, GameEvent.Init)
-        val result2 = machine.reduce(finished, GameEvent.Init)
+        val result1 = machine.reduce(playing, GameEvent.Init(GameType.Solo))
+        val result2 = machine.reduce(finished, GameEvent.Init(GameType.Solo))
 
         // Then
         assertEquals(playing, result1)

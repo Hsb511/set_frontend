@@ -13,17 +13,11 @@ import com.team23.domain.startup.usecase.SignInUseCase
 import com.team23.domain.startup.usecase.SignInUseCaseImpl
 import com.team23.domain.startup.usecase.SignUpUseCase
 import com.team23.domain.startup.usecase.SignUpUseCaseImpl
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val domainModule = module {
-
-    factory<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main + CoroutineName("statemachine")) }
 
     // Use cases
     factoryOf(::IsSetUseCase)

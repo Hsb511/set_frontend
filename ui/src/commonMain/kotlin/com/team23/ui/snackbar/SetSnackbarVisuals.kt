@@ -11,4 +11,11 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val withDismissAction: Boolean = false
         override val duration: SnackbarDuration = SnackbarDuration.Short
     }
+
+    data object CannotCreateGame: SetSnackbarVisuals {
+        override val message: String = "An error occurred while creating the game"
+        override val actionLabel: String? = null
+        override val withDismissAction: Boolean = false
+        override val duration: SnackbarDuration = SnackbarDuration.Short
+    }
 }
