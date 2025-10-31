@@ -6,6 +6,7 @@ import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.startup.model.GameType
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
@@ -62,7 +64,7 @@ class GameViewModel(
     }
 
     private fun startGame() {
-        _gameStateFlow.value = stateMachine.reduce(GameState.EmptyDeck, GameEvent.Init)
+        updateGameState(GameState.EmptyDeck, GameEvent.Init(GameType.Solo))
     }
 
     private fun selectOrUnselectCard(card: Slot) {
@@ -77,10 +79,17 @@ class GameViewModel(
             selectedCards.add(cardToToggle)
         }
         val event = GameEvent.CardsSelected(selectedCards)
-        _gameStateFlow.value = stateMachine.reduce(_gameStateFlow.value, event)
+        updateGameState(_gameStateFlow.value, event)
+    }
+
+    private fun updateGameState(state: GameState, event: GameEvent) {
+        viewModelScope.launch {
+            _gameStateFlow.value = stateMachine.reduce(state, event)
+        }
     }
 
     private fun mapToSnackbar(sideEffect: GameSideEffect): SnackbarVisuals = when (sideEffect) {
         GameSideEffect.InvalidSet -> SetSnackbarVisuals.InvalidSet
+        GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame
     }
 }
