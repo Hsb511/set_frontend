@@ -2,7 +2,7 @@ package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.model.GameType
 import com.team23.domain.startup.repository.DeviceRepository
-import com.team23.domain.startup.usecase.IsUserSignedInUseCase
+import com.team23.domain.startup.repository.UserRepository
 import com.team23.domain.startup.usecase.SignInUseCase
 import com.team23.domain.startup.usecase.SignUpUseCase
 import dev.mokkery.answering.returns
@@ -18,18 +18,18 @@ import kotlin.uuid.Uuid
 class StartupStateMachineTest {
 
     private lateinit var machine: StartupStateMachine
-    private lateinit var isUserSignedInUseCase: IsUserSignedInUseCase
     private lateinit var signInUseCase: SignInUseCase
     private lateinit var signUpUseCase: SignUpUseCase
     private lateinit var deviceRepository: DeviceRepository
+    private lateinit var userRepository: UserRepository
 
     @BeforeTest
     fun setup() {
-        isUserSignedInUseCase = mock()
         deviceRepository = mock()
+        userRepository = mock()
         signInUseCase = mock()
         signUpUseCase = mock()
-        machine = StartupStateMachine(isUserSignedInUseCase, signInUseCase, signUpUseCase, deviceRepository)
+        machine = StartupStateMachine(signInUseCase, signUpUseCase, deviceRepository, userRepository)
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -38,7 +38,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { isUserSignedInUseCase.invoke() } returns false
+        everySuspend { userRepository.getUserId() } returns Result.failure(NoSuchElementException())
         everySuspend { deviceRepository.getDeviceId() } returns Result.failure(NoSuchElementException())
 
         // When
@@ -54,7 +54,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { isUserSignedInUseCase.invoke() } returns true
+        everySuspend { userRepository.getUserId() } returns Result.success(Uuid.random())
         everySuspend { deviceRepository.getDeviceId() } returns Result.failure(NoSuchElementException())
 
         // When
@@ -70,7 +70,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { isUserSignedInUseCase.invoke() } returns true
+        everySuspend { userRepository.getUserId() } returns Result.success(Uuid.random())
         everySuspend { deviceRepository.getDeviceId() } returns Result.success(Uuid.random())
 
         // When
