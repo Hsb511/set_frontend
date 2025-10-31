@@ -6,7 +6,7 @@ import kotlin.uuid.Uuid
 interface DeviceRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun createDeviceIdAndStoreIt(userId: Uuid): Result<Unit>
+    suspend fun createDeviceIdAndStoreIt(): Result<Unit>
 
 
     @OptIn(ExperimentalUuidApi::class)

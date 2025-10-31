@@ -1,16 +1,13 @@
 package com.team23.domain.startup.statemachine
 
+import com.team23.domain.startup.repository.AuthRepository
 import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.repository.UserRepository
-import com.team23.domain.startup.usecase.SignInUseCase
-import com.team23.domain.startup.usecase.SignUpUseCase
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 
 class StartupStateMachine(
-    private val signInUseCase: SignInUseCase,
-    private val signUpUseCase: SignUpUseCase,
+    private val authRepository: AuthRepository,
     private val deviceRepository: DeviceRepository,
     private val userRepository: UserRepository,
 ) {
@@ -29,7 +26,7 @@ class StartupStateMachine(
         }
 
         is StartupState.DeviceRegistration -> when (event) {
-            is StartupEvent.RegisterDevice -> handleDeviceRegistration(state, event.userId)
+            is StartupEvent.RegisterDevice -> handleDeviceRegistration(state)
             else -> state
         }
 
@@ -53,24 +50,24 @@ class StartupStateMachine(
     }
 
     private suspend fun handleSignIn(state: StartupState): StartupState =
-        if (signInUseCase.invoke().isSuccess) {
-            StartupState.DeviceRegistration
-        } else {
-            // TODO SHOW ERROR MESSAGE
-            state
-        }
+        authRepository.loginAndStoreUserId()
+            .map { StartupState.DeviceRegistration }
+            .getOrElse {
+                // TODO SHOW ERROR MESSAGE
+                state
+            }
 
     private suspend fun handleSignUp(state: StartupState): StartupState =
-        if (signUpUseCase.invoke().isSuccess) {
-            StartupState.DeviceRegistration
-        } else {
-            // TODO SHOW ERROR MESSAGE
-            state
-        }
+        authRepository.registerAndStoreUserId()
+            .map { StartupState.DeviceRegistration }
+            .getOrElse {
+                // TODO SHOW ERROR MESSAGE
+                state
+            }
 
     @OptIn(ExperimentalUuidApi::class)
-    private suspend fun handleDeviceRegistration(state: StartupState, userId: Uuid): StartupState =
-        deviceRepository.createDeviceIdAndStoreIt(userId)
+    private suspend fun handleDeviceRegistration(state: StartupState): StartupState =
+        deviceRepository.createDeviceIdAndStoreIt()
             .map { StartupState.GameTypeChoice }
             .getOrElse {
                 // TODO SHOW ERROR MESSAGE
