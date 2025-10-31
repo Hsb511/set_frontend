@@ -1,6 +1,7 @@
 package com.team23.set
 
 import android.app.Application
+import com.team23.data.dataModule
 import com.team23.domain.domainModule
 import com.team23.ui.uiModule
 import org.koin.android.ext.koin.androidContext
@@ -21,6 +22,7 @@ class AndroidApplication : Application() {
                 listOf(
                     uiModule,
                     domainModule,
+                    dataModule,
                 )
             )
         }

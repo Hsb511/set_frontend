@@ -32,7 +32,7 @@ class GameStateMachine(
     }
 
     private fun initializeGame(): GameState {
-        val fullDeck = createFullDeck().shuffled().take(15)
+        val fullDeck = createFullDeck().shuffled()
         val table = fullDeck.take(12)
         val remainingDeck = fullDeck.drop(12)
         return GameState.Playing(deck = remainingDeck, table = table)
