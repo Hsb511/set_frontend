@@ -1,10 +1,9 @@
 package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.model.GameType
+import com.team23.domain.startup.repository.AuthRepository
 import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.repository.UserRepository
-import com.team23.domain.startup.usecase.SignInUseCase
-import com.team23.domain.startup.usecase.SignUpUseCase
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -18,8 +17,7 @@ import kotlin.uuid.Uuid
 class StartupStateMachineTest {
 
     private lateinit var machine: StartupStateMachine
-    private lateinit var signInUseCase: SignInUseCase
-    private lateinit var signUpUseCase: SignUpUseCase
+    private lateinit var authRepository: AuthRepository
     private lateinit var deviceRepository: DeviceRepository
     private lateinit var userRepository: UserRepository
 
@@ -27,9 +25,8 @@ class StartupStateMachineTest {
     fun setup() {
         deviceRepository = mock()
         userRepository = mock()
-        signInUseCase = mock()
-        signUpUseCase = mock()
-        machine = StartupStateMachine(signInUseCase, signUpUseCase, deviceRepository, userRepository)
+        authRepository = mock()
+        machine = StartupStateMachine(authRepository, deviceRepository, userRepository)
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -85,7 +82,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignIn
-        everySuspend { signInUseCase.invoke() } returns Result.success(Unit)
+        everySuspend { authRepository.loginAndStoreUserId() } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -99,7 +96,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignIn
-        everySuspend { signInUseCase.invoke() } returns Result.failure(Exception())
+        everySuspend { authRepository.loginAndStoreUserId() } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)
@@ -113,7 +110,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend { signUpUseCase.invoke() } returns Result.success(Unit)
+        everySuspend {  authRepository.registerAndStoreUserId() } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -127,7 +124,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend { signUpUseCase.invoke() } returns Result.failure(Exception())
+        everySuspend { authRepository.registerAndStoreUserId() } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)
@@ -141,7 +138,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend { signUpUseCase.invoke() } returns Result.success(Unit)
+        everySuspend { authRepository.registerAndStoreUserId() } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -155,7 +152,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend { signUpUseCase.invoke() } returns Result.failure(Exception())
+        everySuspend { authRepository.registerAndStoreUserId() } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)

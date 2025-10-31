@@ -7,7 +7,7 @@ import kotlin.uuid.Uuid
 class DeviceRepositoryImpl : DeviceRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createDeviceIdAndStoreIt(userId: Uuid): Result<Unit> {
+    override suspend fun createDeviceIdAndStoreIt(): Result<Unit> {
         return Result.success(Unit)
     }
 
