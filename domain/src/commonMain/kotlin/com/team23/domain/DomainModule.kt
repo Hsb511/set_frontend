@@ -5,8 +5,6 @@ import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import com.team23.domain.startup.statemachine.StartupStateMachine
-import com.team23.domain.startup.usecase.IsDeviceRegisteredUseCase
-import com.team23.domain.startup.usecase.IsDeviceRegisteredUseCaseImpl
 import com.team23.domain.startup.usecase.IsUserSignedInUseCase
 import com.team23.domain.startup.usecase.IsUserSignedInUseCaseImpl
 import com.team23.domain.startup.usecase.RegisterDeviceUseCase
@@ -32,7 +30,6 @@ val domainModule = module {
     factoryOf(::ContainsAtLeastOneSetUseCase)
     factoryOf(::UpdateGameAfterSetFoundUseCase)
 
-    single { IsDeviceRegisteredUseCaseImpl() as IsDeviceRegisteredUseCase }
     single { IsUserSignedInUseCaseImpl() as IsUserSignedInUseCase }
     single { RegisterDeviceUseCaseImpl() as RegisterDeviceUseCase }
     single { SignInUseCaseImpl() as SignInUseCase }
