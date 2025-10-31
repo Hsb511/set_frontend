@@ -2,20 +2,20 @@ package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.usecase.IsUserSignedInUseCase
-import com.team23.domain.startup.usecase.RegisterDeviceUseCase
 import com.team23.domain.startup.usecase.SignInUseCase
 import com.team23.domain.startup.usecase.SignUpUseCase
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
 class StartupStateMachine(
     private val isUserSignedInUseCase: IsUserSignedInUseCase,
     private val signInUseCase: SignInUseCase,
     private val signUpUseCase: SignUpUseCase,
-    private val registerDeviceUseCase: RegisterDeviceUseCase,
     private val deviceRepository: DeviceRepository,
 ) {
 
+    @OptIn(ExperimentalUuidApi::class)
     suspend fun reduce(state: StartupState, event: StartupEvent): StartupState = when (state) {
         is StartupState.Splash -> when (event) {
             is StartupEvent.Init -> handleInitWorkflow()
@@ -29,7 +29,7 @@ class StartupStateMachine(
         }
 
         is StartupState.DeviceRegistration -> when (event) {
-            is StartupEvent.RegisterDevice -> handleDeviceRegistration(state)
+            is StartupEvent.RegisterDevice -> handleDeviceRegistration(state, event.userId)
             else -> state
         }
 
@@ -68,11 +68,12 @@ class StartupStateMachine(
             state
         }
 
-    private suspend fun handleDeviceRegistration(state: StartupState): StartupState =
-        if (registerDeviceUseCase.invoke().isSuccess) {
-            StartupState.GameTypeChoice
-        } else {
-            // TODO SHOW ERROR MESSAGE
-            state
-        }
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun handleDeviceRegistration(state: StartupState, userId: Uuid): StartupState =
+        deviceRepository.createDeviceIdAndStoreIt(userId)
+            .map { StartupState.GameTypeChoice }
+            .getOrElse {
+                // TODO SHOW ERROR MESSAGE
+                state
+            }
 }

@@ -3,7 +3,6 @@ package com.team23.domain.startup.statemachine
 import com.team23.domain.startup.model.GameType
 import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.usecase.IsUserSignedInUseCase
-import com.team23.domain.startup.usecase.RegisterDeviceUseCase
 import com.team23.domain.startup.usecase.SignInUseCase
 import com.team23.domain.startup.usecase.SignUpUseCase
 import dev.mokkery.answering.returns
@@ -22,7 +21,6 @@ class StartupStateMachineTest {
     private lateinit var isUserSignedInUseCase: IsUserSignedInUseCase
     private lateinit var signInUseCase: SignInUseCase
     private lateinit var signUpUseCase: SignUpUseCase
-    private lateinit var registerDeviceUseCase: RegisterDeviceUseCase
     private lateinit var deviceRepository: DeviceRepository
 
     @BeforeTest
@@ -31,8 +29,7 @@ class StartupStateMachineTest {
         deviceRepository = mock()
         signInUseCase = mock()
         signUpUseCase = mock()
-        registerDeviceUseCase = mock()
-        machine = StartupStateMachine(isUserSignedInUseCase, signInUseCase, signUpUseCase, registerDeviceUseCase, deviceRepository)
+        machine = StartupStateMachine(isUserSignedInUseCase, signInUseCase, signUpUseCase, deviceRepository)
     }
 
     @OptIn(ExperimentalUuidApi::class)
