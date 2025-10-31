@@ -1,47 +1,48 @@
 package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.model.GameType
-import com.team23.domain.startup.usecase.IsDeviceRegisteredUseCase
+import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.usecase.IsUserSignedInUseCase
 import com.team23.domain.startup.usecase.RegisterDeviceUseCase
 import com.team23.domain.startup.usecase.SignInUseCase
 import com.team23.domain.startup.usecase.SignUpUseCase
 import dev.mokkery.answering.returns
-import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
-import dev.mokkery.spy
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class StartupStateMachineTest {
 
     private lateinit var machine: StartupStateMachine
     private lateinit var isUserSignedInUseCase: IsUserSignedInUseCase
-    private lateinit var isDeviceRegisteredUseCase: IsDeviceRegisteredUseCase
     private lateinit var signInUseCase: SignInUseCase
     private lateinit var signUpUseCase: SignUpUseCase
     private lateinit var registerDeviceUseCase: RegisterDeviceUseCase
+    private lateinit var deviceRepository: DeviceRepository
 
     @BeforeTest
     fun setup() {
         isUserSignedInUseCase = mock()
-        isDeviceRegisteredUseCase = mock()
+        deviceRepository = mock()
         signInUseCase = mock()
         signUpUseCase = mock()
         registerDeviceUseCase = mock()
-        machine = StartupStateMachine(isUserSignedInUseCase, isDeviceRegisteredUseCase, signInUseCase, signUpUseCase, registerDeviceUseCase)
+        machine = StartupStateMachine(isUserSignedInUseCase, signInUseCase, signUpUseCase, registerDeviceUseCase, deviceRepository)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     @Test
     fun `Init - Splash to UserSignInUp - Given Splash, Init, user not signed and device not registered, When reducing, Then returns UserSignInUp`() = runTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
         everySuspend { isUserSignedInUseCase.invoke() } returns false
-        everySuspend { isDeviceRegisteredUseCase.invoke() } returns false
+        everySuspend { deviceRepository.getDeviceId() } returns Result.failure(NoSuchElementException())
 
         // When
         val newState = machine.reduce(state, event)
@@ -50,13 +51,14 @@ class StartupStateMachineTest {
         assertEquals(StartupState.UserSignInUp, newState)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     @Test
     fun `Init - Splash to DeviceRegistration - Given Splash, Init, user signed and device not registered, When reducing, Then returns DeviceRegistration`() = runTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
         everySuspend { isUserSignedInUseCase.invoke() } returns true
-        everySuspend { isDeviceRegisteredUseCase.invoke() } returns false
+        everySuspend { deviceRepository.getDeviceId() } returns Result.failure(NoSuchElementException())
 
         // When
         val newState = machine.reduce(state, event)
@@ -65,13 +67,14 @@ class StartupStateMachineTest {
         assertEquals(StartupState.DeviceRegistration, newState)
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     @Test
     fun `Init - Splash to GameTypeChoice - Given Splash, Init, user signed and device registered, When reducing, Then returns GameTypeChoice`() = runTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
         everySuspend { isUserSignedInUseCase.invoke() } returns true
-        everySuspend { isDeviceRegisteredUseCase.invoke() } returns true
+        everySuspend { deviceRepository.getDeviceId() } returns Result.success(Uuid.random())
 
         // When
         val newState = machine.reduce(state, event)
