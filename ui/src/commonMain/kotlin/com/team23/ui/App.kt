@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.team23.ui.game.Game
+import com.team23.ui.game.GameScreen
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -29,7 +29,7 @@ fun App() {
 
             }
             composable(route = NavigationScreen.Game.name) {
-                Game()
+                GameScreen()
             }
         }
     }
