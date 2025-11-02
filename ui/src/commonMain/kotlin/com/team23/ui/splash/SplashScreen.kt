@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
+import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 
@@ -64,7 +65,7 @@ fun SplashScreen(
 @Composable
 @Preview
 private fun SplashScreenPreview() {
-    MaterialTheme {
+    SetTheme {
         SplashScreen()
     }
 }

@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
+import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
@@ -63,6 +64,12 @@ fun GameScreen(
         GameScreen(
             game = game,
             onAction = gameVM::onAction,
+        )
+
+        SettingsScreen(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = LocalSpacings.current.jumbo),
         )
 
         SetSnackbar(

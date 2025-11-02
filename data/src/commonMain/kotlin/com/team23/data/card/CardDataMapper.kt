@@ -12,7 +12,6 @@ class CardDataMapper {
     }
 
     fun toDomainModel(base3: String): Card {
-        println("HUGO - base3: $base3")
         require(base3_4.matches(base3)) {
             "Invalid card '$base3': expected 4 digits in base 3"
         }
@@ -43,8 +42,7 @@ class CardDataMapper {
     }
 
     fun toBase10Code(card: Card.Data): Int {
-        return toBase3Code(card).toInt(radix = 3).also {
-            println("HUGO - card: $card -> base3: ${toBase3Code(card)} - base10: $it") }
+        return toBase3Code(card).toInt(radix = 3)
     }
 
     fun toBase3Code(card: Card.Data): String {
