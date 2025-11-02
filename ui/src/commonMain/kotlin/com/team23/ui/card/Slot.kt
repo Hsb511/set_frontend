@@ -28,19 +28,19 @@ sealed interface Slot {
             Primary, Secondary, Tertiary;
 
             @Composable
-            fun toColor() = if (isSystemInDarkTheme()) {
+            fun toColor() = /*if (isSystemInDarkTheme()) {
                 when (this) {
                     Primary -> webOrange
                     Secondary -> kellyGreen
                     Tertiary -> fuchsia
                 }
-            } else {
+            } else {*/
                 when (this) {
                     Primary -> red
                     Secondary -> officeGreen
                     Tertiary -> purple
                 }
-            }
+            //}
         }
 
         enum class Shape {

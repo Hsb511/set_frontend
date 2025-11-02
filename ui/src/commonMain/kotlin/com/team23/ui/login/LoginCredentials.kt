@@ -55,8 +55,9 @@ fun LoginCredentialsScreen(
             val isError = runCatching { Uuid.parse(userId) }.isFailure
 
             Text(
-                text = "Login with your user user id",
+                text = "Login with your user id",
                 style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             TextField(
                 value = userId,

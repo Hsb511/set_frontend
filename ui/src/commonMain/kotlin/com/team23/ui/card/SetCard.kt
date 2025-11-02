@@ -1,7 +1,8 @@
 package com.team23.ui.card
 
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,8 @@ import com.team23.ui.shape.OvalShape
 import com.team23.ui.shape.SquiggleShape
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import com.team23.ui.theming.orange
+import com.team23.ui.theming.white95
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -119,12 +122,17 @@ private fun CardContainer(
 
     Surface(
         shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.background,
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (isSelected) Color.Cyan else MaterialTheme.colorScheme.onBackground
+        color = if (isSelected) Color.White else white95,
+        shadowElevation = if (isSelected) 8.dp else 0.dp,
+        modifier = modifier.border(
+            width =  if (isSelected) 3.dp else 1.dp,
+            color = when {
+                !isSelected -> Color.Black
+                isSystemInDarkTheme() -> orange
+                else -> Color.Cyan
+            },
+            shape = MaterialTheme.shapes.small,
         ),
-        modifier = modifier,
     ) {
         if (isPortraitMode) {
             Column(

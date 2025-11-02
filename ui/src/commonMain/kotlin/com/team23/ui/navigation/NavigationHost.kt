@@ -1,6 +1,9 @@
 package com.team23.ui.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,7 +19,8 @@ fun NavigationHost() {
 
     NavHost(
         navController = navController,
-        startDestination = NavigationScreen.Splash.name
+        startDestination = NavigationScreen.Splash.name,
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable(route = NavigationScreen.Splash.name) {
             SplashScreen(navController = navController)

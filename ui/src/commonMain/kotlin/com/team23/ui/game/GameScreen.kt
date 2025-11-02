@@ -26,9 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -68,8 +65,11 @@ fun GameScreen(
 
         SettingsScreen(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = LocalSpacings.current.jumbo),
+                .align(Alignment.BottomStart)
+                .padding(
+                    start = LocalSpacings.current.medium,
+                    bottom = LocalSpacings.current.jumbo,
+                ),
         )
 
         SetSnackbar(
@@ -165,13 +165,7 @@ private fun Slot(
         is Slot.CardUiModel -> SetCard(
             card = slot,
             modifier = Modifier
-                .clip(shape = MaterialTheme.shapes.medium)
                 .padding(all = LocalSpacings.current.small)
-                .shadow(
-                    elevation = if (slot.selected) 32.dp else 0.dp,
-                    shape = MaterialTheme.shapes.medium,
-                    spotColor = Color.Cyan,
-                )
                 .clickable(enabled = !isFinished) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait)),
