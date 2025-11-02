@@ -55,15 +55,15 @@ private fun LoginScreen(
         modifier = Modifier.fillMaxSize(),
     ) {
         ActionButton(
-            text = "Sign in",
-            onClick = { onAction(LoginAction.NavigateToSignIn)}
+            text = "play without an account",
+            onClick = { onAction(LoginAction.NavigateToSignUp)}
         )
 
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
-            text = "Sign up",
-            onClick = { onAction(LoginAction.NavigateToSignUp)}
+            text = "\uD83D\uDEA7 sign in with userId \uD83D\uDEA7",
+            onClick = { onAction(LoginAction.NavigateToSignIn)}
         )
     }
 }
