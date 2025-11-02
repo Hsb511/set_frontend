@@ -1,14 +1,23 @@
 package com.team23.ui.login
 
+import androidx.compose.material3.SnackbarVisuals
 import androidx.navigation.NavController
+import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.startup.statemachine.StartupEvent
+import com.team23.domain.startup.statemachine.StartupSideEffect
 import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -19,6 +28,11 @@ class LoginViewModel(
 ) {
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
     private lateinit var navController: NavController
+
+    val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.startupSideEffect
+        .map(::mapToSnackbar)
+        .filterNotNull()
+        .shareIn(viewModelScope, SharingStarted.Lazily)
 
     fun setNavController(navHostController: NavController) {
         this.navController = navHostController
@@ -54,5 +68,11 @@ class LoginViewModel(
         withContext(Dispatchers.Main) {
             navController.navigate(NavigationScreen.GameTypeSelection.name)
         }
+    }
+
+    private fun mapToSnackbar(sideEffect: StartupSideEffect): SnackbarVisuals = when (sideEffect) {
+        is StartupSideEffect.DeviceRegistrationError -> SetSnackbarVisuals.DeviceRegistration
+        is StartupSideEffect.SignInError -> SetSnackbarVisuals.SignInError
+        is StartupSideEffect.SignUpError -> SetSnackbarVisuals.SignUpError
     }
 }

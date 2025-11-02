@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,13 +36,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
-import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -64,14 +60,14 @@ fun GameScreen(
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .fillMaxSize()
     ) {
-        SetSnackbar(
-            snackbarDataFlow = gameVM.snackbar,
-            modifier = Modifier.align(Alignment.BottomCenter),
-        )
-
         GameScreen(
             game = game,
             onAction = gameVM::onAction,
+        )
+
+        SetSnackbar(
+            snackbarDataFlow = gameVM.snackbar,
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
