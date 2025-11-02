@@ -39,7 +39,7 @@ class StartupStateMachine(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    private fun handleInitWorkflow(): StartupState {
+    private suspend fun handleInitWorkflow(): StartupState {
         val isUserSignedIn = userRepository.getUserId().isSuccess
         val isDeviceRegistered = deviceRepository.getDeviceId().isSuccess
         return when {
