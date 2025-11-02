@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val versionMaj = 1
 val versionMin = 2
-val versionFix = 1
+val versionFix = 2
 val appVersionName = "$versionMaj.$versionMin.$versionFix"
 
 plugins {
