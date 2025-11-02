@@ -2,7 +2,6 @@ package com.team23.ui.login
 
 import androidx.compose.material3.SnackbarVisuals
 import androidx.navigation.NavController
-import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.startup.statemachine.StartupEvent
 import com.team23.domain.startup.statemachine.StartupSideEffect
 import com.team23.domain.startup.statemachine.StartupState
@@ -49,16 +48,21 @@ class LoginViewModel(
     private fun handleSignIn() {
         viewModelScope.launch {
             val newState = stateMachine.reduce(StartupState.UserSignInUp, StartupEvent.SignIn)
-            if (newState is StartupState.DeviceRegistration) {
-                navigateToGameTypeSelection()
-            }
+            handleDeviceRegistration(newState)
         }
     }
 
     private fun handleSignUp() {
         viewModelScope.launch {
             val newState = stateMachine.reduce(StartupState.UserSignInUp, StartupEvent.SignUp)
-            if (newState is StartupState.DeviceRegistration) {
+            handleDeviceRegistration(newState)
+        }
+    }
+
+    private suspend fun handleDeviceRegistration(newState: StartupState) {
+        if (newState is StartupState.DeviceRegistration) {
+            val newState = stateMachine.reduce(StartupState.DeviceRegistration, StartupEvent.RegisterDevice)
+            if (newState is StartupState.GameTypeChoice) {
                 navigateToGameTypeSelection()
             }
         }

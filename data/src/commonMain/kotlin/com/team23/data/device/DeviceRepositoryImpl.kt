@@ -10,8 +10,9 @@ class DeviceRepositoryImpl(
 ): DeviceRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun createDeviceIdAndStoreIt(): Result<Unit> {
-        return Result.success(Unit)
+    override suspend fun createDeviceIdAndStoreIt(): Result<Unit> = runCatching {
+        val newDeviceId = Uuid.random().toString()
+        setDataStore.setValue(SetDataStore.DEVICE_ID_KEY, newDeviceId)
     }
 
     @OptIn(ExperimentalUuidApi::class)
