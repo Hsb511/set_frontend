@@ -19,6 +19,10 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "An error occurred while creating the game"
     }
 
+    data class NoUuidFormat(val userId: String): ShortSnackbarVisuals() {
+        override val message: String = "Expected either a 36-char string in the standard hex-and-dash UUID format or a 32-char hexadecimal string, but was \"$userId\""
+    }
+
     data object SignInError: ShortSnackbarVisuals() {
         override val message: String = "An error occurred while signing in"
     }

@@ -6,6 +6,7 @@ import com.team23.domain.startup.repository.UserRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 
 class StartupStateMachine(
@@ -24,7 +25,7 @@ class StartupStateMachine(
         }
 
         is StartupState.UserSignInUp -> when (event) {
-            is StartupEvent.SignIn -> handleSignIn(state)
+            is StartupEvent.SignIn -> handleSignIn(state, event.userId)
             is StartupEvent.SignUp -> handleSignUp(state)
             else -> state
         }
@@ -53,8 +54,9 @@ class StartupStateMachine(
         }
     }
 
-    private suspend fun handleSignIn(state: StartupState): StartupState =
-        authRepository.loginAndStoreUserId()
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun handleSignIn(state: StartupState, userId: Uuid): StartupState =
+        authRepository.loginAndStoreUserId(userId)
             .map { StartupState.DeviceRegistration }
             .getOrElse { throwable ->
                 _startupSideEffect.emit(StartupSideEffect.SignInError(throwable))

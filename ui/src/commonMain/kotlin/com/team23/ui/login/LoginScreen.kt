@@ -56,14 +56,14 @@ private fun LoginScreen(
     ) {
         ActionButton(
             text = "Sign in",
-            onClick = { onAction(LoginAction.SignIn)}
+            onClick = { onAction(LoginAction.NavigateToSignIn)}
         )
 
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
             text = "Sign up",
-            onClick = { onAction(LoginAction.SignUp)}
+            onClick = { onAction(LoginAction.NavigateToSignUp)}
         )
     }
 }

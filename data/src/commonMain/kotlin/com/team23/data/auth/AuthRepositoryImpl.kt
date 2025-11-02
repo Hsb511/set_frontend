@@ -15,8 +15,7 @@ class AuthRepositoryImpl(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun loginAndStoreUserId(): Result<Unit> = runCatching {
-        val newUserId = Uuid.random().toString()
-        setDataStore.setValue(SetDataStore.USER_ID_KEY, newUserId)
+    override suspend fun loginAndStoreUserId(userId: Uuid): Result<Unit> = runCatching {
+        setDataStore.setValue(SetDataStore.USER_ID_KEY, userId.toString())
     }
 }

@@ -12,13 +12,17 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class LoginViewModel(
     private val stateMachine: StartupStateMachine,
@@ -28,10 +32,13 @@ class LoginViewModel(
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
     private lateinit var navController: NavController
 
-    val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.startupSideEffect
-        .map(::mapToSnackbar)
-        .filterNotNull()
-        .shareIn(viewModelScope, SharingStarted.Lazily)
+    private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
+    val snackbar: SharedFlow<SnackbarVisuals> = merge(
+        _snackbar,
+        stateMachine.startupSideEffect
+            .map(::mapToSnackbar)
+            .filterNotNull()
+    ).shareIn(viewModelScope, SharingStarted.Lazily)
 
     fun setNavController(navHostController: NavController) {
         this.navController = navHostController
@@ -39,15 +46,17 @@ class LoginViewModel(
 
     fun onAction(loginAction: LoginAction) {
         when (loginAction) {
-            LoginAction.SignIn -> handleSignIn()
-            LoginAction.SignUp -> handleSignUp()
-
+            is LoginAction.NavigateToSignIn -> navController.navigate(NavigationScreen.LoginCredentials.name)
+            is LoginAction.NavigateToSignUp -> handleSignUp()
+            is LoginAction.SignIn -> handleSignIn(loginAction.userId)
         }
     }
 
-    private fun handleSignIn() {
+    @OptIn(ExperimentalUuidApi::class)
+    private fun handleSignIn(userId: String) {
         viewModelScope.launch {
-            val newState = stateMachine.reduce(StartupState.UserSignInUp, StartupEvent.SignIn)
+            val signInEvent = StartupEvent.SignIn(Uuid.parse(userId))
+            val newState = stateMachine.reduce(StartupState.UserSignInUp, signInEvent)
             handleDeviceRegistration(newState)
         }
     }

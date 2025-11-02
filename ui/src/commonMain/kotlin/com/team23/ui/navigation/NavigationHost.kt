@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.game.GameScreen
 import com.team23.ui.gametype.GameTypeScreen
+import com.team23.ui.login.LoginCredentialsScreen
 import com.team23.ui.login.LoginScreen
 import com.team23.ui.splash.SplashScreen
 
@@ -20,8 +21,11 @@ fun NavigationHost() {
         composable(route = NavigationScreen.Splash.name) {
             SplashScreen(navController = navController)
         }
-        composable(route = NavigationScreen.Login.name)  {
+        composable(route = NavigationScreen.LoginType.name)  {
             LoginScreen(navController = navController)
+        }
+        composable(route = NavigationScreen.LoginCredentials.name) {
+            LoginCredentialsScreen(navController = navController)
         }
         composable(route = NavigationScreen.GameTypeSelection.name) {
             GameTypeScreen(navController = navController)
