@@ -14,10 +14,10 @@ import org.koin.dsl.module
 val dataModule = module {
     includes(platformModule())
 
-    single { AuthRepositoryImpl() as AuthRepository }
-    single { DeviceRepositoryImpl() as DeviceRepository }
+    single { AuthRepositoryImpl(get()) as AuthRepository }
+    single { DeviceRepositoryImpl(get()) as DeviceRepository }
     single { GameRepositoryImpl() as GameRepository }
-    single { UserRepositoryImpl() as UserRepository }
+    single { UserRepositoryImpl(get()) as UserRepository }
 }
 
 internal expect fun platformModule(): Module

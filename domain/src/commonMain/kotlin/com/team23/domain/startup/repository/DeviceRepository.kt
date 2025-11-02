@@ -10,5 +10,5 @@ interface DeviceRepository {
 
 
     @OptIn(ExperimentalUuidApi::class)
-    fun getDeviceId(): Result<Uuid>
+    suspend fun getDeviceId(): Result<Uuid>
 }

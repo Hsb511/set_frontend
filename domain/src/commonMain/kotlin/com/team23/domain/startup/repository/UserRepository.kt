@@ -6,5 +6,5 @@ import kotlin.uuid.Uuid
 interface UserRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    fun getUserId(): Result<Uuid>
+    suspend fun getUserId(): Result<Uuid>
 }

@@ -1,10 +1,13 @@
 package com.team23.data.device
 
+import com.team23.data.datastore.SetDataStore
 import com.team23.domain.startup.repository.DeviceRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class DeviceRepositoryImpl : DeviceRepository {
+class DeviceRepositoryImpl(
+    private val setDataStore: SetDataStore,
+): DeviceRepository {
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun createDeviceIdAndStoreIt(): Result<Unit> {
@@ -12,7 +15,9 @@ class DeviceRepositoryImpl : DeviceRepository {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override fun getDeviceId(): Result<Uuid> {
-        return Result.success(Uuid.random())
+    override suspend fun getDeviceId(): Result<Uuid> = runCatching {
+        val rawDeviceId = setDataStore.getValue(SetDataStore.DEVICE_ID_KEY)
+        requireNotNull(rawDeviceId)
+        Uuid.parse(rawDeviceId)
     }
 }
