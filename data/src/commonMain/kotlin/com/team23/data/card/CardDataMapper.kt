@@ -4,7 +4,7 @@ import com.team23.domain.game.model.Card
 
 class CardDataMapper {
 
-    fun toDomainModel(base10: Int): Card {
+    fun toDomainModel(base10: CardDataModel): Card {
         require(base10 in 0..80) {
             "Invalid card '$base10': must be between 0 and 80"
         }
