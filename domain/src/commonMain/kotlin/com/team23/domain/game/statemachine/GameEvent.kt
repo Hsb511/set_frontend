@@ -5,5 +5,5 @@ import com.team23.domain.startup.model.GameType
 
 sealed class GameEvent {
     data class Init(val gameType: GameType) : GameEvent()
-    data class CardsSelected(val selectedCards: Set<Card>) : GameEvent()
+    data class CardsSelected(val selectedCards: Set<Card.Data>) : GameEvent()
 }

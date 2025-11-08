@@ -52,6 +52,8 @@ class GameStateMachine(
             return state.copy(selected = newSelectedCards)
         }
 
+        emitSetFound(event.selectedCards, state.table)
+
         return updateGameAfterSetFoundUseCase.invoke(
             table = state.table,
             setFound = event.selectedCards,
@@ -59,11 +61,21 @@ class GameStateMachine(
         )
     }
 
-    private suspend fun handleCardSelectionWhenNotASet(selectedCards: Set<Card>): Set<Card> =
-        if (selectedCards.size == 3) {
+    private suspend fun emitSetFound(
+        selectedCards: Set<Card.Data>,
+        table: List<Card>,
+    ) {
+        val selectedCardsWithIndex = selectedCards.map { card ->
+            table.indexOf(card) to card
+        }.toSet()
+        _gameSideEffect.emit(GameSideEffect.SetFound(selectedCardsWithIndex))
+    }
+
+    private suspend fun handleCardSelectionWhenNotASet(selectedCards: Set<Card>): Set<Card.Data> =
+        if (selectedCards.filterIsInstance<Card.Data>().size == 3) {
             _gameSideEffect.emit(GameSideEffect.InvalidSet)
             emptySet()
         } else {
-            selectedCards
+            selectedCards.filterIsInstance<Card.Data>().toSet()
         }
 }

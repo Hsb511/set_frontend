@@ -2,6 +2,7 @@ package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
 import androidx.navigation.NavController
+import com.team23.domain.game.model.Card
 import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
@@ -42,6 +43,11 @@ class GameViewModel(
         .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
         .stateIn(viewModelScope, SharingStarted.Lazily, GameUiModel())
 
+    val gameUiEvent: SharedFlow<GameUiEvent> = stateMachine.gameSideEffect
+        .map(::mapToEvent)
+        .filterNotNull()
+        .shareIn(viewModelScope, SharingStarted.Lazily)
+
     val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.gameSideEffect
         .map(::mapToSnackbar)
         .filterNotNull()
@@ -71,7 +77,7 @@ class GameViewModel(
         val currentGame = _gameStateFlow.value
         if (currentGame !is GameState.Playing) return
 
-        val cardToToggle = cardUiMapper.toDomainModel(card)
+        val cardToToggle = cardUiMapper.toDomainModel(card) as Card.Data
         val selectedCards = currentGame.selected.toMutableSet()
         if (cardToToggle in selectedCards) {
             selectedCards.remove(cardToToggle)
@@ -88,8 +94,19 @@ class GameViewModel(
         }
     }
 
-    private fun mapToSnackbar(sideEffect: GameSideEffect): SnackbarVisuals = when (sideEffect) {
-        GameSideEffect.InvalidSet -> SetSnackbarVisuals.InvalidSet
-        GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame
+    private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {
+        is GameSideEffect.SetFound -> GameUiEvent.AnimateSelectedCards(
+            sideEffect.cards.map { (index, card) ->
+                val isPortrait = true // TODO
+                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait) as Slot.CardUiModel
+            }.toSet()
+        )
+        else -> null
+    }
+
+    private fun mapToSnackbar(sideEffect: GameSideEffect): SnackbarVisuals? = when (sideEffect) {
+        is GameSideEffect.InvalidSet -> SetSnackbarVisuals.InvalidSet
+        is GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame
+        else -> null
     }
 }

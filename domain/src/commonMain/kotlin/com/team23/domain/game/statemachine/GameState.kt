@@ -8,7 +8,7 @@ sealed class GameState {
     data class Playing(
         val deck: List<Card>,
         val table: List<Card>,
-        val selected: Set<Card> = emptySet(),
+        val selected: Set<Card.Data> = emptySet(),
     ) : GameState()
 
     data class Finished(

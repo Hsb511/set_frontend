@@ -1,5 +1,7 @@
 package com.team23.ui.game
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,7 +16,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
@@ -38,6 +44,10 @@ import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -60,6 +70,7 @@ fun GameScreen(
     ) {
         GameScreen(
             game = game,
+            gameUiEvent = gameVM.gameUiEvent,
             onAction = gameVM::onAction,
         )
 
@@ -83,10 +94,24 @@ fun GameScreen(
 @Composable
 private fun GameScreen(
     game: GameUiModel,
+    gameUiEvent: SharedFlow<GameUiEvent>,
     modifier: Modifier = Modifier,
     onAction: (GameAction) -> Unit = {},
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val columnsCount = getGridColumnsCount(game.isPortrait)
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            withContext(Dispatchers.Main.immediate) {
+                gameUiEvent.collect { gameEvent ->
+                    when (gameEvent) {
+                        is GameUiEvent.AnimateSelectedCards -> println("HUGO - event: $gameEvent")
+                    }
+                }
+            }
+        }
+    }
 
     Box(modifier = modifier) {
         LazyVerticalGrid(
@@ -95,12 +120,19 @@ private fun GameScreen(
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
-            items(game.playingCards) { slot ->
+            itemsIndexed(
+                items = game.playingCards,
+                key = { _, slot -> slot.id },
+            ) { index, slot ->
                 Slot(
                     slot = slot,
                     isPortrait = game.isPortrait,
                     isFinished = game.isFinished,
                     onAction = onAction,
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
+                        placementSpec = tween(durationMillis = 500, easing = LinearEasing),
+                    )
                 )
             }
             item(span = { GridItemSpan(columnsCount) }) {
@@ -159,12 +191,13 @@ private fun Slot(
     slot: Slot,
     isPortrait: Boolean,
     isFinished: Boolean,
+    modifier: Modifier = Modifier,
     onAction: (GameAction) -> Unit,
 ) {
     when (slot) {
         is Slot.CardUiModel -> SetCard(
             card = slot,
-            modifier = Modifier
+            modifier = modifier
                 .padding(all = LocalSpacings.current.small)
                 .clickable(enabled = !isFinished) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
@@ -172,7 +205,7 @@ private fun Slot(
         )
 
         is Slot.HoleUiModel -> Box(
-            modifier = Modifier
+            modifier = modifier
                 .padding(all = LocalSpacings.current.small)
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait))
@@ -292,7 +325,8 @@ private fun GameScreenPreview(@PreviewParameter(PortraitPreviewProvider::class) 
                     ),
                 ),
                 isPortrait = isPortrait,
-            )
+            ),
+            gameUiEvent = MutableSharedFlow(),
         )
     }
 }
