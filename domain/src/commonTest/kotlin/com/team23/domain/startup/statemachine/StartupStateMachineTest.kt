@@ -14,6 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class StartupStateMachineTest {
 
     private lateinit var machine: StartupStateMachine
@@ -81,8 +82,9 @@ class StartupStateMachineTest {
     fun `SignIn success - UserSignInUp to DeviceRegistration - Given UserSignInUp, SignIn and signin success, When reducing, Then returns DeviceRegistration`() = runTest {
         // Given
         val state = StartupState.UserSignInUp
-        val event = StartupEvent.SignIn
-        everySuspend { authRepository.loginAndStoreUserId() } returns Result.success(Unit)
+        val userId = Uuid.random()
+        val event = StartupEvent.SignIn(userId)
+        everySuspend { authRepository.loginAndStoreUserId(userId) } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -95,8 +97,9 @@ class StartupStateMachineTest {
     fun `SignIn failure - UserSignInUp to UserSignInUp - Given UserSignInUp, SignIn and signin fails, When reducing, Then returns UserSignInUp`() = runTest {
         // Given
         val state = StartupState.UserSignInUp
-        val event = StartupEvent.SignIn
-        everySuspend { authRepository.loginAndStoreUserId() } returns Result.failure(Exception())
+        val userId = Uuid.random()
+        val event = StartupEvent.SignIn(userId)
+        everySuspend { authRepository.loginAndStoreUserId(userId) } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)
