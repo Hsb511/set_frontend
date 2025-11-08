@@ -11,7 +11,7 @@ sealed interface Slot {
     val isPortraitMode: Boolean
 
     data class HoleUiModel(
-        override val id: Int = 0,
+        override val id: Int,
         override val isPortraitMode: Boolean,
     ) : Slot
 

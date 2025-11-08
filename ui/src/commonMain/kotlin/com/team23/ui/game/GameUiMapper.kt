@@ -30,11 +30,12 @@ class GameUiMapper(
         cards: List<Card>,
         selected: Set<Card>,
         isPortrait: Boolean,
-    ): List<Slot> = cards.map { card ->
+    ): List<Slot> = cards.mapIndexed { index, card ->
         cardUiMapper.toUiModel(
             card = card,
             isSelected = card in selected,
             isPortrait = isPortrait,
+            index = index,
         )
     }
 }

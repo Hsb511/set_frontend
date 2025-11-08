@@ -9,12 +9,16 @@ class CardUiMapper {
         card: Card,
         isSelected: Boolean,
         isPortrait: Boolean,
+        index: Int,
     ): Slot = when (card) {
-        is Card.Data -> toDataUiModel(card, isSelected, isPortrait)
-        is Card.Empty -> Slot.HoleUiModel(isPortraitMode = isPortrait)
+        is Card.Data -> toUiModel(card, isSelected, isPortrait)
+        is Card.Empty -> Slot.HoleUiModel(
+            id = 10_000 * index,
+            isPortraitMode = isPortrait,
+        )
     }
 
-    private fun toDataUiModel(card: Card.Data, isSelected: Boolean, isPortrait: Boolean) =
+    fun toUiModel(card: Card.Data, isSelected: Boolean, isPortrait: Boolean) =
         Slot.CardUiModel(
             patternAmount = card.number,
             color = toUiColor(card.color),
