@@ -1,11 +1,14 @@
 package com.team23.ui.game
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,21 +20,25 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.round
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -39,6 +46,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
+import com.team23.ui.dialog.EndGameDialog
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.snackbar.SetSnackbar
@@ -100,18 +108,8 @@ private fun GameScreen(
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val columnsCount = getGridColumnsCount(game.isPortrait)
-
-    LaunchedEffect(Unit) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                gameUiEvent.collect { gameEvent ->
-                    when (gameEvent) {
-                        is GameUiEvent.AnimateSelectedCards -> println("HUGO - event: $gameEvent")
-                    }
-                }
-            }
-        }
-    }
+    var slotWidthPx by remember { mutableStateOf(0) }
+    var positionsByIndex: Map<Int, IntOffset> by remember { mutableStateOf(emptyMap()) }
 
     Box(modifier = modifier) {
         LazyVerticalGrid(
@@ -127,12 +125,18 @@ private fun GameScreen(
                 Slot(
                     slot = slot,
                     isPortrait = game.isPortrait,
-                    isFinished = game.isFinished,
+                    isSelectable = !game.isFinished,
                     onAction = onAction,
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
                         placementSpec = tween(durationMillis = 500, easing = LinearEasing),
-                    )
+                    ).onSizeChanged { size ->
+                        slotWidthPx = size.width
+                    }.onGloballyPositioned { coords ->
+                        val tempMap = positionsByIndex.toMutableMap()
+                        tempMap[index] = coords.positionInRoot().round()
+                        positionsByIndex = tempMap
+                    }
                 )
             }
             item(span = { GridItemSpan(columnsCount) }) {
@@ -146,43 +150,66 @@ private fun GameScreen(
             }
         }
         if (game.isFinished) {
-            AlertDialog(
-                onDismissRequest = { },
-                dismissButton = {
-                    Button(
-                        onClick = { onAction(GameAction.ChangeGameType) },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        ),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text("Change game mode")
+            EndGameDialog(onAction = onAction)
+        }
+    }
+
+    var cardsToAnimate: Set<Pair<IntOffset, Slot.CardUiModel>> by remember { mutableStateOf(emptySet()) }
+
+    FlyOutAnimation(
+        cards = cardsToAnimate,
+        isPortrait = game.isPortrait,
+        widthPx = slotWidthPx,
+    )
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            withContext(Dispatchers.Main.immediate) {
+                gameUiEvent.collect { gameEvent ->
+                    when (gameEvent) {
+                        is GameUiEvent.AnimateSelectedCards -> cardsToAnimate = gameEvent.cardsWithIndex
+                            .map { (index, card) ->
+                                val initialPosition = positionsByIndex[index] ?: IntOffset(0, 0)
+                                initialPosition to card
+                            }.toSet()
                     }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = { onAction(GameAction.Restart) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text("Play again")
-                    }
-                },
-                text = {
-                    Text(
-                        text = "Game is finished",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                },
-                properties = DialogProperties(
-                    dismissOnBackPress = false,
-                    dismissOnClickOutside = false,
-                ),
-                modifier = Modifier.width(280.dp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FlyOutAnimation(
+    cards: Set<Pair<IntOffset, Slot.CardUiModel>>,
+    isPortrait: Boolean,
+    widthPx: Int,
+) {
+    val density = LocalDensity.current
+    val (screenWidth, screenHeight) = LocalWindowInfo.current.containerSize
+    val targetOffset = IntOffset(x = screenWidth + widthPx, y = screenHeight / 2)
+
+    cards.forEach { (initialPosition, card) ->
+        val offset = remember { Animatable(initialPosition, IntOffset.VectorConverter) }
+        LaunchedEffect(card.id) {
+            offset.snapTo(initialPosition)
+            offset.animateTo(
+                targetValue = targetOffset,
+                animationSpec = tween(
+                    durationMillis = 500,
+                    easing = LinearEasing,
+                )
             )
         }
+
+        Slot(
+            slot = card,
+            isPortrait = isPortrait,
+            isSelectable = false,
+            modifier = Modifier
+                .width(with(density) { widthPx.toDp() })
+                .absoluteOffset { offset.value },
+        )
     }
 }
 
@@ -190,16 +217,16 @@ private fun GameScreen(
 private fun Slot(
     slot: Slot,
     isPortrait: Boolean,
-    isFinished: Boolean,
+    isSelectable: Boolean,
     modifier: Modifier = Modifier,
-    onAction: (GameAction) -> Unit,
+    onAction: (GameAction) -> Unit = { },
 ) {
     when (slot) {
         is Slot.CardUiModel -> SetCard(
             card = slot,
             modifier = modifier
                 .padding(all = LocalSpacings.current.small)
-                .clickable(enabled = !isFinished) { onAction(GameAction.SelectOrUnselectCard(slot)) }
+                .clickable(enabled = isSelectable) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait)),
         )
