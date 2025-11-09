@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
@@ -200,15 +201,23 @@ fun FlyOutAnimation(
     val targetOffset = IntOffset(x = screenWidth + widthPx, y = screenHeight / 2)
 
     cards.forEach { (initialPosition, card) ->
-        val offset = remember { Animatable(initialPosition, IntOffset.VectorConverter) }
+        val offset = remember { Animatable(
+            initialValue = initialPosition,
+            typeConverter = IntOffset.VectorConverter)
+        }
+        val alpha = remember { Animatable(initialValue = 1f) }
         LaunchedEffect(card.id) {
             offset.snapTo(initialPosition)
             offset.animateTo(
                 targetValue = targetOffset,
-                animationSpec = tween(
-                    durationMillis = 500,
-                    easing = LinearEasing,
-                )
+                animationSpec = tween(durationMillis = 500, easing = LinearEasing),
+            )
+        }
+        LaunchedEffect(card.id) {
+            alpha.snapTo(1f)
+            alpha.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(durationMillis = 400, easing = LinearEasing),
             )
         }
 
@@ -218,7 +227,8 @@ fun FlyOutAnimation(
             isSelectable = false,
             modifier = Modifier
                 .width(with(density) { widthPx.toDp() })
-                .absoluteOffset { offset.value },
+                .absoluteOffset { offset.value }
+                .alpha(alpha.value),
         )
     }
 }
