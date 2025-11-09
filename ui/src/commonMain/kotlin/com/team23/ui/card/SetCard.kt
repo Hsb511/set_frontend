@@ -35,6 +35,7 @@ fun SetCard(
     modifier: Modifier = Modifier,
 ) {
     CardContainer(
+        contentAmount = card.patternAmount,
         isPortraitMode = card.isPortraitMode,
         isSelected = card.selected,
         modifier = modifier,
@@ -87,12 +88,17 @@ private fun CardContent(
 
 @Composable
 private fun CardContainer(
+    contentAmount: Int,
     isPortraitMode: Boolean,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val arrangement = Arrangement.spacedBy(LocalSpacings.current.medium)
+    val arrangement = if (contentAmount > 2) {
+        Arrangement.spacedBy(LocalSpacings.current.small)
+    } else {
+        Arrangement.spacedBy(LocalSpacings.current.medium)
+    }
 
     Surface(
         shape = MaterialTheme.shapes.small,
@@ -114,7 +120,10 @@ private fun CardContainer(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = LocalSpacings.current.medium),
+                    .padding(
+                        horizontal = LocalSpacings.current.medium,
+                        vertical = LocalSpacings.current.medium,
+                    ),
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -128,7 +137,10 @@ private fun CardContainer(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = LocalSpacings.current.medium),
+                    .padding(
+                        vertical = LocalSpacings.current.medium,
+                        horizontal = LocalSpacings.current.medium,
+                    ),
             ) {
                 Row(horizontalArrangement = arrangement) {
                     content()
