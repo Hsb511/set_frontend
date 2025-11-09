@@ -26,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -110,43 +112,46 @@ private fun GameScreen(
     val columnsCount = getGridColumnsCount(game.isPortrait)
     var slotWidthPx by remember { mutableStateOf(0) }
     var positionsByIndex: Map<Int, IntOffset> by remember { mutableStateOf(emptyMap()) }
+    var resetNonce by remember { mutableIntStateOf(0) }
 
     Box(modifier = modifier) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(columnsCount),
-            contentPadding = PaddingValues(all = LocalSpacings.current.small),
-            modifier = Modifier
-                .fillMaxWidth(),
-        ) {
-            itemsIndexed(
-                items = game.playingCards,
-                key = { _, slot -> slot.id },
-            ) { index, slot ->
-                Slot(
-                    slot = slot,
-                    isPortrait = game.isPortrait,
-                    isSelectable = !game.isFinished,
-                    onAction = onAction,
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
-                        placementSpec = tween(durationMillis = 500, easing = LinearEasing),
-                    ).onSizeChanged { size ->
-                        slotWidthPx = size.width
-                    }.onGloballyPositioned { coords ->
-                        val tempMap = positionsByIndex.toMutableMap()
-                        tempMap[index] = coords.positionInRoot().round()
-                        positionsByIndex = tempMap
-                    }
-                )
-            }
-            item(span = { GridItemSpan(columnsCount) }) {
-                Text(
-                    text = "${game.cardsInDeck.size} cards remaining in deck",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = LocalSpacings.current.small)
-                )
+        key(resetNonce) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columnsCount),
+                contentPadding = PaddingValues(all = LocalSpacings.current.small),
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ) {
+                itemsIndexed(
+                    items = game.playingCards,
+                    key = { _, slot -> slot.id },
+                ) { index, slot ->
+                    Slot(
+                        slot = slot,
+                        isPortrait = game.isPortrait,
+                        isSelectable = !game.isFinished,
+                        onAction = onAction,
+                        modifier = Modifier.animateItem(
+                            fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
+                            placementSpec = tween(durationMillis = 500, easing = LinearEasing),
+                        ).onSizeChanged { size ->
+                            slotWidthPx = size.width
+                        }.onGloballyPositioned { coords ->
+                            val tempMap = positionsByIndex.toMutableMap()
+                            tempMap[index] = coords.positionInRoot().round()
+                            positionsByIndex = tempMap
+                        }
+                    )
+                }
+                item(span = { GridItemSpan(columnsCount) }) {
+                    Text(
+                        text = "${game.cardsInDeck.size} cards remaining in deck",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = LocalSpacings.current.small)
+                    )
+                }
             }
         }
         if (game.isFinished) {
@@ -162,16 +167,21 @@ private fun GameScreen(
         widthPx = slotWidthPx,
     )
 
+    fun handleAnimateCards(cardsWithIndex: Set<Pair<Int, Slot.CardUiModel>>) {
+        cardsToAnimate = cardsWithIndex
+            .map { (index, card) ->
+                val initialPosition = positionsByIndex[index] ?: IntOffset(0, 0)
+                initialPosition to card
+            }.toSet()
+    }
+
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             withContext(Dispatchers.Main.immediate) {
                 gameUiEvent.collect { gameEvent ->
                     when (gameEvent) {
-                        is GameUiEvent.AnimateSelectedCards -> cardsToAnimate = gameEvent.cardsWithIndex
-                            .map { (index, card) ->
-                                val initialPosition = positionsByIndex[index] ?: IntOffset(0, 0)
-                                initialPosition to card
-                            }.toSet()
+                        is GameUiEvent.AnimateSelectedCards -> handleAnimateCards(gameEvent.cardsWithIndex)
+                        is GameUiEvent.ResetScreen -> resetNonce ++
                     }
                 }
             }

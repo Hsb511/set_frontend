@@ -4,4 +4,5 @@ import com.team23.ui.card.Slot
 
 sealed interface GameUiEvent {
     data class AnimateSelectedCards(val cardsWithIndex: Set<Pair<Int, Slot.CardUiModel>>): GameUiEvent
+    data object ResetScreen: GameUiEvent
 }

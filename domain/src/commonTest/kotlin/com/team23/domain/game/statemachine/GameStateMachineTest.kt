@@ -188,7 +188,7 @@ class GameStateMachineTest {
         assertEquals(finished, result2)
     }
 
-    private fun createFullDeck(): List<Card> {
+    private fun createFullDeck(): List<Card.Data> {
         val colors = Color.entries.toTypedArray()
         val shapes = Shape.entries.toTypedArray()
         val numbers = 1..3
@@ -205,7 +205,7 @@ class GameStateMachineTest {
         }
     }
 
-    private fun createTableFor12to15Cards() : List<Card> = listOf(
+    private fun createTableFor12to15Cards() : List<Card.Data> = listOf(
         // Row 1 with a set
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
@@ -227,7 +227,7 @@ class GameStateMachineTest {
         Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 2, fill = Fill.EMPTY),   // 2SEG
     )
 
-    private fun createDeckFor12to15Cards(): List<Card> = listOf(
+    private fun createDeckFor12to15Cards(): List<Card.Data> = listOf(
         // Still no set here if you add them to Row 2, 3 and 4
         Card.Data(color = Color.SECONDARY, shape = Shape.SQUIGGLE, number = 1, fill = Fill.EMPTY),   // 1SEP
         Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 2, fill = Fill.SOLID),   // 2SFR
@@ -238,7 +238,7 @@ class GameStateMachineTest {
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 3, fill = Fill.EMPTY),
     )
-    private fun createTableFor15to12Cards() : List<Card> = listOf(
+    private fun createTableFor15to12Cards() : List<Card.Data> = listOf(
         // Row 1 with a set
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
@@ -265,13 +265,13 @@ class GameStateMachineTest {
         Card.Data(color = Color.TERTIARY,  shape = Shape.OVAL,     number = 1, fill = Fill.SOLID),   // 1OFP
     )
 
-    private fun createDeckFor15to12Cards(): List<Card> = listOf(
+    private fun createDeckFor15to12Cards(): List<Card.Data> = listOf(
         // This is a set
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 3, fill = Fill.EMPTY),
     )
-    private fun createTableFor15to15Cards() : List<Card> = listOf(
+    private fun createTableFor15to15Cards() : List<Card.Data> = listOf(
         // Row 1 with a set
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.DIAMOND, number = 1, fill = Fill.SOLID),
@@ -298,7 +298,7 @@ class GameStateMachineTest {
         Card.Data(color = Color.PRIMARY,   shape = Shape.SQUIGGLE, number = 3, fill = Fill.SOLID),   // 3SFR
     )
 
-    private fun createDeckFor15to15Cards(): List<Card> = listOf(
+    private fun createDeckFor15to15Cards(): List<Card.Data> = listOf(
         // This is a set
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 1, fill = Fill.STRIPED),
         Card.Data(color = Color.SECONDARY, shape = Shape.OVAL, number = 2, fill = Fill.SOLID),

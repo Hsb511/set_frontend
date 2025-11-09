@@ -17,12 +17,14 @@ import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,10 +45,11 @@ class GameViewModel(
         .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
         .stateIn(viewModelScope, SharingStarted.Lazily, GameUiModel())
 
-    val gameUiEvent: SharedFlow<GameUiEvent> = stateMachine.gameSideEffect
-        .map(::mapToEvent)
-        .filterNotNull()
-        .shareIn(viewModelScope, SharingStarted.Lazily)
+    private val _gameUiEvent: MutableSharedFlow<GameUiEvent> = MutableSharedFlow()
+    val gameUiEvent: SharedFlow<GameUiEvent> = merge(
+        _gameUiEvent,
+        stateMachine.gameSideEffect.map(::mapToEvent).filterNotNull()
+    ).shareIn(viewModelScope, SharingStarted.Lazily)
 
     val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.gameSideEffect
         .map(::mapToSnackbar)
@@ -64,7 +67,12 @@ class GameViewModel(
     fun onAction(action: GameAction) {
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
-            is Restart -> startGame()
+            is Restart -> {
+                viewModelScope.launch {
+                    _gameUiEvent.emit(GameUiEvent.ResetScreen)
+                }
+                startGame()
+            }
             is GameAction.ChangeGameType -> navController.navigate(NavigationScreen.GameTypeSelection.name)
         }
     }
