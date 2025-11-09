@@ -1,12 +1,10 @@
 package com.team23.ui.card
 
-
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,9 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.team23.ui.shape.DiamondShape
 import com.team23.ui.shape.FillingTypeUiModel
@@ -45,68 +41,46 @@ fun SetCard(
     ) {
         val color = card.color.toColor()
         val fillingType = card.fillingType
-        val shapeModifier = Modifier.aspectRatio(ratio = 0.5f)
 
-        for (index in 1..card.patternAmount) {
-            val portraitModifier = Modifier.portraitRotation(card.patternAmount, index)
-            val containerModifier =
-                Modifier
-                    .aspectRatio(ratio = if (card.isPortraitMode) 1f else 0.5f)
-                    .then(if (card.isPortraitMode) portraitModifier else Modifier)
+        repeat(card.patternAmount) {
             CardContent(
                 shape = card.shape,
                 color = color,
                 fillingType = fillingType,
-                containerModifier = containerModifier,
-                shapeModifier = shapeModifier,
+                isPortrait = card.isPortraitMode,
             )
         }
     }
 }
-
-private fun Modifier.portraitRotation(patternAmount: Int, index: Int) = this
-    .rotate(90f)
-    .graphicsLayer {
-        val width = size.width
-        translationX = when (patternAmount) {
-            1 -> 0f
-            2 -> if (index == 1) width / 4 else -width / 4
-            else -> when (index) {
-                1 -> 0f
-                2 -> -width / 2 - 5
-                else -> -width / 2
-            }
-        }
-    }
 
 @Composable
 private fun CardContent(
     shape: CardShape,
     color: Color,
     fillingType: FillingTypeUiModel,
-    containerModifier: Modifier,
-    shapeModifier: Modifier,
+    isPortrait: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     when (shape) {
         CardShape.Diamond -> DiamondShape(
             color = color,
             fillingTypeUiModel = fillingType,
-            modifier = containerModifier,
-            contentModifier = shapeModifier
+            isPortrait = isPortrait,
+            modifier = modifier,
         )
 
         CardShape.Oval -> OvalShape(
             color = color,
             fillingTypeUiModel = fillingType,
-            modifier = containerModifier,
-            contentModifier = shapeModifier
+            isPortrait = isPortrait,
+            modifier = modifier,
         )
 
         CardShape.Squiggle -> SquiggleShape(
             color = color,
             fillingTypeUiModel = fillingType,
-            modifier = containerModifier,
-            contentModifier = shapeModifier
+            isPortrait = isPortrait,
+            modifier = modifier,
         )
     }
 }
@@ -125,7 +99,7 @@ private fun CardContainer(
         color = if (isSelected) Color.White else white95,
         shadowElevation = if (isSelected) 8.dp else 0.dp,
         modifier = modifier.border(
-            width =  if (isSelected) 3.dp else 1.dp,
+            width = if (isSelected) 3.dp else 1.dp,
             color = when {
                 !isSelected -> Color.Black
                 isSystemInDarkTheme() -> orange
@@ -170,7 +144,11 @@ private fun SetCardPreview(@PreviewParameter(SampleCardProvider::class) card: Sl
     SetTheme {
         SetCard(
             card = card,
-            modifier = Modifier.size(width = 160.dp, height = 90.dp)
+            modifier = if (card.isPortraitMode) {
+                Modifier.size(width = 90.dp, height = 160.dp)
+            } else {
+                Modifier.size(width = 160.dp, height = 90.dp)
+            }
         )
     }
 }
@@ -179,15 +157,17 @@ private class SampleCardProvider : PreviewParameterProvider<Slot.CardUiModel> {
     override val values = CardColor.entries.toTypedArray().flatMap { color ->
         FillingTypeUiModel.entries.toTypedArray().flatMap { fillingType ->
             CardShape.entries.flatMap { shape ->
-                (1..3).map { patternAmount ->
-                    Slot.CardUiModel(
-                        patternAmount = patternAmount,
-                        color = color,
-                        fillingType = fillingType,
-                        shape = shape,
-                        selected = false,
-                        isPortraitMode = false,
-                    )
+                (1..3).flatMap { patternAmount ->
+                    listOf(true, false).map { isPortraitMode ->
+                        Slot.CardUiModel(
+                            patternAmount = patternAmount,
+                            color = color,
+                            fillingType = fillingType,
+                            shape = shape,
+                            selected = false,
+                            isPortraitMode = isPortraitMode,
+                        )
+                    }
                 }
             }
         }

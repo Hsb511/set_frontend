@@ -105,7 +105,7 @@ class GameViewModel(
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {
         is GameSideEffect.SetFound -> GameUiEvent.AnimateSelectedCards(
             sideEffect.cards.map { (index, card) ->
-                val isPortrait = true // TODO
+                val isPortrait = isPortrait
                 index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait) as Slot.CardUiModel
             }.toSet()
         )
