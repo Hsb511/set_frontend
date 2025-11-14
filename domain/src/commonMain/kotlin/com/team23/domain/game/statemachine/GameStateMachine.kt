@@ -2,6 +2,7 @@ package com.team23.domain.game.statemachine
 
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.repository.GameRepository
+import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import com.team23.domain.startup.model.GameType
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
 class GameStateMachine(
+    private val createNewSoloGameUseCase: CreateNewSoloGameUseCase,
     private val isSetUseCase: IsSetUseCase,
     private val updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase,
     private val gameRepository: GameRepository,
@@ -33,7 +35,7 @@ class GameStateMachine(
 
     private suspend fun initializeGame(gameType: GameType): GameState {
         val game = when (gameType) {
-            GameType.Solo -> gameRepository.createSoloGame()
+            GameType.Solo -> Result.success(createNewSoloGameUseCase.invoke())
             GameType.Multi -> TODO()
         }
 
