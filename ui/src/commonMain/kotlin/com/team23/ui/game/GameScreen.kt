@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
@@ -246,6 +248,7 @@ private fun Slot(
             card = slot,
             modifier = modifier
                 .padding(all = LocalSpacings.current.small)
+                .clip(MaterialTheme.shapes.small)
                 .clickable(enabled = isSelectable) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait)),
