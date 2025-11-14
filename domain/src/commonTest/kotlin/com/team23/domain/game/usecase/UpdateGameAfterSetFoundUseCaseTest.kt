@@ -1,13 +1,11 @@
 package com.team23.domain.game.usecase
 
+import com.team23.domain.game.GameTestUtils.createCard
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.model.Card.Data.Color
 import com.team23.domain.game.model.Card.Data.Fill
 import com.team23.domain.game.model.Card.Data.Shape
 import com.team23.domain.game.statemachine.GameState
-import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
-import com.team23.domain.game.usecase.IsSetUseCase
-import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -136,43 +134,41 @@ class UpdateGameAfterSetFoundUseCaseTest {
         assertContentEquals(row1 + row2 + emptyRow + row3 + row4, gameState.cards)
     }
 
-    private fun createCard(color: Color, shape: Shape, number: Int, fill: Fill) = Card.Data(color, shape, number, fill)
-
     // row1 + row2 + row3 + row4 contains no set
     private val row1 = listOf(
-        createCard(Color.PRIMARY, Shape.OVAL, 2, Fill.EMPTY),
-        createCard(Color.SECONDARY, Shape.OVAL, 3, Fill.STRIPED),
-        createCard(Color.PRIMARY, Shape.SQUIGGLE, 1, Fill.EMPTY),
+        createCard(2, Color.PRIMARY, Shape.OVAL, Fill.EMPTY),
+        createCard(3, Color.SECONDARY, Shape.OVAL, Fill.STRIPED),
+        createCard(1, Color.PRIMARY, Shape.SQUIGGLE, Fill.EMPTY),
     )
 
     private val row2 = listOf(
-        createCard(Color.PRIMARY, Shape.SQUIGGLE, 1, Fill.STRIPED),
-        createCard(Color.TERTIARY, Shape.SQUIGGLE, 1, Fill.EMPTY),
-        createCard(Color.SECONDARY, Shape.DIAMOND, 1, Fill.STRIPED),
+        createCard(1, Color.PRIMARY, Shape.SQUIGGLE, Fill.STRIPED),
+        createCard(1, Color.TERTIARY, Shape.SQUIGGLE, Fill.EMPTY),
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.STRIPED),
     )
 
     private val row3 = listOf(
-        createCard(Color.SECONDARY, Shape.SQUIGGLE, 1, Fill.STRIPED),
-        createCard(Color.SECONDARY, Shape.SQUIGGLE, 2, Fill.EMPTY),
-        createCard(Color.TERTIARY, Shape.DIAMOND, 3, Fill.STRIPED),
+        createCard(1, Color.SECONDARY, Shape.SQUIGGLE, Fill.STRIPED),
+        createCard(2, Color.SECONDARY, Shape.SQUIGGLE, Fill.EMPTY),
+        createCard(3, Color.TERTIARY, Shape.DIAMOND, Fill.STRIPED),
     )
 
     private val row4 = listOf(
-        createCard(Color.PRIMARY, Shape.DIAMOND, 3, Fill.STRIPED),
-        createCard(Color.TERTIARY, Shape.SQUIGGLE, 2, Fill.SOLID),
-        createCard(Color.PRIMARY, Shape.DIAMOND, 2, Fill.EMPTY),
+        createCard(3, Color.PRIMARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(2, Color.TERTIARY, Shape.SQUIGGLE, Fill.SOLID),
+        createCard(2, Color.PRIMARY, Shape.DIAMOND, Fill.EMPTY),
     )
 
     private val set1 = listOf(
-        createCard(Color.PRIMARY, Shape.DIAMOND, 1, Fill.SOLID),
-        createCard(Color.SECONDARY, Shape.DIAMOND, 1, Fill.SOLID),
-        createCard(Color.TERTIARY, Shape.DIAMOND, 1, Fill.SOLID),
+        createCard(1, Color.PRIMARY, Shape.DIAMOND, Fill.SOLID),
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.SOLID),
+        createCard(1, Color.TERTIARY, Shape.DIAMOND, Fill.SOLID),
     )
 
     private val set2 = listOf(
-        createCard(Color.PRIMARY, Shape.OVAL, 3, Fill.EMPTY),
-        createCard(Color.SECONDARY, Shape.OVAL, 3, Fill.EMPTY),
-        createCard(Color.TERTIARY, Shape.OVAL, 3, Fill.EMPTY),
+        createCard(3, Color.PRIMARY, Shape.OVAL, Fill.EMPTY),
+        createCard(3, Color.SECONDARY, Shape.OVAL, Fill.EMPTY),
+        createCard(3, Color.TERTIARY, Shape.OVAL, Fill.EMPTY),
     )
 
     private val emptyRow = List(3) { Card.Empty }
