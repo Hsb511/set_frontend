@@ -8,11 +8,13 @@ import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.startup.repository.AuthRepository
 import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.repository.UserRepository
+import io.ktor.client.HttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 val dataModule = module {
     includes(platformModule())
+    single<HttpClient> { createHttpClient() }
 
     single { AuthRepositoryImpl(get()) as AuthRepository }
     single { DeviceRepositoryImpl(get()) as DeviceRepository }
@@ -21,3 +23,4 @@ val dataModule = module {
 }
 
 internal expect fun platformModule(): Module
+internal expect fun createHttpClient(): HttpClient
