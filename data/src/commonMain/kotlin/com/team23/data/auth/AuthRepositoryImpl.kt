@@ -16,7 +16,12 @@ class AuthRepositoryImpl(
         firstname: String?,
         lastname: String?,
     ): Result<Unit> = runCatching {
-        val request = AuthRegisterRequest(username, password, firstname.orEmpty(), lastname.orEmpty())
+        val request = AuthRegisterRequest(
+            username = username,
+            password = password,
+            name = firstname.orEmpty(),
+            surname = lastname.orEmpty()
+        )
         val response = authApi.register(request)
         when (response) {
             is AuthRegisterResponse.Success -> {

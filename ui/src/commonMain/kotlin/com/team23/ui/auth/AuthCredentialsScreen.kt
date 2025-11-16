@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
+import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -40,10 +44,21 @@ fun AuthCredentialsScreen(
     val authViewModel = koinInject<AuthViewModel>()
     authViewModel.setNavController(navController)
 
-    AuthCredentialsScreen(
-        authType = authType,
-        onAction = authViewModel::onAction,
-    )
+    Box(
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.safeDrawing)
+            .fillMaxSize()
+    ) {
+        AuthCredentialsScreen(
+            authType = authType,
+            onAction = authViewModel::onAction,
+        )
+
+        SetSnackbar(
+            snackbarDataFlow = authViewModel.snackbar,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -121,8 +136,10 @@ private fun AuthCredentialsScreen(
                     onAction(
                         Auth(
                             type = authType,
-                            username = "",
-                            password = "",
+                            username = username,
+                            password = password,
+                            firstname = firstname,
+                            lastname = lastname,
                         )
                     )
                 },

@@ -17,6 +17,7 @@ class AuthApiImpl(
 ) : AuthApi {
 
     override suspend fun register(request: AuthRegisterRequest): AuthRegisterResponse {
+        println("HUGO - request: $request")
         val response = client.post("https://settest.souchefr.synology.me/register") {
             contentType(ContentType.Application.Json)
             setBody(request)

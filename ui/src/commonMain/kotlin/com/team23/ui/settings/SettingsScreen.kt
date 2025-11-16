@@ -40,7 +40,6 @@ private fun SettingsScreen(
         modifier = modifier,
     ) {
         SettingsRow(label = "userId", value = settingsUiModel.userId)
-        SettingsRow(label = "deviceId", value = settingsUiModel.deviceId)
     }
 }
 
@@ -73,7 +72,6 @@ private fun SettingsScreenPreview() {
         SettingsScreen(
             settingsUiModel = SettingsUiModel(
                 userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a8",
-                deviceId = "3e8a0f6d-3f0a-46b9-9b4f-02fd8fbc2e45",
             )
         )
     }
