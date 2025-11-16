@@ -64,7 +64,7 @@ class StartupStateMachineTest {
         val state = StartupState.UserSignInUp
         val userId = Uuid.random()
         val event = StartupEvent.SignIn(userId)
-        everySuspend { authRepository.loginAndStoreUserId(userId) } returns Result.failure(Exception())
+        everySuspend { authRepository.loginAndStoreUserInfo(userId) } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)
@@ -78,7 +78,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend {  authRepository.registerAndStoreUserId() } returns Result.success(Unit)
+        everySuspend {  authRepository.registerAndStoreUserInfo() } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -92,7 +92,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.UserSignInUp
         val event = StartupEvent.SignUp
-        everySuspend { authRepository.registerAndStoreUserId() } returns Result.failure(Exception())
+        everySuspend { authRepository.registerAndStoreUserInfo() } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)

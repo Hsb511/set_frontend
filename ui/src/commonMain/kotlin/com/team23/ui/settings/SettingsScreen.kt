@@ -39,6 +39,7 @@ private fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.small),
         modifier = modifier,
     ) {
+        SettingsRow(label = "username", value = settingsUiModel.username)
         SettingsRow(label = "userId", value = settingsUiModel.userId)
     }
 }
@@ -71,6 +72,7 @@ private fun SettingsScreenPreview() {
     SetTheme {
         SettingsScreen(
             settingsUiModel = SettingsUiModel(
+                username = "My username",
                 userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a8",
             )
         )

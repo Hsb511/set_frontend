@@ -4,7 +4,7 @@ import kotlin.uuid.ExperimentalUuidApi
 
 interface AuthRepository {
 
-    suspend fun registerAndStoreUserId(
+    suspend fun registerAndStoreUserInfo(
         username: String,
         password: String,
         firstname: String?,
@@ -12,7 +12,7 @@ interface AuthRepository {
     ): Result<Unit>
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun loginAndStoreUserId(
+    suspend fun loginAndStoreUserInfo(
         username: String,
         password: String,
     ): Result<Unit>

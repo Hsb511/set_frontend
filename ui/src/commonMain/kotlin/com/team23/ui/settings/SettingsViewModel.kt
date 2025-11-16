@@ -18,13 +18,14 @@ class SettingsViewModel(
 ) {
     private val viewModelScope = CoroutineScope(SupervisorJob() + dispatcher + coroutineName)
 
-    private val _settingsStateFlow: MutableStateFlow<SettingsUiModel> = MutableStateFlow(SettingsUiModel(""))
+    private val _settingsStateFlow: MutableStateFlow<SettingsUiModel> = MutableStateFlow(SettingsUiModel("", ""))
     val settingsFlow: StateFlow<SettingsUiModel> = _settingsStateFlow
 
     init {
         viewModelScope.launch {
-            userRepository.getUserId().onSuccess { userId ->
-                _settingsStateFlow.value = _settingsStateFlow.value.copy(userId = userId.toString())
+            userRepository.getUserInfo().onSuccess { (userId, username) ->
+                _settingsStateFlow.value =
+                    _settingsStateFlow.value.copy(userId = userId.toString(), username = username)
             }
         }
     }

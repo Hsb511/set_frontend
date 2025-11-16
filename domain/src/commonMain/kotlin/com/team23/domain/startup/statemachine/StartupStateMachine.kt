@@ -36,7 +36,7 @@ class StartupStateMachine(
 
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun handleInitWorkflow(): StartupState {
-        val isUserSignedIn = userRepository.getUserId().isSuccess
+        val isUserSignedIn = userRepository.getUserInfo().isSuccess
         return when {
             isUserSignedIn -> StartupState.GameTypeChoice
             else -> StartupState.UserSignInUp
@@ -45,7 +45,7 @@ class StartupStateMachine(
 
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun handleSignIn(state: StartupState, event: StartupEvent.SignIn): StartupState = with (event) {
-        authRepository.loginAndStoreUserId(username, password)
+        authRepository.loginAndStoreUserInfo(username, password)
             .map { StartupState.GameTypeChoice }
             .getOrElse { throwable ->
                 _startupSideEffect.emit(StartupSideEffect.SignInError(throwable))
@@ -55,7 +55,7 @@ class StartupStateMachine(
     }
 
     private suspend fun handleSignUp(state: StartupState, event: StartupEvent.SignUp): StartupState = with (event) {
-        authRepository.registerAndStoreUserId(username, password, firstname, lastname)
+        authRepository.registerAndStoreUserInfo(username, password, firstname, lastname)
             .map { StartupState.GameTypeChoice }
             .getOrElse { throwable ->
                 _startupSideEffect.emit(StartupSideEffect.SignUpError(throwable))

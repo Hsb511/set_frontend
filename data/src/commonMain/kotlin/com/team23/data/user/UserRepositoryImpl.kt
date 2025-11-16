@@ -10,9 +10,11 @@ class UserRepositoryImpl(
 ): UserRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun getUserId(): Result<Uuid> = runCatching {
+    override suspend fun getUserInfo(): Result<Pair<Uuid, String>> = runCatching {
         val rawUserId = setDataStore.getValue(SetDataStore.USER_ID_KEY)
         requireNotNull(rawUserId)
-        Uuid.parse(rawUserId)
+        val username = setDataStore.getValue(SetDataStore.USERNAME_KEY)
+        requireNotNull(username)
+        Uuid.parse(rawUserId) to username
     }
 }

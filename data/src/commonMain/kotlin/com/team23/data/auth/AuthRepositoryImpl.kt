@@ -10,7 +10,7 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun registerAndStoreUserId(
+    override suspend fun registerAndStoreUserInfo(
         username: String,
         password: String,
         firstname: String?,
@@ -24,22 +24,23 @@ class AuthRepositoryImpl(
         )
         val response = authApi.register(request)
         when (response) {
-            is AuthRegisterResponse.Success -> storeUserId(response.playerId.toString())
+            is AuthRegisterResponse.Success -> storeUserInfo(response.playerId.toString(), username)
             is AuthRegisterResponse.Failure -> throw IllegalArgumentException(response.error)
         }
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun loginAndStoreUserId(username: String, password: String): Result<Unit> = runCatching {
+    override suspend fun loginAndStoreUserInfo(username: String, password: String): Result<Unit> = runCatching {
         val request = AuthRequest(username = username, password = password)
         val response = authApi.signin(request)
         when (response) {
-            is AuthSignResponse.Success -> storeUserId(response.playerId.toString())
+            is AuthSignResponse.Success -> storeUserInfo(response.playerId.toString(), username)
             is AuthSignResponse.Failure -> throw IllegalArgumentException(response.error)
         }
     }
 
-    private suspend fun storeUserId(userId: String) {
+    private suspend fun storeUserInfo(userId: String, username: String) {
         setDataStore.setValue(SetDataStore.USER_ID_KEY, userId)
+        setDataStore.setValue(SetDataStore.USERNAME_KEY, username)
     }
 }
