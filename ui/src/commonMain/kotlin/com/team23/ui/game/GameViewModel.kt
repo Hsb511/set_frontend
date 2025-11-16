@@ -56,10 +56,6 @@ class GameViewModel(
         .filterNotNull()
         .shareIn(viewModelScope, SharingStarted.Lazily)
 
-    init {
-        startGame()
-    }
-
     fun setNavController(navController: NavController) {
         this.navController = navController
     }
@@ -106,7 +102,7 @@ class GameViewModel(
         is GameSideEffect.SetFound -> GameUiEvent.AnimateSelectedCards(
             sideEffect.cards.map { (index, card) ->
                 val isPortrait = isPortrait
-                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait) as Slot.CardUiModel
+                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait)
             }.toSet()
         )
         else -> null
@@ -114,7 +110,7 @@ class GameViewModel(
 
     private fun mapToSnackbar(sideEffect: GameSideEffect): SnackbarVisuals? = when (sideEffect) {
         is GameSideEffect.InvalidSet -> SetSnackbarVisuals.InvalidSet
-        is GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame
+        is GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame(sideEffect.throwable.message)
         else -> null
     }
 }

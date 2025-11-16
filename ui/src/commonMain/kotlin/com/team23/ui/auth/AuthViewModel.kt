@@ -71,7 +71,7 @@ class AuthViewModel(
     }
 
     private fun mapToSnackbar(sideEffect: StartupSideEffect): SnackbarVisuals = when (sideEffect) {
-        is StartupSideEffect.SignInError -> SetSnackbarVisuals.SignInError
+        is StartupSideEffect.SignInError -> SetSnackbarVisuals.SignInError(sideEffect.throwable.message)
         is StartupSideEffect.SignUpError -> SetSnackbarVisuals.SignUpError(sideEffect.throwable.message)
     }
 }

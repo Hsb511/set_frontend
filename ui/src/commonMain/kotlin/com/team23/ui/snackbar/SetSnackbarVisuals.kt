@@ -15,13 +15,12 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "Not a set!"
     }
 
-    data object CannotCreateGame: ShortSnackbarVisuals() {
-        override val message: String = "An error occurred while creating the game"
+    data class CannotCreateGame(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "An error occurred while creating the game: $errorMessage"
     }
 
-
-    data object SignInError: ShortSnackbarVisuals() {
-        override val message: String = "An error occurred while signing in"
+    data class SignInError(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "An error occurred while signing in: $errorMessage"
     }
 
     data class SignUpError(val errorMessage: String?): ShortSnackbarVisuals() {

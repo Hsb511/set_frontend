@@ -1,6 +1,7 @@
 package com.team23.ui.gametype
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.button.ActionButton
+import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -23,9 +25,16 @@ fun GameTypeScreen(
     val gameTypeViewModel = koinInject<GameTypeViewModel>()
     gameTypeViewModel.setNavController(navController)
 
-    GameTypeScreen(
-        onAction = gameTypeViewModel::onAction,
-    )
+    Box {
+        GameTypeScreen(
+            onAction = gameTypeViewModel::onAction,
+        )
+
+        SetSnackbar(
+            snackbarDataFlow = gameTypeViewModel.snackbar,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
 }
 
 @Composable
@@ -40,7 +49,7 @@ private fun GameTypeScreen(
     ) {
         ActionButton(
             text = "Start solo game",
-            onClick = { onAction(GameTypeAction.StartSolo)}
+            onClick = { onAction(GameTypeAction.StartSolo) }
         )
 
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
@@ -48,7 +57,7 @@ private fun GameTypeScreen(
         ActionButton(
             text = "Start multi game",
             enabled = false,
-            onClick = { onAction(GameTypeAction.StartSolo)}
+            onClick = { onAction(GameTypeAction.StartMulti) }
         )
     }
 }

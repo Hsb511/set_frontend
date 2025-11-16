@@ -35,7 +35,8 @@ val uiModule = module {
 
     factory {
         GameTypeViewModel(
-            stateMachine = get(),
+            startupStateMachine = get(),
+            gameStateMachine = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

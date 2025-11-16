@@ -38,9 +38,8 @@ class GameStateMachine(
             GameType.Solo -> gameRepository.createSoloGame()
             GameType.Multi -> TODO()
         }
-
-        return game.getOrElse {
-            _gameSideEffect.emit(GameSideEffect.CannotCreateGame)
+        return game.getOrElse { throwable ->
+            _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
             GameState.EmptyDeck
         }
     }
