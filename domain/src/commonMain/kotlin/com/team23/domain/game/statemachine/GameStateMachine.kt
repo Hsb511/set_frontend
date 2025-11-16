@@ -35,7 +35,7 @@ class GameStateMachine(
 
     private suspend fun initializeGame(gameType: GameType): GameState {
         val game = when (gameType) {
-            GameType.Solo -> Result.success(createNewSoloGameUseCase.invoke())
+            GameType.Solo -> gameRepository.createSoloGame()
             GameType.Multi -> TODO()
         }
 

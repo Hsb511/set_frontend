@@ -13,6 +13,8 @@ import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import com.team23.domain.startup.model.GameType
+import dev.mokkery.answering.returns
+import dev.mokkery.everySuspend
 import dev.mokkery.mock
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -50,10 +52,10 @@ class GameStateMachineTest {
     fun `when state is EmptyDeck and event is Init then state becomes Playing with 12 cards on table`() = runTest {
         // Given
         val initialState = GameState.EmptyDeck
-        /*everySuspend { gameRepository.createSoloGame() } returns Result.success(GameState.Playing(
+        everySuspend { gameRepository.createSoloGame() } returns Result.success(GameState.Playing(
             deck = List(81) { Card.Empty },
             table = List(12) { Card.Empty },
-        ))*/
+        ))
 
         // When
         val newState = machine.reduce(initialState, GameEvent.Init(GameType.Solo))

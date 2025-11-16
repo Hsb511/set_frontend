@@ -14,7 +14,7 @@ interface AuthApi {
 }
 
 class AuthApiImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
 ) : AuthApi {
 
     override suspend fun register(request: AuthRequest): AuthRegisterResponse {

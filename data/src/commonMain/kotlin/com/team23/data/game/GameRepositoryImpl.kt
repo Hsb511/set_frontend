@@ -3,7 +3,9 @@ package com.team23.data.game
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 
-class GameRepositoryImpl: GameRepository {
+class GameRepositoryImpl(
+    private val gameApi: GameApi,
+): GameRepository {
 
     override suspend fun createSoloGame(): Result<GameState.Playing> {
         return Result.success(initializeGame())
