@@ -47,8 +47,8 @@ class AuthViewModel(
     fun onAction(authAction: AuthAction) {
         when (authAction) {
             is AuthAction.NavigateToSignIn -> navController.navigate(NavigationScreen.SignInWithCredentials.name)
-            is AuthAction.NavigateToSignUp -> handleSignUp()
-            is AuthAction.SignIn -> handleSignIn(authAction.userId)
+            is AuthAction.NavigateToSignUp -> navController.navigate(NavigationScreen.SignUpWithCredentials.name)
+            is AuthAction.Auth -> TODO() //handleSignIn(authAction.userId)
         }
     }
 

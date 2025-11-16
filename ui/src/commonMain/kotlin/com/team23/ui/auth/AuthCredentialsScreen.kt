@@ -16,8 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -26,7 +31,6 @@ import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Composable
 fun AuthCredentialsScreen(
@@ -54,42 +58,91 @@ private fun AuthCredentialsScreen(
             .fillMaxSize()
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.medium),
+            verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
         ) {
-            var userId by remember { mutableStateOf("") }
-            val isError = runCatching { Uuid.parse(userId) }.isFailure
+            var username by remember { mutableStateOf("") }
+            var password by remember { mutableStateOf("") }
+            var firstname by remember { mutableStateOf("") }
+            var lastname by remember { mutableStateOf("") }
+
+            val isUsernameError = username.isBlank()
+            val isPasswordError = password.isBlank()
 
             Text(
-                text = "Login with your user id",
+                text = "${authType.capitalizedLabel} with your credentials",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
             )
+
             TextField(
-                value = userId,
-                onValueChange = { newValue -> userId = newValue },
-                isError = isError,
-                supportingText = if (isError) {
-                    {
-                        Text(text = "Expected either a 36-char string in the standard hex-and-dash UUID format or a 32-char hexadecimal string")
-                    }
-                } else null,
+                value = username,
+                onValueChange = { username = it },
+                isError = isUsernameError,
                 label = {
-                    Text(text = "userId")
-                }
+                    MandatoryText(label = "Username")
+                },
             )
+
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                isError = isPasswordError,
+                visualTransformation = PasswordVisualTransformation(),
+                label = {
+                    MandatoryText(label = "Password")
+                },
+            )
+
+            if (authType == AuthType.SignUp) {
+                TextField(
+                    value = firstname,
+                    onValueChange = { firstname = it },
+                    label = {
+                        Text(text = "First name")
+                    },
+                )
+            }
+
+            if (authType == AuthType.SignUp) {
+                TextField(
+                    value = lastname,
+                    onValueChange = { lastname = it },
+                    label = {
+                        Text(text = "Last name")
+                    },
+                )
+            }
 
             Spacer(modifier = Modifier.height(LocalSpacings.current.large))
 
             ActionButton(
-                text = "Sign in",
+                text = authType.capitalizedLabel,
                 onClick = {
-                    onAction(AuthAction.SignIn(userId))
+                    onAction(
+                        Auth(
+                            type = authType,
+                            username = "",
+                            password = "",
+                        )
+                    )
                 },
-                enabled = !isError,
+                enabled = !isUsernameError && !isPasswordError,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
     }
+}
+
+@Composable
+private fun MandatoryText(label: String) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.error)) {
+                append("* ")
+            }
+            append(label)
+        }
+    )
 }
 
 @Composable
@@ -102,6 +155,6 @@ private fun AuthCredentialsScreenPreview(
     }
 }
 
-private class AuthCredentialsPreviewParameter: PreviewParameterProvider<AuthType> {
+private class AuthCredentialsPreviewParameter : PreviewParameterProvider<AuthType> {
     override val values: Sequence<AuthType> = AuthType.entries.asSequence()
 }
