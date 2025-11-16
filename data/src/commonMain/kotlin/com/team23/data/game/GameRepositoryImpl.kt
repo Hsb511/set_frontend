@@ -1,19 +1,35 @@
 package com.team23.data.game
 
+import com.team23.data.card.CardDataMapper
+import com.team23.data.datastore.SetDataStore
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class GameRepositoryImpl(
     private val gameApi: GameApi,
-): GameRepository {
+    private val setDataStore: SetDataStore,
+    private val cardDataMapper: CardDataMapper,
+) : GameRepository {
 
-    override suspend fun createSoloGame(): Result<GameState.Playing> {
-        return Result.success(initializeGame())
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun createSoloGame(): Result<GameState.Playing> = runCatching {
+        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
+        requireNotNull(cachedSessionToken)
+        val sessionToken = Uuid.parse(cachedSessionToken)
+        val request = CreateGameRequest(sessionToken, CreateGameRequest.ResponseMode.Full)
+        val response = gameApi.createGame(request)
+        when (response) {
+            is CreateGameResponse.Success -> {
+                requireNotNull(response.table)
+                requireNotNull(response.pileCards)
+                GameState.Playing(
+                    deck = response.pileCards.map(cardDataMapper::toDomainModel),
+                    table = response.table.map(cardDataMapper::toDomainModel),
+                )
+            }
+            is CreateGameResponse.Failure -> throw Exception(response.error)
+        }
     }
-
-    private fun initializeGame(): GameState.Playing {
-        // TODO CALL BACKEND
-        return GameState.Playing(deck = emptyList(), table = emptyList())
-    }
-
 }

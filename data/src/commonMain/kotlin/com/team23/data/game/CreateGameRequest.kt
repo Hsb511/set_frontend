@@ -9,5 +9,17 @@ import kotlin.uuid.Uuid
 @Serializable
 data class CreateGameRequest(
     @SerialName("session_token")
-    val sessionToken: Uuid
-)
+    val sessionToken: Uuid,
+    @SerialName("response_mode")
+    val responseMode: ResponseMode,
+) {
+
+    @Serializable
+    enum class ResponseMode {
+        @SerialName("id")
+        Id,
+
+        @SerialName("full")
+        Full,
+    }
+}

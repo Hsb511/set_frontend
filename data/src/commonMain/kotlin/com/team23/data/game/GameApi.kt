@@ -22,6 +22,7 @@ class GameApiImpl(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
+        println("HUGO - createGame: $response")
         return if (response.status.isSuccess()) {
             response.body<CreateGameResponse.Success>()
         } else {

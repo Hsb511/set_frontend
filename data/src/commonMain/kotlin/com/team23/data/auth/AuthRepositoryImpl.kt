@@ -24,7 +24,7 @@ class AuthRepositoryImpl(
         )
         val response = authApi.register(request)
         when (response) {
-            is AuthRegisterResponse.Success -> storeUserInfo(response.playerId.toString(), username)
+            is AuthRegisterResponse.Success -> loginAndStoreUserInfo(username, password)
             is AuthRegisterResponse.Failure -> throw IllegalArgumentException(response.error)
         }
     }
@@ -34,13 +34,12 @@ class AuthRepositoryImpl(
         val request = AuthRequest(username = username, password = password)
         val response = authApi.signin(request)
         when (response) {
-            is AuthSignResponse.Success -> storeUserInfo(response.playerId.toString(), username)
+            is AuthSignResponse.Success -> {
+                setDataStore.setValue(SetDataStore.USER_ID_KEY, response.playerId.toString())
+                setDataStore.setValue(SetDataStore.USERNAME_KEY, username)
+                setDataStore.setValue(SetDataStore.SESSION_TOKEN_KEY, response.sessionToken.toString())
+            }
             is AuthSignResponse.Failure -> throw IllegalArgumentException(response.error)
         }
-    }
-
-    private suspend fun storeUserInfo(userId: String, username: String) {
-        setDataStore.setValue(SetDataStore.USER_ID_KEY, userId)
-        setDataStore.setValue(SetDataStore.USERNAME_KEY, username)
     }
 }
