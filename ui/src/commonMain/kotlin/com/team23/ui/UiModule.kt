@@ -44,7 +44,6 @@ val uiModule = module {
     factory {
         SettingsViewModel(
             userRepository = get(),
-            deviceRepository = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

@@ -1,12 +1,19 @@
 package com.team23.domain.startup.repository
 
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 interface AuthRepository {
 
-    suspend fun registerAndStoreUserId(): Result<Unit>
+    suspend fun registerAndStoreUserId(
+        username: String,
+        password: String,
+        firstname: String?,
+        lastname: String?,
+    ): Result<Unit>
 
     @OptIn(ExperimentalUuidApi::class)
-    suspend fun loginAndStoreUserId(userId: Uuid): Result<Unit>
+    suspend fun loginAndStoreUserId(
+        username: String,
+        password: String,
+    ): Result<Unit>
 }

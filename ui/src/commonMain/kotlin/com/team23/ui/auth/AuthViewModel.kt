@@ -21,8 +21,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class AuthViewModel(
     private val stateMachine: StartupStateMachine,
@@ -48,29 +46,25 @@ class AuthViewModel(
         when (authAction) {
             is AuthAction.NavigateToSignIn -> navController.navigate(NavigationScreen.SignInWithCredentials.name)
             is AuthAction.NavigateToSignUp -> navController.navigate(NavigationScreen.SignUpWithCredentials.name)
-            is AuthAction.Auth -> TODO() //handleSignIn(authAction.userId)
+            is AuthAction.Auth -> handleAuth(authAction)
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
-    private fun handleSignIn(userId: String) {
+    private fun handleAuth(action: AuthAction.Auth) {
+        val startupEvent = when (action.type) {
+            AuthType.SignUp -> StartupEvent.SignUp(
+                username = action.username,
+                password = action.password,
+                firstname = action.firstname,
+                lastname = action.lastname,
+            )
+            AuthType.SignIn -> StartupEvent.SignIn(
+                username = action.username,
+                password = action.password,
+            )
+        }
         viewModelScope.launch {
-            val signInEvent = StartupEvent.SignIn(Uuid.parse(userId))
-            val newState = stateMachine.reduce(StartupState.UserSignInUp, signInEvent)
-            handleDeviceRegistration(newState)
-        }
-    }
-
-    private fun handleSignUp() {
-        viewModelScope.launch {
-            val newState = stateMachine.reduce(StartupState.UserSignInUp, StartupEvent.SignUp)
-            handleDeviceRegistration(newState)
-        }
-    }
-
-    private suspend fun handleDeviceRegistration(newState: StartupState) {
-        if (newState is StartupState.DeviceRegistration) {
-            val newState = stateMachine.reduce(StartupState.DeviceRegistration, StartupEvent.RegisterDevice)
+            val newState = stateMachine.reduce(StartupState.UserSignInUp, startupEvent)
             if (newState is StartupState.GameTypeChoice) {
                 navigateToGameTypeSelection()
             }
@@ -84,7 +78,6 @@ class AuthViewModel(
     }
 
     private fun mapToSnackbar(sideEffect: StartupSideEffect): SnackbarVisuals = when (sideEffect) {
-        is StartupSideEffect.DeviceRegistrationError -> SetSnackbarVisuals.DeviceRegistration
         is StartupSideEffect.SignInError -> SetSnackbarVisuals.SignInError
         is StartupSideEffect.SignUpError -> SetSnackbarVisuals.SignUpError(sideEffect.throwable.message)
     }

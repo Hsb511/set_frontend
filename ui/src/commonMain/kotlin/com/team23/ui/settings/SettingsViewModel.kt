@@ -1,6 +1,5 @@
 package com.team23.ui.settings
 
-import com.team23.domain.startup.repository.DeviceRepository
 import com.team23.domain.startup.repository.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
@@ -14,7 +13,6 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class)
 class SettingsViewModel(
     private val userRepository: UserRepository,
-    private val deviceRepository: DeviceRepository,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
@@ -27,9 +25,6 @@ class SettingsViewModel(
         viewModelScope.launch {
             userRepository.getUserId().onSuccess { userId ->
                 _settingsStateFlow.value = _settingsStateFlow.value.copy(userId = userId.toString())
-            }
-            deviceRepository.getDeviceId().onSuccess { deviceId ->
-                _settingsStateFlow.value = _settingsStateFlow.value.copy(deviceId = deviceId.toString())
             }
         }
     }

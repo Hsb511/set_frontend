@@ -10,8 +10,14 @@ class AuthRepositoryImpl(
     private val authApi: AuthApi,
 ) : AuthRepository {
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun registerAndStoreUserId(): Result<Unit> = runCatching {
-        val response = authApi.register(AuthRegisterRequest(username = "Foo", password = "Bar"))
+    override suspend fun registerAndStoreUserId(
+        username: String,
+        password: String,
+        firstname: String?,
+        lastname: String?,
+    ): Result<Unit> = runCatching {
+        val request = AuthRegisterRequest(username, password, firstname.orEmpty(), lastname.orEmpty())
+        val response = authApi.register(request)
         when (response) {
             is AuthRegisterResponse.Success -> {
                 val newUserId = response.playerId.toString()
@@ -22,7 +28,8 @@ class AuthRepositoryImpl(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun loginAndStoreUserId(userId: Uuid): Result<Unit> = runCatching {
-        setDataStore.setValue(SetDataStore.USER_ID_KEY, userId.toString())
+    override suspend fun loginAndStoreUserId(username: String, password: String): Result<Unit> = runCatching {
+        TODO()
+        // setDataStore.setValue(SetDataStore.USER_ID_KEY, userId.toString())
     }
 }

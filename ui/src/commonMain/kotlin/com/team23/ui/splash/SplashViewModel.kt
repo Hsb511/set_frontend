@@ -37,12 +37,9 @@ class SplashViewModel(
             val elapsed: Duration = measureTime {
                 val newState = stateMachine.reduce(StartupState.Splash, StartupEvent.Init)
                 screen = when (newState) {
-                    // TODO SHOULD NOT BE POSSIBLE. SHOW ERROR
                     is StartupState.Splash,
                     is StartupState.StartGame -> NavigationScreen.Splash
                     is StartupState.GameTypeChoice -> NavigationScreen.GameTypeSelection
-                    // TODO HANDLE DEVICE REGISTRATION
-                    is StartupState.DeviceRegistration,
                     is StartupState.UserSignInUp -> NavigationScreen.AuthType
                 }
             }
