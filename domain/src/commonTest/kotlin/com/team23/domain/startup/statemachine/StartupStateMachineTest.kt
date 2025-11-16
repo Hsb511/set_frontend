@@ -33,7 +33,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { userRepository.getUserId() } returns Result.failure(NoSuchElementException())
+        everySuspend { userRepository.getUserInfo() } returns Result.failure(NoSuchElementException())
 
         // When
         val newState = machine.reduce(state, event)
@@ -49,7 +49,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { userRepository.getUserId() } returns Result.success(Uuid.random())
+        everySuspend { userRepository.getUserInfo() } returns Result.success(Uuid.random() to "")
 
         // When
         val newState = machine.reduce(state, event)
@@ -62,9 +62,10 @@ class StartupStateMachineTest {
     fun `SignIn failure - UserSignInUp to UserSignInUp - Given UserSignInUp, SignIn and signin fails, When reducing, Then returns UserSignInUp`() = runTest {
         // Given
         val state = StartupState.UserSignInUp
-        val userId = Uuid.random()
-        val event = StartupEvent.SignIn(userId)
-        everySuspend { authRepository.loginAndStoreUserInfo(userId) } returns Result.failure(Exception())
+        val username = "username"
+        val password = "password"
+        val event = StartupEvent.SignIn(username, password)
+        everySuspend { authRepository.loginAndStoreUserInfo(username, password) } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)
@@ -74,11 +75,15 @@ class StartupStateMachineTest {
     }
 
     @Test
-    fun `SignUp success - UserSignInUp to DeviceRegistration - Given UserSignInUp, SignUp and signup success, When reducing, Then returns GameTypeChoice`() = runTest {
+    fun `SignUp success - UserSignInUp to GameTypeChoice - Given UserSignInUp, SignUp and signup success, When reducing, Then returns GameTypeChoice`() = runTest {
         // Given
         val state = StartupState.UserSignInUp
-        val event = StartupEvent.SignUp
-        everySuspend {  authRepository.registerAndStoreUserInfo() } returns Result.success(Unit)
+        val username = "username"
+        val password = "password"
+        val firstname = "firstname"
+        val lastname = "lastname"
+        val event = StartupEvent.SignUp(username, password, firstname, lastname)
+        everySuspend {  authRepository.registerAndStoreUserInfo(username, password, firstname, lastname) } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(state, event)
@@ -91,8 +96,12 @@ class StartupStateMachineTest {
     fun `SignUp failure - UserSignInUp to UserSignInUp - Given UserSignInUp, SignUp and signup fails, When reducing, Then returns UserSignInUp`() = runTest {
         // Given
         val state = StartupState.UserSignInUp
-        val event = StartupEvent.SignUp
-        everySuspend { authRepository.registerAndStoreUserInfo() } returns Result.failure(Exception())
+        val username = "username"
+        val password = "password"
+        val firstname = "firstname"
+        val lastname = "lastname"
+        val event = StartupEvent.SignUp(username, password, firstname, lastname)
+        everySuspend { authRepository.registerAndStoreUserInfo(username, password, firstname, lastname) } returns Result.failure(Exception())
 
         // When
         val newState = machine.reduce(state, event)

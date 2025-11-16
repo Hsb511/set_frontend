@@ -11,8 +11,8 @@ sealed interface StartupEvent {
     data class SignUp(
         val username: String,
         val password: String,
-        val firstname: String?,
-        val lastname: String?,
+        val firstname: String? = null,
+        val lastname: String? = null,
     ): StartupEvent
     data class StartGameType(val gameType: GameType): StartupEvent
 }
