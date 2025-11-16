@@ -43,7 +43,7 @@ class SplashViewModel(
                     is StartupState.GameTypeChoice -> NavigationScreen.GameTypeSelection
                     // TODO HANDLE DEVICE REGISTRATION
                     is StartupState.DeviceRegistration,
-                    is StartupState.UserSignInUp -> NavigationScreen.LoginType
+                    is StartupState.UserSignInUp -> NavigationScreen.AuthType
                 }
             }
 

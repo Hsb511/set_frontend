@@ -4,7 +4,7 @@ import com.team23.ui.card.CardUiMapper
 import com.team23.ui.game.GameUiMapper
 import com.team23.ui.game.GameViewModel
 import com.team23.ui.gametype.GameTypeViewModel
-import com.team23.ui.login.LoginViewModel
+import com.team23.ui.auth.AuthViewModel
 import com.team23.ui.settings.SettingsViewModel
 import com.team23.ui.splash.SplashViewModel
 import kotlinx.coroutines.CoroutineName
@@ -26,7 +26,7 @@ val uiModule = module {
     }
 
     factory {
-        LoginViewModel(
+        AuthViewModel(
             stateMachine = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),

@@ -1,4 +1,4 @@
-package com.team23.ui.login
+package com.team23.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
@@ -22,48 +24,61 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 
 @Composable
-fun LoginScreen(
+fun AuthTypeScreen(
     navController: NavHostController = rememberNavController(),
 ) {
-    val loginViewModel = koinInject<LoginViewModel>()
-    loginViewModel.setNavController(navController)
+    val authViewModel = koinInject<AuthViewModel>()
+    authViewModel.setNavController(navController)
 
     Box(
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .fillMaxSize()
     ) {
-        LoginScreen(
-            onAction = loginViewModel::onAction,
+        AuthTypeScreen(
+            onAction = authViewModel::onAction,
         )
 
         SetSnackbar(
-            snackbarDataFlow = loginViewModel.snackbar,
+            snackbarDataFlow = authViewModel.snackbar,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
 
 @Composable
-private fun LoginScreen(
-    onAction: (LoginAction) -> Unit,
+private fun AuthTypeScreen(
+    onAction: (AuthAction) -> Unit,
 ) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = LocalSpacings.current.large),
     ) {
         ActionButton(
-            text = "play without an account",
-            onClick = { onAction(LoginAction.NavigateToSignUp)}
+            text = "Sign up",
+            onClick = { onAction(AuthAction.NavigateToSignUp)},
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
-            text = "\uD83D\uDEA7 sign in with userId \uD83D\uDEA7",
-            onClick = { onAction(LoginAction.NavigateToSignIn)}
+            text = "Sign in",
+            onClick = { onAction(AuthAction.NavigateToSignIn)},
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
+
+        ActionButton(
+            text = "\uD83D\uDEA7 Play as guest \uD83D\uDEA7",
+            onClick = { onAction(AuthAction.NavigateToSignIn)},
+            enabled = false,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -72,6 +87,6 @@ private fun LoginScreen(
 @Preview(showBackground = true)
 private fun LoginScreenPreview() {
     SetTheme {
-        LoginScreen()
+        AuthTypeScreen { }
     }
 }

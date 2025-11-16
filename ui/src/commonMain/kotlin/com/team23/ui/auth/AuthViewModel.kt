@@ -1,4 +1,4 @@
-package com.team23.ui.login
+package com.team23.ui.auth
 
 import androidx.compose.material3.SnackbarVisuals
 import androidx.navigation.NavController
@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class LoginViewModel(
+class AuthViewModel(
     private val stateMachine: StartupStateMachine,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
@@ -44,11 +44,11 @@ class LoginViewModel(
         this.navController = navHostController
     }
 
-    fun onAction(loginAction: LoginAction) {
-        when (loginAction) {
-            is LoginAction.NavigateToSignIn -> navController.navigate(NavigationScreen.LoginCredentials.name)
-            is LoginAction.NavigateToSignUp -> handleSignUp()
-            is LoginAction.SignIn -> handleSignIn(loginAction.userId)
+    fun onAction(authAction: AuthAction) {
+        when (authAction) {
+            is AuthAction.NavigateToSignIn -> navController.navigate(NavigationScreen.SignInWithCredentials.name)
+            is AuthAction.NavigateToSignUp -> handleSignUp()
+            is AuthAction.SignIn -> handleSignIn(authAction.userId)
         }
     }
 

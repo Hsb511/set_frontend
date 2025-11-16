@@ -2,8 +2,9 @@ package com.team23.ui.navigation
 
 enum class NavigationScreen {
     Splash,
-    LoginType,
-    LoginCredentials,
+    AuthType,
+    SignInWithCredentials,
+    SignUpWithCredentials,
     GameTypeSelection,
     Game,
 }

@@ -1,4 +1,4 @@
-package com.team23.ui.login
+package com.team23.ui.auth
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,26 +22,31 @@ import com.team23.ui.button.ActionButton
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @Composable
-fun LoginCredentialsScreen(
+fun AuthCredentialsScreen(
+    authType: AuthType,
     navController: NavController = rememberNavController(),
 ) {
-    val loginViewModel = koinInject<LoginViewModel>()
-    loginViewModel.setNavController(navController)
+    val authViewModel = koinInject<AuthViewModel>()
+    authViewModel.setNavController(navController)
 
-    LoginCredentialsScreen(
-        onAction = loginViewModel::onAction,
+    AuthCredentialsScreen(
+        authType = authType,
+        onAction = authViewModel::onAction,
     )
 }
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun LoginCredentialsScreen(
-    onAction: (LoginAction) -> Unit,
+private fun AuthCredentialsScreen(
+    authType: AuthType,
+    onAction: (AuthAction) -> Unit,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -78,7 +83,7 @@ fun LoginCredentialsScreen(
             ActionButton(
                 text = "Sign in",
                 onClick = {
-                    onAction(LoginAction.SignIn(userId))
+                    onAction(AuthAction.SignIn(userId))
                 },
                 enabled = !isError,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -88,9 +93,15 @@ fun LoginCredentialsScreen(
 }
 
 @Composable
-@Preview
-private fun LoginCredentialsScreenPreview() {
+@Preview(showBackground = true)
+private fun AuthCredentialsScreenPreview(
+    @PreviewParameter(AuthCredentialsPreviewParameter::class) authType: AuthType,
+) {
     SetTheme {
-        LoginCredentialsScreen()
+        AuthCredentialsScreen(authType) { }
     }
+}
+
+private class AuthCredentialsPreviewParameter: PreviewParameterProvider<AuthType> {
+    override val values: Sequence<AuthType> = AuthType.entries.asSequence()
 }
