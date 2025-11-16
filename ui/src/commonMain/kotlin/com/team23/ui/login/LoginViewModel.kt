@@ -86,6 +86,6 @@ class LoginViewModel(
     private fun mapToSnackbar(sideEffect: StartupSideEffect): SnackbarVisuals = when (sideEffect) {
         is StartupSideEffect.DeviceRegistrationError -> SetSnackbarVisuals.DeviceRegistration
         is StartupSideEffect.SignInError -> SetSnackbarVisuals.SignInError
-        is StartupSideEffect.SignUpError -> SetSnackbarVisuals.SignUpError
+        is StartupSideEffect.SignUpError -> SetSnackbarVisuals.SignUpError(sideEffect.throwable.message)
     }
 }

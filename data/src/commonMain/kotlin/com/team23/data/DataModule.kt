@@ -1,5 +1,7 @@
 package com.team23.data
 
+import com.team23.data.auth.AuthApi
+import com.team23.data.auth.AuthApiImpl
 import com.team23.data.auth.AuthRepositoryImpl
 import com.team23.data.device.DeviceRepositoryImpl
 import com.team23.data.game.GameRepositoryImpl
@@ -16,7 +18,9 @@ val dataModule = module {
     includes(platformModule())
     single<HttpClient> { createHttpClient() }
 
-    single { AuthRepositoryImpl(get()) as AuthRepository }
+    single { AuthApiImpl(get()) as AuthApi }
+
+    single { AuthRepositoryImpl(get(), get()) as AuthRepository }
     single { DeviceRepositoryImpl(get()) as DeviceRepository }
     single { GameRepositoryImpl() as GameRepository }
     single { UserRepositoryImpl(get()) as UserRepository }

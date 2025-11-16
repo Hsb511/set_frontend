@@ -27,8 +27,8 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "An error occurred while signing in"
     }
 
-    data object SignUpError: ShortSnackbarVisuals() {
-        override val message: String = "An error occurred while signing up"
+    data class SignUpError(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "An error occurred while signing up: $errorMessage"
     }
 
     data object DeviceRegistration: ShortSnackbarVisuals() {
