@@ -6,6 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.team23.ui.debug.DebugManagementFAB
 import com.team23.ui.debug.DebugViewModel
+import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationHost
 import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.SetTheme
@@ -19,18 +20,19 @@ fun App() {
         Box {
             NavigationHost()
 
-            val debugViewModel = koinInject<DebugViewModel>()
+            if (isDebug()) {
+                val debugViewModel = koinInject<DebugViewModel>()
 
-            SetSnackbar(
-                snackbarDataFlow = debugViewModel.snackbar,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+                SetSnackbar(
+                    snackbarDataFlow = debugViewModel.snackbar,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
 
-            // TODO ONLY FOR DEV AND TEST
-            DebugManagementFAB(
-                onAction = debugViewModel::onAction,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            )
+                DebugManagementFAB(
+                    onAction = debugViewModel::onAction,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
+            }
         }
     }
 }

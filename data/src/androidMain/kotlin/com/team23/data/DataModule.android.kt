@@ -29,7 +29,7 @@ actual fun createHttpClient(): HttpClient {
         }
 
         install(DefaultRequest) {
-            url("https://settest.souchefr.synology.me")
+            url(BuildConfig.BASE_URL)
         }
 
         engine {

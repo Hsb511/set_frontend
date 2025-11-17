@@ -1,20 +1,22 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.androidLint)
+    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
 
-    androidLibrary {
-        namespace = "com.team23.ui"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
+
+    jvm()
 
     val xcfName = "uiKit"
 
@@ -35,8 +37,6 @@ kotlin {
             baseName = xcfName
         }
     }
-
-    jvm()
 
     js {
         browser()
@@ -73,8 +73,16 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.emoji2)
         }
+    }
+}
 
+android {
+    namespace = "com.team23.ui"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    buildFeatures.buildConfig = true
 
-        iosMain { }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }

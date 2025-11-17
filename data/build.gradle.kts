@@ -86,4 +86,19 @@ kotlin {
 android {
     namespace = "com.team23.data"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    buildFeatures.buildConfig = true
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"https://settest.souchefr.synology.me/\"")
+        }
+        release {
+            buildConfigField("String", "BASE_URL", "\"https://set.souchefr.synology.me/\"")
+        }
+    }
 }
