@@ -22,9 +22,7 @@ class GameRepositoryImpl(
         val response = gameApi.createGame(sessionToken, request)
         when (response) {
             is CreateGameResponse.Success -> {
-                println("HUGO - table: ${response.table}")
                 requireNotNull(response.table)
-                println("HUGO - table: ${response.pileCards}")
                 requireNotNull(response.pileCards)
                 GameState.Playing(
                     deck = response.pileCards.map(cardDataMapper::toDomainModel),

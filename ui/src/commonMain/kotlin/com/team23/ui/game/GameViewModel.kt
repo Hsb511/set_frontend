@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -45,10 +44,8 @@ class GameViewModel(
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
     val gameUiModelFlow: StateFlow<GameUiModel> = _gameStateFlow
-        .onEach { println("HUGO - GameViewModel - state: $it") }
         .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
-        .onEach { println("HUGO - GameViewModel - uiModel: $it") }
-        .stateIn(viewModelScope, SharingStarted.Lazily, GameUiModel())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, GameUiModel())
 
     private val _gameUiEvent: MutableSharedFlow<GameUiEvent> = MutableSharedFlow()
     val gameUiEvent: SharedFlow<GameUiEvent> = merge(
@@ -84,9 +81,7 @@ class GameViewModel(
 
     private fun startSoloGame() {
         viewModelScope.launch {
-            println("HUGO 1 - ${_gameStateFlow.value}")
             initSoloGame()
-            println("HUGO 2 - ${_gameStateFlow.value}")
             if (_gameStateFlow.value is GameState.Playing) {
                 navigateToGame()
             }
@@ -122,7 +117,6 @@ class GameViewModel(
 
     private suspend fun updateGameState(state: GameState, event: GameEvent) {
         _gameStateFlow.value = stateMachine.reduce(state, event)
-        println("HUGO - updateGameState - $state -> ${_gameStateFlow.value}")
     }
 
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {

@@ -30,8 +30,6 @@ class GameStateMachine(
         }
 
         is GameState.Finished -> state
-    }.also {
-        println("HUGO - reduce - $state -> $it")
     }
 
     private suspend fun initializeGame(gameType: GameType): GameState {
@@ -39,7 +37,6 @@ class GameStateMachine(
             GameType.Solo -> gameRepository.createSoloGame()
             GameType.Multi -> TODO()
         }
-        println("HUGO - initializeGame: $gameType - game: $game")
         return game.getOrElse { throwable ->
             _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
             GameState.EmptyDeck

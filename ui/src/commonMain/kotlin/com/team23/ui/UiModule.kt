@@ -17,7 +17,7 @@ val uiModule = module {
     factoryOf(::CardUiMapper)
     factoryOf(::GameUiMapper)
 
-    factory {
+    single {
         SplashViewModel(
             stateMachine = get(),
             dispatcher = Dispatchers.Default,
@@ -25,7 +25,7 @@ val uiModule = module {
         )
     }
 
-    factory {
+    single {
         AuthViewModel(
             stateMachine = get(),
             dispatcher = Dispatchers.Default,
@@ -33,7 +33,7 @@ val uiModule = module {
         )
     }
 
-    factory {
+    single {
         DebugViewModel(
             adminRepository = get(),
             dispatcher = Dispatchers.Default,
@@ -41,7 +41,7 @@ val uiModule = module {
         )
     }
 
-    factory {
+    single {
         SettingsViewModel(
             userRepository = get(),
             dispatcher = Dispatchers.Default,
@@ -49,7 +49,7 @@ val uiModule = module {
         )
     }
 
-    factory {
+    single {
         GameViewModel(
             stateMachine = get(),
             gameUiMapper = get(),

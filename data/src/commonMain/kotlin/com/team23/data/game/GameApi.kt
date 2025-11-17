@@ -4,7 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -27,7 +26,6 @@ class GameApiImpl(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        println("HUGO - createGame: ${response.bodyAsText()}")
         return if (response.status.isSuccess()) {
             response.body<CreateGameResponse.Success>()
         } else {
