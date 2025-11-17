@@ -17,6 +17,7 @@ import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,9 +26,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
@@ -42,7 +45,9 @@ class GameViewModel(
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
     val gameUiModelFlow: StateFlow<GameUiModel> = _gameStateFlow
+        .onEach { println("HUGO - GameViewModel - state: $it") }
         .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
+        .onEach { println("HUGO - GameViewModel - uiModel: $it") }
         .stateIn(viewModelScope, SharingStarted.Lazily, GameUiModel())
 
     private val _gameUiEvent: MutableSharedFlow<GameUiEvent> = MutableSharedFlow()
@@ -63,18 +68,39 @@ class GameViewModel(
     fun onAction(action: GameAction) {
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
-            is Restart -> {
-                viewModelScope.launch {
-                    _gameUiEvent.emit(GameUiEvent.ResetScreen)
-                }
-                startGame()
-            }
+            is Restart -> startNewGame()
             is GameAction.ChangeGameType -> navController.navigate(NavigationScreen.GameTypeSelection.name)
+            is GameAction.StartSolo -> startSoloGame()
+            is GameAction.StartMulti -> TODO()
         }
     }
 
-    private fun startGame() {
+    private fun startNewGame() {
+        viewModelScope.launch {
+            initSoloGame()
+            _gameUiEvent.emit(GameUiEvent.ResetScreen)
+        }
+    }
+
+    private fun startSoloGame() {
+        viewModelScope.launch {
+            println("HUGO 1 - ${_gameStateFlow.value}")
+            initSoloGame()
+            println("HUGO 2 - ${_gameStateFlow.value}")
+            if (_gameStateFlow.value is GameState.Playing) {
+                navigateToGame()
+            }
+        }
+    }
+
+    private suspend fun initSoloGame() {
         updateGameState(GameState.EmptyDeck, GameEvent.Init(GameType.Solo))
+    }
+
+    private suspend fun navigateToGame() {
+        withContext(Dispatchers.Main) {
+            navController.navigate(NavigationScreen.Game.name)
+        }
     }
 
     private fun selectOrUnselectCard(card: Slot) {
@@ -89,13 +115,14 @@ class GameViewModel(
             selectedCards.add(cardToToggle)
         }
         val event = GameEvent.CardsSelected(selectedCards)
-        updateGameState(_gameStateFlow.value, event)
+        viewModelScope.launch {
+            updateGameState(_gameStateFlow.value, event)
+        }
     }
 
-    private fun updateGameState(state: GameState, event: GameEvent) {
-        viewModelScope.launch {
-            _gameStateFlow.value = stateMachine.reduce(state, event)
-        }
+    private suspend fun updateGameState(state: GameState, event: GameEvent) {
+        _gameStateFlow.value = stateMachine.reduce(state, event)
+        println("HUGO - updateGameState - $state -> ${_gameStateFlow.value}")
     }
 
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {

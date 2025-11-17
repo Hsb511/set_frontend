@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.game.GameScreen
-import com.team23.ui.gametype.GameTypeScreen
+import com.team23.ui.game.GameTypeScreen
 import com.team23.ui.auth.AuthCredentialsScreen
 import com.team23.ui.auth.AuthType
 import com.team23.ui.auth.AuthTypeScreen

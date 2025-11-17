@@ -18,11 +18,13 @@ class GameRepositoryImpl(
         val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
         requireNotNull(cachedSessionToken)
         val sessionToken = Uuid.parse(cachedSessionToken)
-        val request = CreateGameRequest(sessionToken, CreateGameRequest.ResponseMode.Full)
-        val response = gameApi.createGame(request)
+        val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
+        val response = gameApi.createGame(sessionToken, request)
         when (response) {
             is CreateGameResponse.Success -> {
+                println("HUGO - table: ${response.table}")
                 requireNotNull(response.table)
+                println("HUGO - table: ${response.pileCards}")
                 requireNotNull(response.pileCards)
                 GameState.Playing(
                     deck = response.pileCards.map(cardDataMapper::toDomainModel),

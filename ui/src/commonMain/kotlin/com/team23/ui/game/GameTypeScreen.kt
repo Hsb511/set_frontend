@@ -1,4 +1,4 @@
-package com.team23.ui.gametype
+package com.team23.ui.game
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,16 +22,16 @@ import org.koin.compose.koinInject
 fun GameTypeScreen(
     navController: NavHostController = rememberNavController(),
 ) {
-    val gameTypeViewModel = koinInject<GameTypeViewModel>()
-    gameTypeViewModel.setNavController(navController)
+    val gameViewModel = koinInject<GameViewModel>()
+    gameViewModel.setNavController(navController)
 
     Box {
         GameTypeScreen(
-            onAction = gameTypeViewModel::onAction,
+            onAction = gameViewModel::onAction,
         )
 
         SetSnackbar(
-            snackbarDataFlow = gameTypeViewModel.snackbar,
+            snackbarDataFlow = gameViewModel.snackbar,
             modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
@@ -39,7 +39,7 @@ fun GameTypeScreen(
 
 @Composable
 private fun GameTypeScreen(
-    onAction: (GameTypeAction) -> Unit,
+    onAction: (GameAction) -> Unit,
 ) {
 
     Column(
@@ -49,7 +49,7 @@ private fun GameTypeScreen(
     ) {
         ActionButton(
             text = "Start solo game",
-            onClick = { onAction(GameTypeAction.StartSolo) }
+            onClick = { onAction(GameAction.StartSolo) }
         )
 
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
@@ -57,7 +57,7 @@ private fun GameTypeScreen(
         ActionButton(
             text = "Start multi game",
             enabled = false,
-            onClick = { onAction(GameTypeAction.StartMulti) }
+            onClick = { onAction(GameAction.StartMulti) }
         )
     }
 }
