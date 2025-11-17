@@ -14,13 +14,15 @@ import kotlin.uuid.Uuid
 interface GameApi {
 
     suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse
+
+    suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse
 }
 
+@OptIn(ExperimentalUuidApi::class)
 class GameApiImpl(
     private val client: HttpClient,
 ): GameApi {
 
-    @OptIn(ExperimentalUuidApi::class)
     override suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse {
         val response = client.post("https://settest.souchefr.synology.me/session/$sessionToken/create-game") {
             contentType(ContentType.Application.Json)
@@ -30,6 +32,18 @@ class GameApiImpl(
             response.body<CreateGameResponse.Success>()
         } else {
             response.body<CreateGameResponse.Failure>()
+        }
+    }
+
+    override suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse {
+        val response = client.post("https://settest.souchefr.synology.me/session/$sessionToken/upload-deck") {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+        return if (response.status.isSuccess()) {
+            response.body<UploadDeckResponse.Success>()
+        } else {
+            response.body<UploadDeckResponse.Failure>()
         }
     }
 }
