@@ -29,22 +29,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.team23.ui.theming.LocalSpacings
-import org.koin.compose.koinInject
 
 @Composable
 fun DebugManagementFAB(
-    modifier: Modifier = Modifier,
-) {
-    val debugViewModel = koinInject<DebugViewModel>()
-
-    DebugManagementFAB(
-        onAction = debugViewModel::onAction,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun DebugManagementFAB(
     modifier: Modifier = Modifier,
     onAction: (DebugAction) -> Unit,
 ) {

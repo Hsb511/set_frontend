@@ -1,10 +1,14 @@
 package com.team23.ui.debug
 
+import androidx.compose.material3.SnackbarVisuals
 import com.team23.domain.admin.AdminClearMode
 import com.team23.domain.admin.AdminRepository
+import com.team23.ui.snackbar.SetSnackbarVisuals
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 class DebugViewModel(
@@ -15,6 +19,9 @@ class DebugViewModel(
 
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
 
+    private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
+    val snackbar: SharedFlow<SnackbarVisuals> = _snackbar
+
     fun onAction(action: DebugAction) {
         val mode = when (action) {
             is DebugAction.ClearDb -> AdminClearMode.Database
@@ -23,6 +30,12 @@ class DebugViewModel(
         }
         viewModelScope.launch {
             adminRepository.clear(mode)
+                .onSuccess { message ->
+                    _snackbar.emit(SetSnackbarVisuals.DebugClearSuccess(message))
+                }
+                .onFailure { throwable ->
+                    _snackbar.emit(SetSnackbarVisuals.DebugClearFailure(throwable.message))
+                }
         }
     }
 }
