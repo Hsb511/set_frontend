@@ -2,23 +2,25 @@ package com.team23.domain.game.usecase
 
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.statemachine.GameState
+import kotlin.uuid.ExperimentalUuidApi
 
 
 class UpdateGameAfterSetFoundUseCase(
     private val containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase,
 ) {
 
-    fun invoke(table: List<Card>, setFound: Set<Card>, deck: List<Card>): GameState {
-        var updatedDeck = deck.drop(3)
-        var newCards = deck.take(3)
+    @OptIn(ExperimentalUuidApi::class)
+    fun invoke(game: GameState.Playing, setFound: Set<Card>): GameState {
+        var updatedDeck = game.deck.drop(3)
+        var newCards = game.deck.take(3)
 
         val (newTable, deckIsUnchanged) = replaceCardsInTable(
-            table = table,
+            table = game.table,
             setFound = setFound,
             deck = newCards
         )
         if (deckIsUnchanged) {
-            updatedDeck = deck
+            updatedDeck = game.deck
         }
 
         var tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
@@ -32,9 +34,9 @@ class UpdateGameAfterSetFoundUseCase(
         }
 
         return if (updatedDeck.isEmpty() && tableContainsNoSet) {
-            GameState.Finished(cards = newTable)
+            GameState.Finished(gameId = game.gameId, cards = newTable)
         } else {
-            GameState.Playing(deck = updatedDeck, table = newTable)
+            GameState.Playing(gameId = game.gameId, deck = updatedDeck, table = newTable)
         }
     }
 

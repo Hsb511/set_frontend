@@ -25,6 +25,7 @@ class GameRepositoryImpl(
                 requireNotNull(response.table)
                 requireNotNull(response.pileCards)
                 GameState.Playing(
+                    gameId = response.gameId,
                     deck = response.pileCards.map(cardDataMapper::toDomainModel),
                     table = response.table.map(cardDataMapper::toDomainModel),
                 )

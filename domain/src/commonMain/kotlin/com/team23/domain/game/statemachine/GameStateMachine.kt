@@ -8,7 +8,9 @@ import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import com.team23.domain.startup.model.GameType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class GameStateMachine(
     private val createNewSoloGameUseCase: CreateNewSoloGameUseCase,
     private val isSetUseCase: IsSetUseCase,
@@ -49,15 +51,14 @@ class GameStateMachine(
     ): GameState {
         if (!isSetUseCase.invoke(event.selectedCards)) {
             val newSelectedCards = handleCardSelectionWhenNotASet(event.selectedCards)
-            return state.copy(selected = newSelectedCards)
+            return state.copy(gameId = state.gameId, selected = newSelectedCards)
         }
 
         emitSetFound(event.selectedCards, state.table)
 
         return updateGameAfterSetFoundUseCase.invoke(
-            table = state.table,
+            game = state,
             setFound = event.selectedCards,
-            deck = state.deck,
         )
     }
 
