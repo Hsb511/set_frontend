@@ -4,8 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 interface AuthApi {
@@ -19,7 +17,6 @@ class AuthApiImpl(
 
     override suspend fun register(request: AuthRequest): AuthRegisterResponse {
         val response = client.post("/register") {
-            contentType(ContentType.Application.Json)
             setBody(request)
         }
         return if (response.status.isSuccess()) {
@@ -31,7 +28,6 @@ class AuthApiImpl(
 
     override suspend fun signin(request: AuthRequest): AuthSignResponse {
         val response = client.post("/signin") {
-            contentType(ContentType.Application.Json)
             setBody(request)
         }
         return if (response.status.isSuccess()) {

@@ -29,9 +29,7 @@ class GameApiImpl(
 ): GameApi {
 
     override suspend fun getGame(sessionToken: Uuid): GetGameResponse {
-        val response = client.get("/session/$sessionToken/get-game") {
-            contentType(ContentType.Application.Json)
-        }
+        val response = client.get("/session/$sessionToken/get-game")
         return if (response.status.isSuccess()) {
             response.body<GetGameResponse.Success>()
         } else {
@@ -40,9 +38,7 @@ class GameApiImpl(
     }
 
     override suspend fun getLastDeck(sessionToken: Uuid): GetLastDeckResponse {
-        val response = client.get("/session/$sessionToken/get-last-deck") {
-            contentType(ContentType.Application.Json)
-        }
+        val response = client.get("/session/$sessionToken/get-last-deck")
         return if (response.status.isSuccess()) {
             response.body<GetLastDeckResponse.Success>()
         } else {
@@ -52,7 +48,6 @@ class GameApiImpl(
 
     override suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse {
         val response = client.post("/session/$sessionToken/create-game") {
-            contentType(ContentType.Application.Json)
             setBody(request)
         }
         return if (response.status.isSuccess()) {
@@ -64,7 +59,6 @@ class GameApiImpl(
 
     override suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse {
         val response = client.post("/session/$sessionToken/upload-deck") {
-            contentType(ContentType.Application.Json)
             setBody(request)
         }
         return if (response.status.isSuccess()) {

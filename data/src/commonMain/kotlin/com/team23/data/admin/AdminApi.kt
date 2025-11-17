@@ -4,8 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 interface AdminApi {
@@ -19,7 +17,6 @@ class AdminApiImpl(
 
     override suspend fun clear(request: AdminClearRequest): AdminClearResponse {
         val response = client.post("/clear") {
-            contentType(ContentType.Application.Json)
             setBody(request)
         }
         return if (response.status.isSuccess()) {
