@@ -10,7 +10,7 @@ class UpdateGameAfterSetFoundUseCase(
 ) {
 
     @OptIn(ExperimentalUuidApi::class)
-    fun invoke(game: GameState.Playing, setFound: Set<Card>): GameState {
+    fun invoke(game: GameState.Playing, setFound: Set<Card.Data>): GameState {
         var updatedDeck = game.deck.drop(3)
         var newCards = game.deck.take(3)
 
@@ -32,11 +32,20 @@ class UpdateGameAfterSetFoundUseCase(
             newTable.addAll(newCards)
             tableContainsNoSet = !containsAtLeastOneSetUseCase.invoke(newTable)
         }
-
+        val setsFound: List<Set<Card.Data>> = game.setsFound.toMutableList().apply { add(setFound) }
         return if (updatedDeck.isEmpty() && tableContainsNoSet) {
-            GameState.Finished(gameId = game.gameId, cards = newTable)
+            GameState.Finished(
+                gameId = game.gameId,
+                cards = newTable,
+                setsFound = setsFound,
+            )
         } else {
-            GameState.Playing(gameId = game.gameId, deck = updatedDeck, table = newTable)
+            GameState.Playing(
+                gameId = game.gameId,
+                deck = updatedDeck,
+                table = newTable,
+                setsFound = setsFound,
+            )
         }
     }
 

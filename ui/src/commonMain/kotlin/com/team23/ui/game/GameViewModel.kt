@@ -126,6 +126,7 @@ class GameViewModel(
                 index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait)
             }.toSet()
         )
+
         else -> null
     }
 

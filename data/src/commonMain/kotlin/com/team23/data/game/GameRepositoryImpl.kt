@@ -7,13 +7,13 @@ import com.team23.domain.game.statemachine.GameState
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class GameRepositoryImpl(
     private val gameApi: GameApi,
     private val setDataStore: SetDataStore,
     private val cardDataMapper: CardDataMapper,
 ) : GameRepository {
 
-    @OptIn(ExperimentalUuidApi::class)
     override suspend fun createSoloGame(): Result<GameState.Playing> = runCatching {
         val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
         requireNotNull(cachedSessionToken)
@@ -31,6 +31,27 @@ class GameRepositoryImpl(
                 )
             }
             is CreateGameResponse.Failure -> throw Exception(response.error)
+        }
+    }
+
+    override suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean> = runCatching {
+        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
+        requireNotNull(cachedSessionToken)
+        val sessionToken = Uuid.parse(cachedSessionToken)
+        val request = UploadDeckRequest(
+            gameId = finished.gameId,
+            uploadMode = UploadDeckRequest.UploadMode.Final,
+            turn = finished.setsFound.size,
+            pileCards = emptyList(),
+            table = finished.cards.map(cardDataMapper::toRawString),
+            pitSets = finished.setsFound.map{ set ->
+                set.map(cardDataMapper::toBase10Code)
+            },
+        )
+        val response = gameApi.uploadDeck(sessionToken, request)
+        when (response) {
+            is UploadDeckResponse.Success -> response.gameCompleted
+            is UploadDeckResponse.Failure -> throw Exception(response.error)
         }
     }
 }

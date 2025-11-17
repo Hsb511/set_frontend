@@ -41,7 +41,12 @@ class CardDataMapper {
         else -> Card.Data.Fill.SOLID
     }
 
-    fun toBase10Code(card: Card.Data): Int {
+    fun toRawString(card: Card): String = when(card) {
+        is Card.Data -> toBase10Code(card).toString()
+        is Card.Empty -> "HOLE"
+    }
+
+    fun toBase10Code(card: Card.Data): SetCard {
         return toBase3Code(card).toInt(radix = 3)
     }
 

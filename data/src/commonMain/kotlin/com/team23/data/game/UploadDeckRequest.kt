@@ -15,7 +15,7 @@ data class UploadDeckRequest(
     val turn: Int,
     @SerialName("pile_cards")
     val pileCards: List<SetCard>,
-    val table: List<SetCard>,
+    val table: List<String>,
     @SerialName("pit_sets")
     val pitSets: List<List<SetCard>>,
 ) {
