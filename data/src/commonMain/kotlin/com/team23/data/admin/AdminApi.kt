@@ -18,7 +18,7 @@ class AdminApiImpl(
 ) : AdminApi {
 
     override suspend fun clear(request: AdminClearRequest): AdminClearResponse {
-        val response = client.post("https://settest.souchefr.synology.me/clear") {
+        val response = client.post("/clear") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }

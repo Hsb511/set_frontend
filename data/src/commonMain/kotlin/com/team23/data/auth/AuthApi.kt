@@ -18,7 +18,7 @@ class AuthApiImpl(
 ) : AuthApi {
 
     override suspend fun register(request: AuthRequest): AuthRegisterResponse {
-        val response = client.post("https://settest.souchefr.synology.me/register") {
+        val response = client.post("/register") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -30,7 +30,7 @@ class AuthApiImpl(
     }
 
     override suspend fun signin(request: AuthRequest): AuthSignResponse {
-        val response = client.post("https://settest.souchefr.synology.me/signin") {
+        val response = client.post("/signin") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }

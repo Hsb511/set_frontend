@@ -4,6 +4,7 @@ import com.team23.data.datastore.SetDataStore
 import com.team23.data.datastore.SetDataStoreImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -25,6 +26,10 @@ actual fun createHttpClient(): HttpClient {
                     isLenient = true
                 }
             )
+        }
+
+        install(DefaultRequest) {
+            url("https://settest.souchefr.synology.me")
         }
 
         engine {

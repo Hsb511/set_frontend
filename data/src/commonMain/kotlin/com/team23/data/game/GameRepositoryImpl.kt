@@ -41,10 +41,10 @@ class GameRepositoryImpl(
         val request = UploadDeckRequest(
             gameId = finished.gameId,
             uploadMode = UploadDeckRequest.UploadMode.Final,
-            turn = finished.setsFound.size,
+            turn = finished.setsFound.size + 1,
             pileCards = emptyList(),
             table = finished.cards.map(cardDataMapper::toRawString),
-            pitSets = finished.setsFound.map{ set ->
+            pitSets = finished.setsFound.map { set ->
                 set.map(cardDataMapper::toBase10Code)
             },
         )

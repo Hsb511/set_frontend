@@ -24,7 +24,7 @@ class GameApiImpl(
 ): GameApi {
 
     override suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse {
-        val response = client.post("https://settest.souchefr.synology.me/session/$sessionToken/create-game") {
+        val response = client.post("/session/$sessionToken/create-game") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
@@ -36,7 +36,7 @@ class GameApiImpl(
     }
 
     override suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse {
-        val response = client.post("https://settest.souchefr.synology.me/session/$sessionToken/upload-deck") {
+        val response = client.post("/session/$sessionToken/upload-deck") {
             contentType(ContentType.Application.Json)
             setBody(request)
         }
