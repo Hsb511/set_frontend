@@ -1,4 +1,4 @@
-package com.team23.ui.dev
+package com.team23.ui.debug
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.VideogameAsset
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,10 +29,24 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.team23.ui.theming.LocalSpacings
+import org.koin.compose.koinInject
 
 @Composable
-fun DevManagementFAB(
+fun DebugManagementFAB(
     modifier: Modifier = Modifier,
+) {
+    val debugViewModel = koinInject<DebugViewModel>()
+
+    DebugManagementFAB(
+        onAction = debugViewModel::onAction,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun DebugManagementFAB(
+    modifier: Modifier = Modifier,
+    onAction: (DebugAction) -> Unit,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
@@ -46,13 +61,25 @@ fun DevManagementFAB(
     ) {
         AnimatedVisibility(
             visible = isExpanded,
+            enter = fadeIn(getTween(delayMillis = 3 * ANIMATION_DELAY)),
+            exit = fadeOut(getTween()) + shrinkVertically(getTween()),
+        ) {
+            RecipeFabRowButton(
+                text = "Clear games from memory",
+                icon = Icons.Outlined.VideogameAsset,
+                onIconClick = { onAction(DebugAction.ClearGames) },
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+        AnimatedVisibility(
+            visible = isExpanded,
             enter = fadeIn(getTween(delayMillis = 2 * ANIMATION_DELAY)),
             exit = fadeOut(getTween()) + shrinkVertically(getTween()),
         ) {
             RecipeFabRowButton(
-                text = "Clear server memory",
+                text = "Clear all server memory",
                 icon = Icons.Outlined.Memory,
-                onIconClick = { TODO() },
+                onIconClick = { onAction(DebugAction.ClearMemory) },
                 modifier = Modifier.padding(bottom = 8.dp),
             )
         }
@@ -62,9 +89,9 @@ fun DevManagementFAB(
             exit = fadeOut(getTween()) + shrinkVertically(getTween()),
         ) {
             RecipeFabRowButton(
-                text = "Clear server db",
+                text = "Clear all server database",
                 icon = Icons.Outlined.Storage,
-                onIconClick = { TODO() },
+                onIconClick = { onAction(DebugAction.ClearDb) },
                 modifier = Modifier.padding(bottom = 8.dp),
             )
         }

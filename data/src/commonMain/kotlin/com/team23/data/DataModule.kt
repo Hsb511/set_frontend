@@ -1,5 +1,6 @@
 package com.team23.data
 
+import com.team23.data.admin.AdminRepositoryImpl
 import com.team23.data.auth.AuthApi
 import com.team23.data.auth.AuthApiImpl
 import com.team23.data.auth.AuthRepositoryImpl
@@ -8,6 +9,7 @@ import com.team23.data.game.GameApi
 import com.team23.data.game.GameApiImpl
 import com.team23.data.game.GameRepositoryImpl
 import com.team23.data.user.UserRepositoryImpl
+import com.team23.domain.admin.AdminRepository
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.startup.repository.AuthRepository
 import com.team23.domain.startup.repository.UserRepository
@@ -25,6 +27,7 @@ val dataModule = module {
     single { AuthApiImpl(get()) as AuthApi }
     single { GameApiImpl(get()) as GameApi }
 
+    single { AdminRepositoryImpl() as AdminRepository }
     single { AuthRepositoryImpl(get(), get()) as AuthRepository }
     single { GameRepositoryImpl(get(), get(), get()) as GameRepository }
     single { UserRepositoryImpl(get()) as UserRepository }
