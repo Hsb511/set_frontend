@@ -3,9 +3,11 @@ package com.team23.ui.game
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,9 +27,10 @@ fun GameTypeScreen(
     val gameViewModel = koinInject<GameViewModel>()
     gameViewModel.setNavController(navController)
 
-    Box {
+    Box(modifier = Modifier.fillMaxSize()) {
         GameTypeScreen(
             onAction = gameViewModel::onAction,
+            modifier = Modifier.align(Alignment.Center)
         )
 
         SetSnackbar(
@@ -39,25 +42,34 @@ fun GameTypeScreen(
 
 @Composable
 private fun GameTypeScreen(
+    modifier: Modifier = Modifier,
     onAction: (GameAction) -> Unit,
 ) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.largeIncreased),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = LocalSpacings.current.large),
     ) {
-        ActionButton(
-            text = "Start solo game",
-            onClick = { onAction(GameAction.StartSolo) }
+        Text(
+            text = "Chose a game mode",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
-        Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
+        ActionButton(
+            text = "Solo",
+            onClick = { onAction(GameAction.StartSolo) },
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         ActionButton(
-            text = "Start multi game",
+            text = "Multi",
             enabled = false,
-            onClick = { onAction(GameAction.StartMulti) }
+            onClick = { onAction(GameAction.StartMulti) },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -66,6 +78,6 @@ private fun GameTypeScreen(
 @Preview(showBackground = true)
 private fun GameTypeScreenPreview() {
     SetTheme {
-        GameTypeScreen()
+        GameTypeScreen {}
     }
 }
