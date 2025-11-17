@@ -16,6 +16,8 @@ interface GameApi {
 
     suspend fun getGame(sessionToken: Uuid): GetGameResponse
 
+    suspend fun getLastDeck(sessionToken: Uuid): GetLastDeckResponse
+
     suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse
 
     suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse
@@ -34,6 +36,17 @@ class GameApiImpl(
             response.body<GetGameResponse.Success>()
         } else {
             response.body<GetGameResponse.Failure>()
+        }
+    }
+
+    override suspend fun getLastDeck(sessionToken: Uuid): GetLastDeckResponse {
+        val response = client.get("/session/$sessionToken/get-last-deck") {
+            contentType(ContentType.Application.Json)
+        }
+        return if (response.status.isSuccess()) {
+            response.body<GetLastDeckResponse.Success>()
+        } else {
+            response.body<GetLastDeckResponse.Failure>()
         }
     }
 

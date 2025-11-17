@@ -18,14 +18,20 @@ class GameRepositoryImpl(
         val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
         requireNotNull(cachedSessionToken)
         val sessionToken = Uuid.parse(cachedSessionToken)
-        val response = gameApi.getGame(sessionToken)
-        when (response) {
-            is GetGameResponse.Success -> GameState.Playing(
-                    gameId = response.gameId,
-                    deck = emptyList(), // TODO GET ONGOING STATE
-                    table = emptyList(),
-                )
-            is GetGameResponse.Failure -> throw Exception(response.error)
+        when (val gameResponse = gameApi.getGame(sessionToken)) {
+            is GetGameResponse.Success -> when (val response = gameApi.getLastDeck(sessionToken)) {
+                is GetLastDeckResponse.Success -> {
+                    requireNotNull(response.table)
+                    requireNotNull(response.pileCards)
+                    GameState.Playing(
+                        gameId = response.gameId,
+                        deck = response.pileCards.map(cardDataMapper::toDomainModel),
+                        table = response.table.map(cardDataMapper::toDomainModel),
+                    )
+                }
+                is GetLastDeckResponse.Failure -> throw Exception(response.error)
+            }
+            is GetGameResponse.Failure -> throw Exception(gameResponse.error)
         }
     }
 
@@ -45,6 +51,7 @@ class GameRepositoryImpl(
                     table = response.table.map(cardDataMapper::toDomainModel),
                 )
             }
+
             is CreateGameResponse.Failure -> throw Exception(response.error)
         }
     }
