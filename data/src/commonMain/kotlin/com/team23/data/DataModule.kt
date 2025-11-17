@@ -1,5 +1,7 @@
 package com.team23.data
 
+import com.team23.data.admin.AdminApi
+import com.team23.data.admin.AdminApiImpl
 import com.team23.data.admin.AdminRepositoryImpl
 import com.team23.data.auth.AuthApi
 import com.team23.data.auth.AuthApiImpl
@@ -24,10 +26,11 @@ val dataModule = module {
 
     factoryOf(::CardDataMapper)
 
+    single { AdminApiImpl(get()) as AdminApi }
     single { AuthApiImpl(get()) as AuthApi }
     single { GameApiImpl(get()) as GameApi }
 
-    single { AdminRepositoryImpl() as AdminRepository }
+    single { AdminRepositoryImpl(get()) as AdminRepository }
     single { AuthRepositoryImpl(get(), get()) as AuthRepository }
     single { GameRepositoryImpl(get(), get(), get()) as GameRepository }
     single { UserRepositoryImpl(get()) as UserRepository }
