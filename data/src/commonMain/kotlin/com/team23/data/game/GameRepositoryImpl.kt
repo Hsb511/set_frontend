@@ -14,6 +14,21 @@ class GameRepositoryImpl(
     private val cardDataMapper: CardDataMapper,
 ) : GameRepository {
 
+    override suspend fun getOngoingSoloGame(): Result<GameState.Playing> = runCatching {
+        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
+        requireNotNull(cachedSessionToken)
+        val sessionToken = Uuid.parse(cachedSessionToken)
+        val response = gameApi.getGame(sessionToken)
+        when (response) {
+            is GetGameResponse.Success -> GameState.Playing(
+                    gameId = response.gameId,
+                    deck = emptyList(), // TODO GET ONGOING STATE
+                    table = emptyList(),
+                )
+            is GetGameResponse.Failure -> throw Exception(response.error)
+        }
+    }
+
     override suspend fun createSoloGame(): Result<GameState.Playing> = runCatching {
         val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
         requireNotNull(cachedSessionToken)

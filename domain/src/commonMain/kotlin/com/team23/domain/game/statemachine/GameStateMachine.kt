@@ -35,13 +35,14 @@ class GameStateMachine(
     }
 
     private suspend fun initializeGame(gameType: GameType): GameState {
-        val game = when (gameType) {
-            GameType.Solo -> gameRepository.createSoloGame()
+        return when (gameType) {
+            GameType.Solo -> gameRepository.getOngoingSoloGame().getOrElse {
+                gameRepository.createSoloGame().getOrElse { throwable ->
+                    _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
+                    GameState.EmptyDeck
+                }
+            }
             GameType.Multi -> TODO()
-        }
-        return game.getOrElse { throwable ->
-            _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
-            GameState.EmptyDeck
         }
     }
 
