@@ -3,6 +3,7 @@ package com.team23.ui.game
 import androidx.compose.material3.SnackbarVisuals
 import androidx.navigation.NavController
 import com.team23.domain.game.model.Card
+import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,6 +35,7 @@ import kotlinx.coroutines.withContext
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
+    private val gameRepository: GameRepository,
     private val gameUiMapper: GameUiMapper,
     private val cardUiMapper: CardUiMapper,
     dispatcher: CoroutineDispatcher,
@@ -44,6 +47,7 @@ class GameViewModel(
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
     val gameUiModelFlow: StateFlow<GameUiModel> = _gameStateFlow
+        .onEach { game -> confirmFinishedGame(game) }
         .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, GameUiModel())
 
@@ -53,10 +57,11 @@ class GameViewModel(
         stateMachine.gameSideEffect.map(::mapToEvent).filterNotNull()
     ).shareIn(viewModelScope, SharingStarted.Lazily)
 
-    val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.gameSideEffect
-        .map(::mapToSnackbar)
-        .filterNotNull()
-        .shareIn(viewModelScope, SharingStarted.Lazily)
+    private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
+    val snackbar: SharedFlow<SnackbarVisuals> = merge(
+        _snackbar,
+        stateMachine.gameSideEffect.map(::mapToSnackbar).filterNotNull()
+    ).shareIn(viewModelScope, SharingStarted.Lazily)
 
     fun setNavController(navController: NavController) {
         this.navController = navController
@@ -69,6 +74,7 @@ class GameViewModel(
             is GameAction.ChangeGameType -> navController.navigate(NavigationScreen.GameTypeSelection.name)
             is GameAction.StartSolo -> startSoloGame()
             is GameAction.StartMulti -> TODO()
+            is GameAction.RetryConfirmation -> confirmFinishedGame(_gameStateFlow.value)
         }
     }
 
@@ -117,6 +123,31 @@ class GameViewModel(
 
     private suspend fun updateGameState(state: GameState, event: GameEvent) {
         _gameStateFlow.value = stateMachine.reduce(state, event)
+    }
+
+    private fun confirmFinishedGame(gameState: GameState) {
+        if (gameState !is GameState.Finished) return
+
+        viewModelScope.launch {
+            gameRepository.notifySoloGameFinished(gameState)
+                .onSuccess { completed ->
+                    if (completed) {
+                        _snackbar.emit(SetSnackbarVisuals.GameCompletionSuccess)
+                    } else {
+                        println("This should never happen")
+                    }
+                    sendCompletionEvent(completed)
+                }
+                .onFailure { throwable ->
+                    _snackbar.emit(SetSnackbarVisuals.GameCompletionError(throwable.message))
+                    sendCompletionEvent(false)
+                }
+        }
+    }
+
+    private suspend fun sendCompletionEvent(isConfirmed: Boolean) {
+        val type = if (isConfirmed) GameCompletionType.Restart else GameCompletionType.Retry
+        _gameUiEvent.emit(GameUiEvent.GameCompletion(type))
     }
 
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {

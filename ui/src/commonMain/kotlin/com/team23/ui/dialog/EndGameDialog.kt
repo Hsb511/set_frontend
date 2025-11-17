@@ -13,9 +13,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.team23.ui.game.GameAction
+import com.team23.ui.game.GameCompletionType
 
 @Composable
 fun EndGameDialog(
+    completionType: GameCompletionType,
     onAction: (GameAction) -> Unit = {},
 ) {
     AlertDialog(
@@ -34,10 +36,10 @@ fun EndGameDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onAction(GameAction.Restart) },
+                onClick = { onAction(completionType.action) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Play again")
+                Text(text = completionType.label)
             }
         },
         text = {

@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -116,6 +117,7 @@ private fun GameScreen(
     var slotWidthPx by remember { mutableStateOf(0) }
     var positionsByIndex: Map<Int, IntOffset> by remember { mutableStateOf(emptyMap()) }
     var resetNonce by remember { mutableIntStateOf(0) }
+    var completionType: GameCompletionType? by remember { mutableStateOf(null) }
 
     Box(modifier = modifier) {
         key(resetNonce) {
@@ -158,7 +160,15 @@ private fun GameScreen(
             }
         }
         if (game.isFinished) {
-            EndGameDialog(onAction = onAction)
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        completionType?.let { completionType ->
+            EndGameDialog(
+                completionType = completionType,
+                onAction = onAction,
+            )
         }
     }
 
@@ -185,6 +195,7 @@ private fun GameScreen(
                     when (gameEvent) {
                         is GameUiEvent.AnimateSelectedCards -> handleAnimateCards(gameEvent.cardsWithIndex)
                         is GameUiEvent.ResetScreen -> resetNonce ++
+                        is GameUiEvent.GameCompletion -> completionType = gameEvent.type
                     }
                 }
             }

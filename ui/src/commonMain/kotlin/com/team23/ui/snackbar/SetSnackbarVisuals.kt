@@ -32,4 +32,12 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
     data class DebugClearFailure(val errorMessage: String?): ShortSnackbarVisuals() {
         override val message: String = "An error occurred while clearing: $errorMessage"
     }
+
+    data object GameCompletionSuccess: ShortSnackbarVisuals() {
+        override val message: String = "The game was properly saved in the server"
+    }
+
+    data class GameCompletionError(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "The game did not properly complete: $errorMessage"
+    }
 }
