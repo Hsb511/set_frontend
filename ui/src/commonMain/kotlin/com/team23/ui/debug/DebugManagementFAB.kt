@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.LogoDev
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.VideogameAsset
@@ -37,7 +37,7 @@ fun DebugManagementFAB(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
-        targetValue = if (isExpanded) -225f else 0f,
+        targetValue = if (isExpanded) -360f else 0f,
         animationSpec = getTween(),
     )
 
@@ -87,10 +87,10 @@ fun DebugManagementFAB(
             modifier = modifier.size(56.dp),
         ) {
             Icon(
-                imageVector = Icons.Outlined.Clear,
+                imageVector = Icons.Outlined.LogoDev,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(48.dp)
                     .rotate(rotation),
             )
         }
