@@ -11,7 +11,7 @@ sealed interface UploadDeckResponse {
     @Serializable
     data class Success(
         val message: String,
-        @SerialName("game_uuid")
+        @SerialName("game_id")
         val gameId: Uuid,
         @SerialName("deck_index")
         val deckIndex: Int,

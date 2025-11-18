@@ -11,7 +11,7 @@ sealed interface CreateGameResponse {
 
     @Serializable
     data class Success(
-        @SerialName("game_uuid")
+        @SerialName("game_id")
         val gameId: Uuid,
         @SerialName("pile_cards")
         val pileCards: List<SetCard>? = null,

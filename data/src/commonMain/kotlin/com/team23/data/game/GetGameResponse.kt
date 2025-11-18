@@ -10,7 +10,7 @@ sealed interface GetGameResponse {
     @OptIn(ExperimentalUuidApi::class)
     @Serializable
     data class Success(
-        @SerialName("game_uuid")
+        @SerialName("game_id")
         val gameId: Uuid,
     ): GetGameResponse
 

@@ -9,7 +9,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 @Serializable
 data class UploadDeckRequest(
-    @SerialName("game_uuid")
+    @SerialName("game_id")
     val gameId: Uuid,
     val uploadMode: UploadMode,
     val turn: Int,
