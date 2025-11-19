@@ -11,11 +11,12 @@ import kotlin.uuid.Uuid
 data class UploadDeckRequest(
     @SerialName("game_id")
     val gameId: Uuid,
+    @SerialName("upload_mode")
     val uploadMode: UploadMode,
     val turn: Int,
     @SerialName("pile_cards")
     val pileCards: List<SetCard>,
-    val table: List<String>,
+    val table: List<SetCard>,
     @SerialName("pit_sets")
     val pitSets: List<List<SetCard>>,
 ) {

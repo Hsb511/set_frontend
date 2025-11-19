@@ -5,6 +5,7 @@ import com.team23.domain.game.model.Card
 class CardDataMapper {
 
     fun toDomainModel(base10: SetCard): Card {
+        if (base10 == -1) return Card.Empty
         require(base10 in 0..80) {
             "Invalid card '$base10': must be between 0 and 80"
         }
@@ -41,13 +42,9 @@ class CardDataMapper {
         else -> Card.Data.Fill.SOLID
     }
 
-    fun toRawString(card: Card): String = when(card) {
-        is Card.Data -> toBase10Code(card).toString()
-        is Card.Empty -> "HOLE"
-    }
-
-    fun toBase10Code(card: Card.Data): SetCard {
-        return toBase3Code(card).toInt(radix = 3)
+    fun toBase10Code(card: Card): SetCard = when (card) {
+        is Card.Data -> toBase3Code(card).toInt(radix = 3)
+        is Card.Empty -> -1
     }
 
     fun toBase3Code(card: Card.Data): String {
