@@ -41,6 +41,12 @@ private fun SettingsScreen(
     ) {
         SettingsRow(label = "username", value = settingsUiModel.username)
         SettingsRow(label = "userId", value = settingsUiModel.userId)
+        settingsUiModel.apiVersion?.let { apiVersion ->
+            SettingsRow(label = "API", value = apiVersion)
+        }
+        settingsUiModel.baseUrl?.let { baseUrl ->
+            SettingsRow(label = "baseUrl", value = baseUrl)
+        }
     }
 }
 
@@ -67,13 +73,15 @@ private fun SettingsRow(
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 private fun SettingsScreenPreview() {
     SetTheme {
         SettingsScreen(
             settingsUiModel = SettingsUiModel(
                 username = "My username",
                 userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a8",
+                apiVersion = "SET Game Server v0.7.6",
+                baseUrl = "https://base_url-com"
             )
         )
     }

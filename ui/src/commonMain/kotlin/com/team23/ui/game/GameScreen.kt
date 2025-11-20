@@ -93,7 +93,7 @@ fun GameScreen(
                 .align(Alignment.BottomStart)
                 .padding(
                     start = LocalSpacings.current.medium,
-                    bottom = LocalSpacings.current.jumbo,
+                    bottom = LocalSpacings.current.large,
                 ),
         )
 
