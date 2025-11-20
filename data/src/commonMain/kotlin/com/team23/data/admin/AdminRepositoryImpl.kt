@@ -2,6 +2,7 @@ package com.team23.data.admin
 
 import com.team23.domain.admin.AdminClearMode
 import com.team23.domain.admin.AdminRepository
+import com.team23.data.getBaseUrl as getBaseUrlFromModule
 
 class AdminRepositoryImpl(
     private val adminApi: AdminApi,
@@ -19,5 +20,13 @@ class AdminRepositoryImpl(
             is AdminClearResponse.Success -> Result.success(response.message)
             is AdminClearResponse.Failure -> Result.failure(Exception(response.error))
         }
+    }
+
+    override suspend fun getBaseUrl(): String? {
+        return getBaseUrlFromModule()
+    }
+
+    override suspend fun getApiVersion(): String? {
+        return runCatching { adminApi.version() }.onFailure { println("HUGO - failure: $it") }.getOrNull()
     }
 }

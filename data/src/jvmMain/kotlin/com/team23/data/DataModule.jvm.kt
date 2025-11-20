@@ -10,3 +10,7 @@ internal actual fun platformModule(): Module {
 internal actual fun createHttpClient(): HttpClient {
     TODO("Not yet implemented")
 }
+
+actual fun getBaseUrl(): String {
+    TODO("Not yet implemented")
+}

@@ -45,3 +45,7 @@ internal actual fun createHttpClient(): HttpClient {
         }
     }
 }
+
+actual fun getBaseUrl(): String {
+    TODO("Not yet implemented")
+}

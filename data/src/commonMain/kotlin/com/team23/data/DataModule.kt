@@ -38,3 +38,4 @@ val dataModule = module {
 
 internal expect fun platformModule(): Module
 internal expect fun createHttpClient(): HttpClient
+expect fun getBaseUrl(): String

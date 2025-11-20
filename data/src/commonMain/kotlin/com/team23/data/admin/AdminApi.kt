@@ -3,6 +3,7 @@ package com.team23.data.admin
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -11,6 +12,8 @@ import io.ktor.http.isSuccess
 interface AdminApi {
 
     suspend fun clear(request: AdminClearRequest): AdminClearResponse
+
+    suspend fun version(): String
 }
 
 class AdminApiImpl(
@@ -28,5 +31,9 @@ class AdminApiImpl(
             Logger.e("AdminApi - clear Failure - ${response.bodyAsText()}")
             response.body<AdminClearResponse.Failure>()
         }
+    }
+
+    override suspend fun version(): String {
+        return client.get("/version").body()
     }
 }

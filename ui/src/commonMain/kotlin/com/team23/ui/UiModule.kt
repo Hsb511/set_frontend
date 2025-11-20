@@ -43,6 +43,7 @@ val uiModule = module {
 
     single {
         SettingsViewModel(
+            adminRepository = get(),
             userRepository = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),

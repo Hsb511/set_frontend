@@ -46,3 +46,7 @@ actual fun createHttpClient(): HttpClient {
         }
     }
 }
+
+actual fun getBaseUrl(): String {
+    return BuildConfig.BASE_URL
+}
