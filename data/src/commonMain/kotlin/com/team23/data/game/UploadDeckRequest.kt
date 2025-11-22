@@ -14,11 +14,9 @@ data class UploadDeckRequest(
     @SerialName("upload_mode")
     val uploadMode: UploadMode,
     val turn: Int,
-    @SerialName("pile_cards")
-    val pileCards: List<SetCard>,
+    val pile: List<SetCard>,
     val table: List<SetCard>,
-    @SerialName("pit_sets")
-    val pitSets: List<List<SetCard>>,
+    val pit: List<List<SetCard>>,
 ) {
 
     @Serializable

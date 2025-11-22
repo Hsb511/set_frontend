@@ -64,9 +64,9 @@ class GameRepositoryImpl(
             gameId = finished.gameId,
             uploadMode = UploadDeckRequest.UploadMode.Final,
             turn = finished.setsFound.size + 1,
-            pileCards = emptyList(),
+            pile = emptyList(),
             table = finished.cards.map(cardDataMapper::toBase10Code),
-            pitSets = finished.setsFound.map { set ->
+            pit = finished.setsFound.map { set ->
                 set.map(cardDataMapper::toBase10Code)
             },
         )
