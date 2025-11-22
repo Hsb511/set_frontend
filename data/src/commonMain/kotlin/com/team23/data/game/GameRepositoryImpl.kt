@@ -1,6 +1,7 @@
 package com.team23.data.game
 
 import com.team23.data.card.CardDataMapper
+import com.team23.data.card.SetCard
 import com.team23.data.datastore.SetDataStore
 import com.team23.data.game.model.request.CreateGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
@@ -24,90 +25,98 @@ class GameRepositoryImpl(
         getOngoingSoloGameAndRetry(retry = true)
     }
 
-    private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
-        val cachedSessionToken =  setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
-        requireNotNull(cachedSessionToken)
-        val sessionToken = Uuid.parse(cachedSessionToken)
-        return when (val gameResponse = gameApi.getGame(sessionToken)) {
-            is GetGameResponse.Success -> when (val response = gameApi.getLastDeck(sessionToken)) {
-                is GetLastDeckResponse.Success -> {
-                    requireNotNull(response.table)
-                    requireNotNull(response.pileCards)
-                    GameState.Playing(
-                        gameId = response.gameId,
-                        deck = response.pileCards.map(cardDataMapper::toDomainModel),
-                        table = response.table.map(cardDataMapper::toDomainModel),
-                    )
-                }
-                is GetLastDeckResponse.Failure -> throw Exception(response.error)
-                is GetLastDeckResponse.InvalidSessionToken -> throw RefreshSessionTokenException
-            }
-            is GetGameResponse.Failure -> throw Exception(gameResponse.error)
-            is GetGameResponse.InvalidSessionToken -> if (retry && tryRefreshSessionToken()) {
-                getOngoingSoloGameAndRetry(retry = false)
-            } else {
-                throw RefreshSessionTokenException
-            }
-        }
-    }
-
     override suspend fun createSoloGame(): Result<GameState.Playing> = runCatching {
         createSoloGameAndRetry(retry = true)
-    }
-
-    private suspend fun createSoloGameAndRetry(retry: Boolean): GameState.Playing {
-        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
-        requireNotNull(cachedSessionToken)
-        val sessionToken = Uuid.parse(cachedSessionToken)
-        val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
-        val response = gameApi.createGame(sessionToken, request)
-        return when (response) {
-            is CreateGameResponse.Success -> {
-                requireNotNull(response.table)
-                requireNotNull(response.pileCards)
-                GameState.Playing(
-                    gameId = response.gameId,
-                    deck = response.pileCards.map(cardDataMapper::toDomainModel),
-                    table = response.table.map(cardDataMapper::toDomainModel),
-                )
-            }
-
-            is CreateGameResponse.Failure -> throw Exception(response.error)
-            is CreateGameResponse.InvalidSessionToken -> if (retry && tryRefreshSessionToken()) {
-                createSoloGameAndRetry(retry = false)
-            } else {
-                throw RefreshSessionTokenException
-            }
-        }
     }
 
     override suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean> = runCatching {
         notifySoloGameFinishedAndRetry(finished, retry = true)
     }
 
+    private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
+        val sessionToken = getCachedSessionToken()
+        return when (val gameResponse = gameApi.getGame(sessionToken)) {
+            is GetGameResponse.Success -> when (val response = gameApi.getLastDeck(sessionToken)) {
+                is GetLastDeckResponse.Success -> mapToPlayingGame(
+                    gameId = response.gameId,
+                    table = response.table,
+                    pileCards = response.pileCards
+                )
+
+                is GetLastDeckResponse.Failure -> throw Exception(response.error)
+                is GetLastDeckResponse.InvalidSessionToken -> throw RefreshSessionTokenException
+            }
+
+            is GetGameResponse.Failure -> throw Exception(gameResponse.error)
+            is GetGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                getOngoingSoloGameAndRetry(retry = false)
+            }
+        }
+    }
+
+    private suspend fun createSoloGameAndRetry(retry: Boolean): GameState.Playing {
+        val sessionToken = getCachedSessionToken()
+        val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
+        val response = gameApi.createGame(sessionToken, request)
+        return when (response) {
+            is CreateGameResponse.Success -> mapToPlayingGame(
+                gameId = response.gameId,
+                table = response.table,
+                pileCards = response.pileCards
+            )
+
+            is CreateGameResponse.Failure -> throw Exception(response.error)
+            is CreateGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                createSoloGameAndRetry(retry = false)
+            }
+        }
+    }
+
     private suspend fun notifySoloGameFinishedAndRetry(finished: GameState.Finished, retry: Boolean): Boolean {
-        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
-        requireNotNull(cachedSessionToken)
-        val sessionToken = Uuid.parse(cachedSessionToken)
-        val request = UploadDeckRequest(
-            gameId = finished.gameId,
-            uploadMode = UploadDeckRequest.UploadMode.Final,
-            turn = finished.setsFound.size + 1,
-            pile = emptyList(),
-            table = finished.cards.map(cardDataMapper::toBase10Code),
-            pit = finished.setsFound.map { set ->
-                set.map(cardDataMapper::toBase10Code)
-            },
-        )
+        val sessionToken = getCachedSessionToken()
+        val request = mapToUploadRequest(finished)
         val response = gameApi.uploadDeck(sessionToken, request)
         return when (response) {
             is UploadDeckResponse.Success -> response.gameCompleted
             is UploadDeckResponse.Failure -> throw Exception(response.error)
-            is UploadDeckResponse.InvalidSessionToken -> if (retry && tryRefreshSessionToken()) {
+            is UploadDeckResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
                 notifySoloGameFinishedAndRetry(finished, retry = false)
-            } else {
-                throw RefreshSessionTokenException
             }
+        }
+    }
+
+    private suspend fun getCachedSessionToken(): Uuid {
+        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
+        requireNotNull(cachedSessionToken)
+        return Uuid.parse(cachedSessionToken)
+    }
+
+    private fun mapToPlayingGame(gameId: Uuid, table: List<SetCard>?, pileCards: List<SetCard>?): GameState.Playing {
+        requireNotNull(table)
+        requireNotNull(pileCards)
+        return GameState.Playing(
+            gameId = gameId,
+            deck = pileCards.map(cardDataMapper::toDomainModel),
+            table = table.map(cardDataMapper::toDomainModel),
+        )
+    }
+
+    private fun mapToUploadRequest(finished: GameState.Finished) = UploadDeckRequest(
+        gameId = finished.gameId,
+        uploadMode = UploadDeckRequest.UploadMode.Final,
+        turn = finished.setsFound.size + 1,
+        pile = emptyList(),
+        table = finished.cards.map(cardDataMapper::toBase10Code),
+        pit = finished.setsFound.map { set ->
+            set.map(cardDataMapper::toBase10Code)
+        },
+    )
+
+    private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {
+        if (retry && tryRefreshSessionToken()) {
+            return run()
+        } else {
+            throw RefreshSessionTokenException
         }
     }
 
@@ -115,5 +124,5 @@ class GameRepositoryImpl(
         return false
     }
 
-    private object RefreshSessionTokenException: Exception("Session token has expired and couldn't refresh it")
+    private object RefreshSessionTokenException : Exception("Session token has expired and couldn't refresh it")
 }
