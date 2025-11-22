@@ -18,4 +18,6 @@ sealed interface GetGameResponse {
     data class Failure(
         val error: String,
     ): GetGameResponse
+
+    data object InvalidSessionToken: GetGameResponse
 }

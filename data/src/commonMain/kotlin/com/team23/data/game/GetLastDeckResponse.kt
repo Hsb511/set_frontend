@@ -23,4 +23,5 @@ sealed interface GetLastDeckResponse {
         val error: String,
     ): GetLastDeckResponse
 
+    data object InvalidSessionToken: GetLastDeckResponse
 }

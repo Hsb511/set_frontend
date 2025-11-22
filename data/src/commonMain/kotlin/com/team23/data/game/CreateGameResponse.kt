@@ -22,4 +22,6 @@ sealed interface CreateGameResponse {
     data class Failure(
         val error: String,
     ) : CreateGameResponse
+
+    data object InvalidSessionToken: CreateGameResponse
 }

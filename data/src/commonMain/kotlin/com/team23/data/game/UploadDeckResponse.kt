@@ -24,4 +24,5 @@ sealed interface UploadDeckResponse {
         val error: String,
     ): UploadDeckResponse
 
+    data object InvalidSessionToken: UploadDeckResponse
 }
