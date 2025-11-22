@@ -32,7 +32,7 @@ val dataModule = module {
 
     single { AdminRepositoryImpl(get()) as AdminRepository }
     single { AuthRepositoryImpl(get(), get()) as AuthRepository }
-    single { GameRepositoryImpl(get(), get(), get()) as GameRepository }
+    single { GameRepositoryImpl(get(), get(), get(), get()) as GameRepository }
     single { UserRepositoryImpl(get()) as UserRepository }
 }
 

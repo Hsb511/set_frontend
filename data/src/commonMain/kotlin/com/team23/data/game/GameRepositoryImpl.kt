@@ -11,12 +11,14 @@ import com.team23.data.game.model.response.GetLastDeckResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
+import com.team23.domain.startup.repository.AuthRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GameRepositoryImpl(
     private val gameApi: GameApi,
+    private val authRepository: AuthRepository,
     private val setDataStore: SetDataStore,
     private val cardDataMapper: CardDataMapper,
 ) : GameRepository {
@@ -121,7 +123,11 @@ class GameRepositoryImpl(
     }
 
     private suspend fun tryRefreshSessionToken(): Boolean {
-        return false
+        val username = setDataStore.getValue(SetDataStore.USERNAME_KEY)
+        val password = setDataStore.getValue(SetDataStore.PASSWORD_KEY)
+
+        if (username == null || password == null) return false
+        return authRepository.loginAndStoreUserInfo(username, password).isSuccess
     }
 
     private object RefreshSessionTokenException : Exception("Session token has expired and couldn't refresh it")

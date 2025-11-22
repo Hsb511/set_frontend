@@ -37,6 +37,7 @@ class AuthRepositoryImpl(
             is AuthSignResponse.Success -> {
                 setDataStore.setValue(SetDataStore.USER_ID_KEY, response.playerId.toString())
                 setDataStore.setValue(SetDataStore.USERNAME_KEY, username)
+                setDataStore.setValue(SetDataStore.PASSWORD_KEY, password)
                 setDataStore.setValue(SetDataStore.SESSION_TOKEN_KEY, response.sessionToken.toString())
             }
             is AuthSignResponse.Failure -> throw IllegalArgumentException(response.error)
