@@ -2,6 +2,12 @@ package com.team23.data.game
 
 import com.team23.data.card.CardDataMapper
 import com.team23.data.datastore.SetDataStore
+import com.team23.data.game.model.request.CreateGameRequest
+import com.team23.data.game.model.request.UploadDeckRequest
+import com.team23.data.game.model.response.CreateGameResponse
+import com.team23.data.game.model.response.GetGameResponse
+import com.team23.data.game.model.response.GetLastDeckResponse
+import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import kotlin.uuid.ExperimentalUuidApi

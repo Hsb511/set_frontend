@@ -1,4 +1,4 @@
-package com.team23.data.game
+package com.team23.data.game.model.response
 
 import com.team23.data.card.SetCard
 import kotlinx.serialization.SerialName

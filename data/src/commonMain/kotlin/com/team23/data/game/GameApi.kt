@@ -1,6 +1,12 @@
 package com.team23.data.game
 
 import co.touchlab.kermit.Logger
+import com.team23.data.game.model.request.CreateGameRequest
+import com.team23.data.game.model.request.UploadDeckRequest
+import com.team23.data.game.model.response.CreateGameResponse
+import com.team23.data.game.model.response.GetGameResponse
+import com.team23.data.game.model.response.GetLastDeckResponse
+import com.team23.data.game.model.response.UploadDeckResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
