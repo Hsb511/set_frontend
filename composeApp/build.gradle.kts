@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val versionMaj = 1
-val versionMin = 3
-val versionFix = 2
+val versionMin = 4
+val versionFix = 0
 val appVersionName = "$versionMaj.$versionMin.$versionFix"
 
 plugins {
