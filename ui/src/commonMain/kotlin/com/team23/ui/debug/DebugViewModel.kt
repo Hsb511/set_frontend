@@ -22,6 +22,9 @@ class DebugViewModel(
     private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
     val snackbar: SharedFlow<SnackbarVisuals> = _snackbar
 
+    private val _uiEvent: MutableSharedFlow<DebugUiEvent> = MutableSharedFlow()
+    val uiEvent: SharedFlow<DebugUiEvent> = _uiEvent
+
     fun onAction(action: DebugAction) {
         val mode = when (action) {
             is DebugAction.ClearDb -> AdminClearMode.Database
@@ -29,11 +32,14 @@ class DebugViewModel(
             is DebugAction.ClearGames -> AdminClearMode.GamesOnly
         }
         viewModelScope.launch {
+            _uiEvent.emit(DebugUiEvent.LoadingStarted)
             adminRepository.clear(mode)
                 .onSuccess { message ->
+                    _uiEvent.emit(DebugUiEvent.LoadingFinished(isSuccess = true))
                     _snackbar.emit(SetSnackbarVisuals.DebugClearSuccess(message))
                 }
                 .onFailure { throwable ->
+                    _uiEvent.emit(DebugUiEvent.LoadingFinished(isSuccess = false))
                     _snackbar.emit(SetSnackbarVisuals.DebugClearFailure(throwable.message))
                 }
         }
