@@ -11,10 +11,7 @@ sealed interface GetLastDeckResponse {
     @OptIn(ExperimentalUuidApi::class)
     @Serializable
     data class Success(
-        @SerialName("game_id")
-        val gameId: Uuid,
-        @SerialName("pile_cards")
-        val pileCards: List<SetCard>? = null,
+        val pile: List<SetCard>? = null,
         val table: List<SetCard>? = null,
     ): GetLastDeckResponse
 

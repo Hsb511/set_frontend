@@ -40,9 +40,9 @@ class GameRepositoryImpl(
         return when (val gameResponse = gameApi.getGame(sessionToken)) {
             is GetGameResponse.Success -> when (val response = gameApi.getLastDeck(sessionToken)) {
                 is GetLastDeckResponse.Success -> mapToPlayingGame(
-                    gameId = response.gameId,
+                    gameId = gameResponse.gameId,
                     table = response.table,
-                    pileCards = response.pileCards
+                    pile = response.pile
                 )
 
                 is GetLastDeckResponse.Failure -> throw Exception(response.error)
@@ -64,7 +64,7 @@ class GameRepositoryImpl(
             is CreateGameResponse.Success -> mapToPlayingGame(
                 gameId = response.gameId,
                 table = response.table,
-                pileCards = response.pileCards
+                pile = response.pileCards
             )
 
             is CreateGameResponse.Failure -> throw Exception(response.error)
@@ -93,12 +93,12 @@ class GameRepositoryImpl(
         return Uuid.parse(cachedSessionToken)
     }
 
-    private fun mapToPlayingGame(gameId: Uuid, table: List<SetCard>?, pileCards: List<SetCard>?): GameState.Playing {
+    private fun mapToPlayingGame(gameId: Uuid, table: List<SetCard>?, pile: List<SetCard>?): GameState.Playing {
         requireNotNull(table)
-        requireNotNull(pileCards)
+        requireNotNull(pile)
         return GameState.Playing(
             gameId = gameId,
-            deck = pileCards.map(cardDataMapper::toDomainModel),
+            deck = pile.map(cardDataMapper::toDomainModel),
             table = table.map(cardDataMapper::toDomainModel),
         )
     }
