@@ -81,6 +81,7 @@ fun GameScreen(
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .fillMaxSize()
+            .padding(all = if (game.isPortrait) LocalSpacings.current.large else LocalSpacings.current.none)
     ) {
         GameScreen(
             game = game,
@@ -152,6 +153,7 @@ private fun GameScreen(
                     Text(
                         text = "${game.cardsInDeck.size} cards remaining in deck",
                         textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = LocalSpacings.current.small)
