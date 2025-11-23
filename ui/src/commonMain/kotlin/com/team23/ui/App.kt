@@ -1,6 +1,7 @@
 package com.team23.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,7 +66,9 @@ fun App() {
                     isExpanded = isDebugExpanded,
                     isLoading = isLoading,
                     onAction = debugViewModel::onAction,
-                    modifier = Modifier.align(Alignment.BottomEnd)
+                    modifier = Modifier
+                        .safeDrawingPadding()
+                        .align(Alignment.BottomEnd)
                 )
             }
         }

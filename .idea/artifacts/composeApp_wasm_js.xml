@@ -2,7 +2,7 @@
   <artifact type="jar" name="composeApp-wasm-js">
     <output-path>$PROJECT_DIR$/composeApp/build/libs</output-path>
     <root id="archive" name="composeApp-wasm-js.jar">
-      <element id="module-output" name="KotlinProject.composeApp.wasmJsMain" />
+      <element id="module-output" name="Set.composeApp.wasmJsMain" />
     </root>
   </artifact>
 </component>

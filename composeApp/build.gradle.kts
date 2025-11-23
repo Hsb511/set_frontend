@@ -93,6 +93,9 @@ android {
         getByName("release") {
             isMinifyEnabled = false
         }
+        getByName("debug") {
+            applicationIdSuffix = ".test"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
