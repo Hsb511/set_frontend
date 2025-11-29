@@ -1,13 +1,17 @@
 package com.team23.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.team23.ui.debug.DebugManagementFAB
 import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationHost
+import com.team23.ui.settings.SettingsFAB
+import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -16,7 +20,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun App() {
     SetTheme {
         Box {
-            NavigationHost()
+            val navController = rememberNavController()
+            NavigationHost(navController = navController)
 
             if (isDebug()) {
                 DebugManagementFAB(
@@ -28,6 +33,14 @@ fun App() {
                         .align(Alignment.BottomCenter)
                 )
             }
+
+            SettingsFAB(
+                navController = navController,
+                modifier = Modifier
+                    .safeDrawingPadding()
+                    .align(Alignment.BottomEnd)
+                    .padding(all = LocalSpacings.current.largeIncreased),
+            )
         }
     }
 }
