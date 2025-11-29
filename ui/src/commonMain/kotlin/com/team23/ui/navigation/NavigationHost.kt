@@ -61,10 +61,10 @@ fun NavigationHost(
             exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
         ) {
             SettingsScreen(
+                navController = navController,
                 modifier = Modifier
                     .safeDrawingPadding()
                     .fillMaxSize()
-                    .padding(all = LocalSpacings.current.large),
             )
         }
     }
