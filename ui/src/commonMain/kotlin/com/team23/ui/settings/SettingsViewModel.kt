@@ -42,4 +42,10 @@ class SettingsViewModel(
             }
         }
     }
+
+    fun onAction(action: SettingsAction) {
+        when(action) {
+            is SettingsAction.Logout -> TODO()
+        }
+    }
 }

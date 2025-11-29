@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,11 +19,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.debug.isDebug
+import com.team23.ui.dialog.LogoutDialog
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -39,6 +44,7 @@ fun SettingsScreen(
     SettingsScreen(
         settingsUiModel = settingsUiModel,
         navController = navController,
+        onAction = settingsViewModel::onAction,
         modifier = modifier,
     )
 }
@@ -48,12 +54,14 @@ private fun SettingsScreen(
     settingsUiModel: SettingsUiModel,
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
+    onAction: (SettingsAction) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
             SettingsTopBar(
                 username = settingsUiModel.username,
                 navController = navController,
+                onAction = onAction,
             )
         },
         modifier = modifier,
@@ -82,7 +90,10 @@ private fun SettingsScreen(
 private fun SettingsTopBar(
     username: String,
     navController: NavController,
+    onAction: (SettingsAction) -> Unit,
 ) {
+    var logoutDialogVisible by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = { Text(text = username) },
         navigationIcon = {
@@ -94,8 +105,27 @@ private fun SettingsTopBar(
                     contentDescription = "Navigate back",
                 )
             }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    logoutDialogVisible = true
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.Logout,
+                    contentDescription = "Log out",
+                )
+            }
         }
     )
+
+    if (logoutDialogVisible) {
+        LogoutDialog(
+            onDismiss = { logoutDialogVisible = false },
+            onConfirm = { onAction(SettingsAction.Logout) },
+        )
+    }
 }
 
 @Composable
