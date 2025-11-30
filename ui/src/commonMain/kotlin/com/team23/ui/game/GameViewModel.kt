@@ -7,7 +7,9 @@ import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.settings.Preference
 import com.team23.domain.startup.model.GameType
+import com.team23.domain.startup.repository.UserRepository
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -37,6 +40,7 @@ import kotlinx.coroutines.launch
 class GameViewModel(
     private val stateMachine: GameStateMachine,
     private val gameRepository: GameRepository,
+    private val userRepository: UserRepository,
     private val gameUiMapper: GameUiMapper,
     private val cardUiMapper: CardUiMapper,
     dispatcher: CoroutineDispatcher,
@@ -45,12 +49,18 @@ class GameViewModel(
     private val job = SupervisorJob()
     private val viewModelScope = CoroutineScope(job + dispatcher + coroutineName)
 
-    private var isPortrait: Boolean = true
+    private val _isPortraitFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
-    val gameUiModelFlow: StateFlow<GameUiModel> = _gameStateFlow
-        .onEach { game -> confirmFinishedGame(game) }
-        .map { game -> gameUiMapper.toUiModel(game, isPortrait) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, GameUiModel())
+    val gameUiModelFlow: StateFlow<GameUiModel> = combine(
+        _gameStateFlow.onEach(::confirmFinishedGame),
+        _isPortraitFlow
+    ) { game, isPortrait ->
+        gameUiMapper.toUiModel(game, isPortrait)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = GameUiModel()
+    )
 
     private val _gameUiEvent: MutableSharedFlow<GameUiEvent> = MutableSharedFlow()
     val gameUiEvent: SharedFlow<GameUiEvent> = merge(
@@ -64,6 +74,14 @@ class GameViewModel(
             .filterNotNull()
             .onEach(SnackbarManager::showMessage)
             .launchIn(viewModelScope)
+    }
+
+    fun checkIsPortrait() {
+        viewModelScope.launch {
+            _isPortraitFlow.value = runCatching {
+                userRepository.getUserPreference(Preference.CardPortrait)
+            }.getOrNull() ?: false
+        }
     }
 
     fun onAction(action: GameAction) {
@@ -152,8 +170,7 @@ class GameViewModel(
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {
         is GameSideEffect.SetFound -> GameUiEvent.AnimateSelectedCards(
             sideEffect.cards.map { (index, card) ->
-                val isPortrait = isPortrait
-                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortrait)
+                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = _isPortraitFlow.value)
             }.toSet()
         )
 

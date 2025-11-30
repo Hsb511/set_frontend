@@ -68,6 +68,7 @@ import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 @Composable
 fun GameScreen() {
     val gameVM = koinInject<GameViewModel>()
+    gameVM.checkIsPortrait()
     val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(

@@ -59,7 +59,7 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.Logout -> handleLogOut()
             is SettingsAction.NavigateBack -> handleNavigateBack()
-            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardOrientation, action.currentValue)
+            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardPortrait, action.currentValue)
             is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode, action.currentValue)
             is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode, action.currentValue)
         }
@@ -95,7 +95,7 @@ class SettingsViewModel(
         _settingsStateFlow.update { settingsState ->
             settingsState.copy(
                 preferences = settingsState.preferences.copy(
-                    cardPortrait = preferences[Preference.CardOrientation] ?: false,
+                    cardPortrait = preferences[Preference.CardPortrait] ?: false,
                     forceDarkMode = preferences[Preference.ForceDarkMode] ?: false,
                     forceLightMode = preferences[Preference.ForceLightMode] ?: false,
                 )

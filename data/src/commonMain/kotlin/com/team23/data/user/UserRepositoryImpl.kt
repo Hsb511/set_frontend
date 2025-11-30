@@ -30,7 +30,7 @@ class UserRepositoryImpl(
     }
 
     private fun mapToKeyDataStore(preference: Preference): String = when(preference) {
-        Preference.CardOrientation -> SetDataStore.PREFERENCE_CARD_ORIENTATION_KEY
+        Preference.CardPortrait -> SetDataStore.PREFERENCE_CARD_ORIENTATION_KEY
         Preference.ForceLightMode -> SetDataStore.PREFERENCE_FORCE_LIGHT_MODE_KEY
         Preference.ForceDarkMode -> SetDataStore.PREFERENCE_FORCE_DARK_MODE_KEY
     }

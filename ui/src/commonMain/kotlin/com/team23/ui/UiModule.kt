@@ -65,6 +65,7 @@ val uiModule = module {
         GameViewModel(
             stateMachine = get(),
             gameRepository = get(),
+            userRepository = get(),
             gameUiMapper = get(),
             cardUiMapper = get(),
             dispatcher = Dispatchers.Default,
