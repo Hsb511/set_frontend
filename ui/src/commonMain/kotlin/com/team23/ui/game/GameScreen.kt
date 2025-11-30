@@ -49,9 +49,6 @@ import androidx.compose.ui.unit.round
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.dialog.EndGameDialog
@@ -70,11 +67,9 @@ import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
-fun GameScreen(
-    navController: NavController = rememberNavController(),
-) {
+fun GameScreen() {
     val gameVM = koinInject<GameViewModel>()
-    gameVM.setNavController(navController)
+
     DisposableEffect(Unit) {
         onDispose {
             gameVM.clear()

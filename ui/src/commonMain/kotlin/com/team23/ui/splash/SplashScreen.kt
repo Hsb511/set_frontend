@@ -27,12 +27,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 
 @Composable
-fun SplashScreen(
-    navController: NavHostController = rememberNavController(),
-) {
+fun SplashScreen() {
 
     val splashViewModel = koinInject<SplashViewModel>()
-    splashViewModel.setNavController(navController)
     val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }
 
     val infiniteTransition = rememberInfiniteTransition()

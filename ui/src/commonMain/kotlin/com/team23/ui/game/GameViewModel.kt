@@ -1,7 +1,6 @@
 package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
-import androidx.navigation.NavController
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameEvent
@@ -13,13 +12,13 @@ import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
+import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +33,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
@@ -46,7 +44,6 @@ class GameViewModel(
 ) {
     private val job = SupervisorJob()
     private val viewModelScope = CoroutineScope(job + dispatcher + coroutineName)
-    private lateinit var navController: NavController
 
     private var isPortrait: Boolean = true
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
@@ -69,15 +66,11 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun setNavController(navController: NavController) {
-        this.navController = navController
-    }
-
     fun onAction(action: GameAction) {
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
             is Restart -> startNewGame()
-            is GameAction.ChangeGameType -> navController.navigate(NavigationScreen.GameTypeSelection.name)
+            is GameAction.ChangeGameType -> navigate(NavigationScreen.GameTypeSelection)
             is GameAction.StartSolo -> startSoloGame()
             is GameAction.StartMulti -> TODO()
             is GameAction.RetryConfirmation -> confirmFinishedGame(_gameStateFlow.value)
@@ -99,7 +92,7 @@ class GameViewModel(
         viewModelScope.launch {
             initSoloGame()
             if (_gameStateFlow.value is GameState.Playing) {
-                navigateToGame()
+                navigate(NavigationScreen.Game)
             }
         }
     }
@@ -108,9 +101,9 @@ class GameViewModel(
         updateGameState(GameState.EmptyDeck, GameEvent.Init(GameType.Solo))
     }
 
-    private suspend fun navigateToGame() {
-        withContext(Dispatchers.Main) {
-            navController.navigate(NavigationScreen.Game.name)
+    private fun navigate(screen: NavigationScreen) {
+        viewModelScope.launch {
+            NavigationManager.handle(screen)
         }
     }
 

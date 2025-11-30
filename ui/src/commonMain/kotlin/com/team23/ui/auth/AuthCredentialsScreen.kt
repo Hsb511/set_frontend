@@ -24,8 +24,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
 import com.team23.ui.theming.LocalSpacings
@@ -39,14 +37,13 @@ import kotlin.uuid.ExperimentalUuidApi
 @Composable
 fun AuthCredentialsScreen(
     authType: AuthType,
-    navController: NavController = rememberNavController(),
 ) {
-    val authViewModel = koinInject<AuthViewModel>().apply {
-        start(navController)
+    val viewModel = koinInject<AuthViewModel>().apply {
+        start()
     }
     DisposableEffect(Unit) {
         onDispose {
-            authViewModel.stop()
+            viewModel.stop()
         }
     }
 
@@ -57,7 +54,7 @@ fun AuthCredentialsScreen(
     ) {
         AuthCredentialsScreen(
             authType = authType,
-            onAction = authViewModel::onAction,
+            onAction = viewModel::onAction,
         )
     }
 }

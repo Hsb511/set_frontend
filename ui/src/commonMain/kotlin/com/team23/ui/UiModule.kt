@@ -1,5 +1,6 @@
 package com.team23.ui
 
+import com.team23.ui.auth.AuthTypeViewModel
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.game.GameUiMapper
 import com.team23.ui.game.GameViewModel
@@ -20,6 +21,13 @@ val uiModule = module {
     single {
         SplashViewModel(
             stateMachine = get(),
+            dispatcher = Dispatchers.Default,
+            coroutineName = CoroutineName("viewmodel"),
+        )
+    }
+
+    single {
+        AuthTypeViewModel(
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

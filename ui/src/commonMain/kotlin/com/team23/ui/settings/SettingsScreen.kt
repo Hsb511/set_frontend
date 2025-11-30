@@ -24,8 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.LogoutDialog
 import com.team23.ui.theming.LocalSpacings
@@ -35,16 +33,13 @@ import org.koin.compose.koinInject
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val settingsViewModel = koinInject<SettingsViewModel>()
-    settingsViewModel.setNavController(navController)
     val settingsUiModel by settingsViewModel.settingsFlow.collectAsState()
 
     SettingsScreen(
         settingsUiModel = settingsUiModel,
-        navController = navController,
         onAction = settingsViewModel::onAction,
         modifier = modifier,
     )
@@ -54,14 +49,12 @@ fun SettingsScreen(
 private fun SettingsScreen(
     settingsUiModel: SettingsUiModel,
     modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController(),
     onAction: (SettingsAction) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
             SettingsTopBar(
                 username = settingsUiModel.username,
-                navController = navController,
                 onAction = onAction,
             )
         },
@@ -90,7 +83,6 @@ private fun SettingsScreen(
 @Composable
 private fun SettingsTopBar(
     username: String,
-    navController: NavController,
     onAction: (SettingsAction) -> Unit,
 ) {
     var logoutDialogVisible by remember { mutableStateOf(false) }
@@ -99,7 +91,7 @@ private fun SettingsTopBar(
         title = { Text(text = username) },
         navigationIcon = {
             IconButton(
-                onClick = { navController.popBackStack() }
+                onClick = { onAction(SettingsAction.NavigateBack) }
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,

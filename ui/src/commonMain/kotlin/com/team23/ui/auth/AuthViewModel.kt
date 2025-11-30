@@ -1,11 +1,11 @@
 package com.team23.ui.auth
 
 import androidx.compose.material3.SnackbarVisuals
-import androidx.navigation.NavController
 import com.team23.domain.startup.statemachine.StartupEvent
 import com.team23.domain.startup.statemachine.StartupSideEffect
 import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
+import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
@@ -13,12 +13,10 @@ import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AuthViewModel(
     private val stateMachine: StartupStateMachine,
@@ -27,11 +25,8 @@ class AuthViewModel(
 ) {
     private var job: CompletableJob? = null
     private var viewModelScope: CoroutineScope? = null
-    private lateinit var navController: NavController
 
-    fun start(navHostController: NavController) {
-        navController = navHostController
-
+    fun start() {
         if (job?.isActive == true) return
 
         val newJob = SupervisorJob()
@@ -46,11 +41,9 @@ class AuthViewModel(
         viewModelScope = null
     }
 
-    fun onAction(authAction: AuthAction) {
-        when (authAction) {
-            is AuthAction.NavigateToSignIn -> navController.navigate(NavigationScreen.SignInWithCredentials.name)
-            is AuthAction.NavigateToSignUp -> navController.navigate(NavigationScreen.SignUpWithCredentials.name)
-            is AuthAction.Auth -> handleAuth(authAction)
+    fun onAction(action: AuthAction) {
+        when (action) {
+            is AuthAction.Auth -> handleAuth(action)
         }
     }
 
@@ -79,14 +72,8 @@ class AuthViewModel(
         viewModelScope?.launch {
             val newState = stateMachine.reduce(StartupState.UserSignInUp, startupEvent)
             if (newState is StartupState.GameTypeChoice) {
-                navigateToGameTypeSelection()
+                NavigationManager.handle(NavigationScreen.GameTypeSelection)
             }
-        }
-    }
-
-    private suspend fun navigateToGameTypeSelection() {
-        withContext(Dispatchers.Main) {
-            navController.navigate(NavigationScreen.GameTypeSelection.name)
         }
     }
 

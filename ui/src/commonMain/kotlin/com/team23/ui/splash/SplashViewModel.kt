@@ -1,10 +1,10 @@
 package com.team23.ui.splash
 
-import androidx.navigation.NavController
 import com.team23.domain.startup.statemachine.StartupEvent
 import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.card.Slot
+import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,11 +24,6 @@ class SplashViewModel(
     coroutineName: CoroutineName,
 ) {
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
-    private lateinit var navController: NavController
-
-    fun setNavController(navHostController: NavController) {
-        this.navController = navHostController
-    }
 
     init {
         viewModelScope.launch {
@@ -49,7 +44,7 @@ class SplashViewModel(
                 delay(remaining)
             }
             withContext(Dispatchers.Main) {
-                navController.navigate(screen.name)
+                NavigationManager.handle(screen)
             }
         }
     }
