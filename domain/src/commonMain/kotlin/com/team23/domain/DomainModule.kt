@@ -7,6 +7,8 @@ import com.team23.domain.game.usecase.CreateFullShuffledDeckUseCaseImpl
 import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
+import com.team23.domain.settings.GetAllPreferencesUseCase
+import com.team23.domain.settings.TogglePreferenceUseCase
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -18,7 +20,9 @@ val domainModule = module {
     factoryOf(::ContainsAtLeastOneSetUseCase)
     single<CreateFullShuffledDeckUseCase> { CreateFullShuffledDeckUseCaseImpl() }
     factoryOf(::CreateNewSoloGameUseCase)
+    factoryOf(::GetAllPreferencesUseCase)
     factoryOf(::IsSetUseCase)
+    factoryOf(::TogglePreferenceUseCase)
     factoryOf(::UpdateGameAfterSetFoundUseCase)
 
     // Game state machine

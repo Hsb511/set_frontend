@@ -1,6 +1,9 @@
 package com.team23.ui.settings
 
 import com.team23.domain.admin.AdminRepository
+import com.team23.domain.settings.GetAllPreferencesUseCase
+import com.team23.domain.settings.Preference
+import com.team23.domain.settings.TogglePreferenceUseCase
 import com.team23.domain.startup.repository.AuthRepository
 import com.team23.domain.startup.repository.UserRepository
 import com.team23.ui.debug.isDebug
@@ -20,6 +23,8 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class SettingsViewModel(
+    private val getAllPreferencesUseCase: GetAllPreferencesUseCase,
+    private val togglePreferenceUseCase: TogglePreferenceUseCase,
     private val adminRepository: AdminRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
@@ -28,24 +33,25 @@ class SettingsViewModel(
 ) {
     private val viewModelScope = CoroutineScope(SupervisorJob() + dispatcher + coroutineName)
 
-    private val _settingsStateFlow: MutableStateFlow<SettingsUiModel> = MutableStateFlow(SettingsUiModel("", ""))
+    private val _settingsStateFlow: MutableStateFlow<SettingsUiModel> = MutableStateFlow(SettingsUiModel())
     val settingsFlow: StateFlow<SettingsUiModel> = _settingsStateFlow
 
     init {
         viewModelScope.launch {
             userRepository.getUserInfo().onSuccess { (userId, username) ->
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(userId = userId.toString(), username = username)
+                    settingsState.copy(account = settingsState.account.copy(userId = userId.toString(), username = username))
                 }
             }
             if (isDebug()) {
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(baseUrl = adminRepository.getBaseUrl())
+                    settingsState.copy(backend = settingsState.backend.copy(adminRepository.getBaseUrl()))
                 }
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(apiVersion = adminRepository.getApiVersion())
+                    settingsState.copy(backend = settingsState.backend.copy(adminRepository.getApiVersion()))
                 }
             }
+            updateSettingsWithPreferences()
         }
     }
 
@@ -53,6 +59,9 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.Logout -> handleLogOut()
             is SettingsAction.NavigateBack -> handleNavigateBack()
+            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardOrientation)
+            is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode)
+            is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode)
         }
     }
 
@@ -71,6 +80,26 @@ class SettingsViewModel(
     private fun handleNavigateBack() {
         viewModelScope.launch {
             NavigationManager.popBackStack()
+        }
+    }
+
+    private fun handleTogglePreference(preference: Preference) {
+        viewModelScope.launch {
+            togglePreferenceUseCase.invoke(preference)
+            updateSettingsWithPreferences()
+        }
+    }
+
+    private suspend fun updateSettingsWithPreferences() {
+        val preferences = getAllPreferencesUseCase.invoke()
+        _settingsStateFlow.update { settingsState ->
+            settingsState.copy(
+                preferences = settingsState.preferences.copy(
+                    cardPortrait = preferences[Preference.CardOrientation] ?: false,
+                    forceDarkMode = preferences[Preference.ForceDarkMode] ?: false,
+                    forceLightMode = preferences[Preference.ForceLightMode] ?: false,
+                )
+            )
         }
     }
 }

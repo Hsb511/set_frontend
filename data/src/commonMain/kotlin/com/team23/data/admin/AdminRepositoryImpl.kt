@@ -27,6 +27,6 @@ class AdminRepositoryImpl(
     }
 
     override suspend fun getApiVersion(): String? {
-        return runCatching { adminApi.version() }.onFailure { println("HUGO - failure: $it") }.getOrNull()
+        return runCatching { adminApi.version() }.getOrNull()
     }
 }

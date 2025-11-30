@@ -12,5 +12,9 @@ interface SetDataStore {
         internal const val USERNAME_KEY = "username"
         internal const val PASSWORD_KEY = "password"
         internal const val SESSION_TOKEN_KEY = "sessionToken"
+
+        internal const val PREFERENCE_CARD_ORIENTATION_KEY = "preference.cardOrientation"
+        internal const val PREFERENCE_FORCE_DARK_MODE_KEY = "preference.forceDarkMode"
+        internal const val PREFERENCE_FORCE_LIGHT_MODE_KEY = "preference.forceLightMode"
     }
 }

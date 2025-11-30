@@ -51,6 +51,8 @@ val uiModule = module {
 
     single {
         SettingsViewModel(
+            getAllPreferencesUseCase = get(),
+            togglePreferenceUseCase = get(),
             adminRepository = get(),
             authRepository = get(),
             userRepository = get(),
