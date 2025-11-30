@@ -4,6 +4,7 @@ interface SetDataStore {
 
     suspend fun setValue(key: String, value: String)
     suspend fun getValue(key: String): String?
+    suspend fun clear()
 
     companion object {
         internal const val DATA_STORE_FILE_NAME = "team23.set.preferences_pb"

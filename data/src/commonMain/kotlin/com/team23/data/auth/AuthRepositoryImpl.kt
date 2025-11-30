@@ -3,13 +3,14 @@ package com.team23.data.auth
 import com.team23.data.datastore.SetDataStore
 import com.team23.domain.startup.repository.AuthRepository
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AuthRepositoryImpl(
     private val setDataStore: SetDataStore,
     private val authApi: AuthApi,
 ) : AuthRepository {
 
-    @OptIn(ExperimentalUuidApi::class)
     override suspend fun registerAndStoreUserInfo(
         username: String,
         password: String,
@@ -29,7 +30,6 @@ class AuthRepositoryImpl(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     override suspend fun loginAndStoreUserInfo(username: String, password: String): Result<Unit> = runCatching {
         val request = AuthRequest(username = username, password = password)
         val response = authApi.signin(request)
@@ -42,5 +42,20 @@ class AuthRepositoryImpl(
             }
             is AuthSignResponse.Failure -> throw IllegalArgumentException(response.error)
         }
+    }
+
+    override suspend fun logout(): Result<Unit> = runCatching {
+        val sessionToken = getCachedSessionToken()
+        val response = authApi.signOut(sessionToken)
+        when (response) {
+            is AuthSignOutResponse.Success -> setDataStore.clear()
+            is AuthSignOutResponse.Failure -> Exception(response.error)
+        }
+    }
+
+    private suspend fun getCachedSessionToken(): Uuid {
+        val cachedSessionToken = setDataStore.getValue(SetDataStore.SESSION_TOKEN_KEY)
+        requireNotNull(cachedSessionToken)
+        return Uuid.parse(cachedSessionToken)
     }
 }

@@ -39,6 +39,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val settingsViewModel = koinInject<SettingsViewModel>()
+    settingsViewModel.setNavController(navController)
     val settingsUiModel by settingsViewModel.settingsFlow.collectAsState()
 
     SettingsScreen(
@@ -123,7 +124,10 @@ private fun SettingsTopBar(
     if (logoutDialogVisible) {
         LogoutDialog(
             onDismiss = { logoutDialogVisible = false },
-            onConfirm = { onAction(SettingsAction.Logout) },
+            onConfirm = {
+                onAction(SettingsAction.Logout)
+                logoutDialogVisible = false
+            },
         )
     }
 }

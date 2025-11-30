@@ -29,6 +29,12 @@ class SetDataStoreImpl() : SetDataStore {
         return dataStore.data.map { preferences -> preferences[prefKey] }.firstOrNull()
     }
 
+    override suspend fun clear() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
     companion object {
         private lateinit var dataStore: DataStore<Preferences>
         private fun isDataStoreInitialized(): Boolean = ::dataStore.isInitialized
