@@ -6,6 +6,8 @@ import com.team23.domain.startup.repository.UserRepository
 import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -60,8 +62,8 @@ class SettingsViewModel(
                 .onSuccess {
                     NavigationManager.clearBackStackOrNavigate(NavigationScreen.AuthType)
                 }
-                .onFailure {
-                    // TODO SHOW SNACKBAR
+                .onFailure { failure ->
+                    SnackbarManager.showMessage(SetSnackbarVisuals.LogOutError(failure.message))
                 }
         }
     }

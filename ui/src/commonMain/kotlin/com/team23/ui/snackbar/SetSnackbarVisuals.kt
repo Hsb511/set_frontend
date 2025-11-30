@@ -40,4 +40,8 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
     data class GameCompletionError(val errorMessage: String?): ShortSnackbarVisuals() {
         override val message: String = "The game did not properly complete: $errorMessage"
     }
+
+    data class LogOutError(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "Logging out didn't succeed: $errorMessage"
+    }
 }
