@@ -6,8 +6,7 @@ class TogglePreferenceUseCase(
     private val userRepository: UserRepository,
 ) {
 
-    suspend fun invoke(preference: Preference) {
-        val currentValue = runCatching { userRepository.getUserPreference(preference) }.getOrNull() ?: return
+    suspend fun invoke(preference: Preference, currentValue: Boolean) {
         userRepository.setUserPreference(preference, !currentValue)
         when {
             preference == Preference.ForceDarkMode && !currentValue ->

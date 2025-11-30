@@ -119,20 +119,20 @@ private fun SettingsPreferencesSection(
     SettingsRowCheckBox(
         label = "Turn cards in portrait",
         checked = preferences.cardPortrait,
-        onValueChanged = { onAction(SettingsAction.ToggleCardOrientation) }
+        onValueChanged = { onAction(SettingsAction.ToggleCardOrientation(preferences.cardPortrait)) }
     )
 
 
     SettingsRowCheckBox(
         label = "Force dark mode",
         checked = preferences.forceDarkMode,
-        onValueChanged = { onAction(SettingsAction.ToggleForceDarkMode) }
+        onValueChanged = { onAction(SettingsAction.ToggleForceDarkMode(preferences.forceDarkMode)) }
     )
 
     SettingsRowCheckBox(
         label = "Force light mode",
         checked = preferences.forceLightMode,
-        onValueChanged = { onAction(SettingsAction.ToggleForceLightMode) }
+        onValueChanged = { onAction(SettingsAction.ToggleForceLightMode(preferences.forceLightMode)) }
     )
 }
 

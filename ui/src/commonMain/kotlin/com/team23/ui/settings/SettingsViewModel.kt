@@ -45,10 +45,10 @@ class SettingsViewModel(
             }
             if (isDebug()) {
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(backend = settingsState.backend.copy(adminRepository.getBaseUrl()))
+                    settingsState.copy(backend = settingsState.backend.copy(baseUrl = adminRepository.getBaseUrl()))
                 }
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(backend = settingsState.backend.copy(adminRepository.getApiVersion()))
+                    settingsState.copy(backend = settingsState.backend.copy(apiVersion = adminRepository.getApiVersion()))
                 }
             }
             updateSettingsWithPreferences()
@@ -59,9 +59,9 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.Logout -> handleLogOut()
             is SettingsAction.NavigateBack -> handleNavigateBack()
-            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardOrientation)
-            is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode)
-            is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode)
+            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardOrientation, action.currentValue)
+            is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode, action.currentValue)
+            is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode, action.currentValue)
         }
     }
 
@@ -83,9 +83,9 @@ class SettingsViewModel(
         }
     }
 
-    private fun handleTogglePreference(preference: Preference) {
+    private fun handleTogglePreference(preference: Preference, currentValue: Boolean) {
         viewModelScope.launch {
-            togglePreferenceUseCase.invoke(preference)
+            togglePreferenceUseCase.invoke(preference, currentValue)
             updateSettingsWithPreferences()
         }
     }

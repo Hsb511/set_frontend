@@ -3,7 +3,7 @@ package com.team23.ui.settings
 sealed interface SettingsAction {
     data object NavigateBack: SettingsAction
     data object Logout: SettingsAction
-    data object ToggleCardOrientation: SettingsAction
-    data object ToggleForceDarkMode: SettingsAction
-    data object ToggleForceLightMode: SettingsAction
+    data class ToggleCardOrientation(val currentValue: Boolean): SettingsAction
+    data class ToggleForceDarkMode(val currentValue: Boolean): SettingsAction
+    data class ToggleForceLightMode(val currentValue: Boolean): SettingsAction
 }
