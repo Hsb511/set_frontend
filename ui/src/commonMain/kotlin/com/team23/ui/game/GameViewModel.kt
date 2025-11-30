@@ -15,16 +15,19 @@ import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -41,7 +44,8 @@ class GameViewModel(
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
-    private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
+    private val job = SupervisorJob()
+    private val viewModelScope = CoroutineScope(job + dispatcher + coroutineName)
     private lateinit var navController: NavController
 
     private var isPortrait: Boolean = true
@@ -57,11 +61,13 @@ class GameViewModel(
         stateMachine.gameSideEffect.map(::mapToEvent).filterNotNull()
     ).shareIn(viewModelScope, SharingStarted.Lazily)
 
-    private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
-    val snackbar: SharedFlow<SnackbarVisuals> = merge(
-        _snackbar,
-        stateMachine.gameSideEffect.map(::mapToSnackbar).filterNotNull()
-    ).shareIn(viewModelScope, SharingStarted.Lazily)
+    init {
+        stateMachine.gameSideEffect
+            .map(::mapToSnackbar)
+            .filterNotNull()
+            .onEach(SnackbarManager::showMessage)
+            .launchIn(viewModelScope)
+    }
 
     fun setNavController(navController: NavController) {
         this.navController = navController
@@ -76,6 +82,10 @@ class GameViewModel(
             is GameAction.StartMulti -> TODO()
             is GameAction.RetryConfirmation -> confirmFinishedGame(_gameStateFlow.value)
         }
+    }
+
+    fun clear() {
+        job.cancel()
     }
 
     private fun startNewGame() {
@@ -132,14 +142,14 @@ class GameViewModel(
             gameRepository.notifySoloGameFinished(gameState)
                 .onSuccess { completed ->
                     if (completed) {
-                        _snackbar.emit(SetSnackbarVisuals.GameCompletionSuccess)
+                        SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionSuccess)
                     } else {
                         println("This should never happen")
                     }
                     sendCompletionEvent(completed)
                 }
                 .onFailure { throwable ->
-                    _snackbar.emit(SetSnackbarVisuals.GameCompletionError(throwable.message))
+                    SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionError(throwable.message))
                     sendCompletionEvent(false)
                 }
         }

@@ -8,31 +8,42 @@ import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthViewModel(
     private val stateMachine: StartupStateMachine,
-    dispatcher: CoroutineDispatcher,
-    coroutineName: CoroutineName,
+    private val dispatcher: CoroutineDispatcher,
+    private val coroutineName: CoroutineName,
 ) {
-    private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
+    private var job: CompletableJob? = null
+    private var viewModelScope: CoroutineScope? = null
     private lateinit var navController: NavController
 
-    val snackbar: SharedFlow<SnackbarVisuals> = stateMachine.startupSideEffect
-        .map(::mapToSnackbar)
-        .shareIn(viewModelScope, SharingStarted.Lazily)
+    fun start(navHostController: NavController) {
+        navController = navHostController
 
-    fun setNavController(navHostController: NavController) {
-        this.navController = navHostController
+        if (job?.isActive == true) return
+
+        val newJob = SupervisorJob()
+        job = newJob
+        viewModelScope = CoroutineScope(newJob + dispatcher + coroutineName)
+        observeSideEffects()
+    }
+
+    fun stop() {
+        job?.cancel()
+        job = null
+        viewModelScope = null
     }
 
     fun onAction(authAction: AuthAction) {
@@ -40,6 +51,15 @@ class AuthViewModel(
             is AuthAction.NavigateToSignIn -> navController.navigate(NavigationScreen.SignInWithCredentials.name)
             is AuthAction.NavigateToSignUp -> navController.navigate(NavigationScreen.SignUpWithCredentials.name)
             is AuthAction.Auth -> handleAuth(authAction)
+        }
+    }
+
+    private fun observeSideEffects() {
+        viewModelScope?.launch {
+            stateMachine.startupSideEffect
+                .map(::mapToSnackbar)
+                .filterNotNull()
+                .collect(SnackbarManager::showMessage)
         }
     }
 
@@ -56,7 +76,7 @@ class AuthViewModel(
                 password = action.password,
             )
         }
-        viewModelScope.launch {
+        viewModelScope?.launch {
             val newState = stateMachine.reduce(StartupState.UserSignInUp, startupEvent)
             if (newState is StartupState.GameTypeChoice) {
                 navigateToGameTypeSelection()

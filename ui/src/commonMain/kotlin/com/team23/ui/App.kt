@@ -1,8 +1,10 @@
 package com.team23.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,6 +13,7 @@ import com.team23.ui.debug.DebugManagementFAB
 import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationHost
 import com.team23.ui.settings.SettingsFAB
+import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -19,28 +22,37 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App() {
     SetTheme {
-        Box {
-            val navController = rememberNavController()
-            NavigationHost(navController = navController)
+        Scaffold(
+            snackbarHost = {
+                SetSnackbar()
+            },
+            modifier = Modifier
+                .safeDrawingPadding()
+                .fillMaxSize()
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .padding(paddingValues = paddingValues)
+            ) {
+                val navController = rememberNavController()
 
-            if (isDebug()) {
-                DebugManagementFAB(
+                NavigationHost(navController = navController)
+
+                if (isDebug()) {
+                    DebugManagementFAB(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(all = LocalSpacings.current.largeIncreased),
+                    )
+                }
+
+                SettingsFAB(
+                    navController = navController,
                     modifier = Modifier
-                        .safeDrawingPadding()
-                        .align(Alignment.BottomStart)
+                        .align(Alignment.BottomEnd)
                         .padding(all = LocalSpacings.current.largeIncreased),
-                    snackbarModifier = Modifier
-                        .align(Alignment.BottomCenter)
                 )
             }
-
-            SettingsFAB(
-                navController = navController,
-                modifier = Modifier
-                    .safeDrawingPadding()
-                    .align(Alignment.BottomEnd)
-                    .padding(all = LocalSpacings.current.largeIncreased),
-            )
         }
     }
 }

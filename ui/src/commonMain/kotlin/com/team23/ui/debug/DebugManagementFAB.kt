@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import kotlinx.coroutines.Dispatchers
@@ -49,15 +48,9 @@ import org.koin.compose.koinInject
 @Composable
 fun DebugManagementFAB(
     modifier: Modifier = Modifier,
-    snackbarModifier: Modifier = Modifier,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val debugViewModel = koinInject<DebugViewModel>()
-
-    SetSnackbar(
-        snackbarDataFlow = debugViewModel.snackbar,
-        modifier = snackbarModifier
-    )
 
     val isDebugExpanded = remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }

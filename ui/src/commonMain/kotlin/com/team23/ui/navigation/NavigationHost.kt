@@ -4,8 +4,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +18,6 @@ import com.team23.ui.game.GameScreen
 import com.team23.ui.game.GameTypeScreen
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
-import com.team23.ui.theming.LocalSpacings
 
 @Composable
 fun NavigationHost(
@@ -62,9 +59,7 @@ fun NavigationHost(
         ) {
             SettingsScreen(
                 navController = navController,
-                modifier = Modifier
-                    .safeDrawingPadding()
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

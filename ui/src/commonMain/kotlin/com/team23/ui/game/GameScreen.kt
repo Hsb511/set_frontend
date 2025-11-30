@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,13 +49,13 @@ import androidx.compose.ui.unit.round
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.dialog.EndGameDialog
 import com.team23.ui.shape.FillingTypeUiModel
-import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +75,11 @@ fun GameScreen(
 ) {
     val gameVM = koinInject<GameViewModel>()
     gameVM.setNavController(navController)
+    DisposableEffect(Unit) {
+        onDispose {
+            gameVM.clear()
+        }
+    }
     val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(
@@ -86,11 +92,6 @@ fun GameScreen(
             game = game,
             gameUiEvent = gameVM.gameUiEvent,
             onAction = gameVM::onAction,
-        )
-
-        SetSnackbar(
-            snackbarDataFlow = gameVM.snackbar,
-            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }

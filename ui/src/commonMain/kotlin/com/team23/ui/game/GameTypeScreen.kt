@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.button.ActionButton
-import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -26,16 +26,16 @@ fun GameTypeScreen(
 ) {
     val gameViewModel = koinInject<GameViewModel>()
     gameViewModel.setNavController(navController)
+    DisposableEffect(Unit) {
+        onDispose {
+            gameViewModel.clear()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         GameTypeScreen(
             onAction = gameViewModel::onAction,
             modifier = Modifier.align(Alignment.Center)
-        )
-
-        SetSnackbar(
-            snackbarDataFlow = gameViewModel.snackbar,
-            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }

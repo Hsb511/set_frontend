@@ -1,9 +1,9 @@
 package com.team23.ui.debug
 
-import androidx.compose.material3.SnackbarVisuals
 import com.team23.domain.admin.AdminClearMode
 import com.team23.domain.admin.AdminRepository
 import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -19,9 +19,6 @@ class DebugViewModel(
 
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
 
-    private val _snackbar: MutableSharedFlow<SnackbarVisuals> = MutableSharedFlow()
-    val snackbar: SharedFlow<SnackbarVisuals> = _snackbar
-
     private val _uiEvent: MutableSharedFlow<DebugUiEvent> = MutableSharedFlow()
     val uiEvent: SharedFlow<DebugUiEvent> = _uiEvent
 
@@ -36,11 +33,11 @@ class DebugViewModel(
             adminRepository.clear(mode)
                 .onSuccess { message ->
                     _uiEvent.emit(DebugUiEvent.LoadingFinished(isSuccess = true))
-                    _snackbar.emit(SetSnackbarVisuals.DebugClearSuccess(message))
+                    SnackbarManager.showMessage(SetSnackbarVisuals.DebugClearSuccess(message))
                 }
                 .onFailure { throwable ->
                     _uiEvent.emit(DebugUiEvent.LoadingFinished(isSuccess = false))
-                    _snackbar.emit(SetSnackbarVisuals.DebugClearFailure(throwable.message))
+                    SnackbarManager.showMessage(SetSnackbarVisuals.DebugClearFailure(throwable.message))
                 }
         }
     }

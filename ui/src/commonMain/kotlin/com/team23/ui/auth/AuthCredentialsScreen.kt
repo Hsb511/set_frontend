@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
-import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -41,8 +41,14 @@ fun AuthCredentialsScreen(
     authType: AuthType,
     navController: NavController = rememberNavController(),
 ) {
-    val authViewModel = koinInject<AuthViewModel>()
-    authViewModel.setNavController(navController)
+    val authViewModel = koinInject<AuthViewModel>().apply {
+        start(navController)
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            authViewModel.stop()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -52,11 +58,6 @@ fun AuthCredentialsScreen(
         AuthCredentialsScreen(
             authType = authType,
             onAction = authViewModel::onAction,
-        )
-
-        SetSnackbar(
-            snackbarDataFlow = authViewModel.snackbar,
-            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }

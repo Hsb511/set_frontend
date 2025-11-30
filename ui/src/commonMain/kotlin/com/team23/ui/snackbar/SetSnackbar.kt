@@ -12,12 +12,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.withContext
 
 @Composable
 fun SetSnackbar(
-    snackbarDataFlow: SharedFlow<SnackbarVisuals>,
     modifier: Modifier = Modifier,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -26,13 +24,12 @@ fun SetSnackbar(
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             withContext(Dispatchers.Main.immediate) {
-                snackbarDataFlow.collect { snackbarData ->
+                SnackbarManager.snackbar.collect { snackbarData ->
                     snackbarHostState.showSnackbar(snackbarData)
                 }
             }
         }
     }
-
 
     SnackbarHost(
         hostState = snackbarHostState,

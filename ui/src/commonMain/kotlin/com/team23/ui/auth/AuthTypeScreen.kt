@@ -13,23 +13,21 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.team23.ui.button.ActionButton
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.koinInject
 
 @Composable
 fun AuthTypeScreen(
     navController: NavHostController = rememberNavController(),
 ) {
-    val authViewModel = koinInject<AuthViewModel>()
-    authViewModel.setNavController(navController)
-
     AuthTypeScreen(
-        onAction = authViewModel::onAction,
+        navController = navController,
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .fillMaxSize()
@@ -38,8 +36,8 @@ fun AuthTypeScreen(
 
 @Composable
 private fun AuthTypeScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
-    onAction: (AuthAction) -> Unit,
 ) {
 
     Column(
@@ -51,7 +49,7 @@ private fun AuthTypeScreen(
     ) {
         ActionButton(
             text = "Sign up",
-            onClick = { onAction(AuthAction.NavigateToSignUp)},
+            onClick = { navController.navigate(NavigationScreen.SignUpWithCredentials.name )},
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -59,7 +57,7 @@ private fun AuthTypeScreen(
 
         ActionButton(
             text = "Sign in",
-            onClick = { onAction(AuthAction.NavigateToSignIn)},
+            onClick = { navController.navigate(NavigationScreen.SignInWithCredentials.name) },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -67,7 +65,7 @@ private fun AuthTypeScreen(
 
         ActionButton(
             text = "\uD83D\uDEA7 Play as guest \uD83D\uDEA7",
-            onClick = { onAction(AuthAction.NavigateToSignIn)},
+            onClick = { TODO() },
             enabled = false,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -78,6 +76,6 @@ private fun AuthTypeScreen(
 @Preview(showBackground = true)
 private fun LoginScreenPreview() {
     SetTheme {
-        AuthTypeScreen { }
+        AuthTypeScreen()
     }
 }
