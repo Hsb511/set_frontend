@@ -77,10 +77,6 @@ class GameViewModel(
         }
     }
 
-    fun clear() {
-        job.cancel()
-    }
-
     private fun startNewGame() {
         viewModelScope.launch {
             initSoloGame()
