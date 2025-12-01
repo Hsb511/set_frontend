@@ -1,9 +1,11 @@
 package com.team23.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,8 +29,9 @@ fun App() {
                 SetSnackbar()
             },
             modifier = Modifier
-                .safeDrawingPadding()
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .safeDrawingPadding()
         ) { paddingValues ->
             Box(
                 modifier = Modifier
