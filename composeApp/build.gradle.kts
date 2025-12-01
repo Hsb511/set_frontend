@@ -2,9 +2,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val versionMaj = 1
-val versionMin = 4
-val versionFix = 0
+val versionMaj = (findProperty("versionMaj") as String).toInt()
+val versionMin = (findProperty("versionMin") as String).toInt()
+val versionFix = (findProperty("versionFix") as String).toInt()
+
+val appVersionCode = versionMaj * 10_000 + versionMin * 100 + versionFix
 val appVersionName = "$versionMaj.$versionMin.$versionFix"
 
 plugins {
@@ -75,13 +77,13 @@ kotlin {
 
 android {
     namespace = "com.team23.set"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = (findProperty("compileSdk") as String).toInt()
 
     defaultConfig {
         applicationId = "com.team23.set_app"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = versionMaj * 10_000 + versionMin * 100 + versionFix
+        minSdk = (findProperty("minSdk") as String).toInt()
+        targetSdk = (findProperty("targetSdk") as String).toInt()
+        versionCode = appVersionCode
         versionName = appVersionName
     }
     packaging {

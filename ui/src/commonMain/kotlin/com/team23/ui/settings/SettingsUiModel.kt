@@ -3,7 +3,7 @@ package com.team23.ui.settings
 data class SettingsUiModel(
     val account: Account = Account(),
     val preferences: Preferences = Preferences(),
-    val backend: Backend = Backend(),
+    val about: About = About(),
 ) {
     data class Account(
         val username: String = "",
@@ -16,10 +16,9 @@ data class SettingsUiModel(
         val forceLightMode: Boolean = false,
     )
 
-    data class Backend(
+    data class About(
+        val appVersion: String = "",
         val apiVersion: String? = null,
         val baseUrl: String? = null,
-    ) {
-        val isVisible: Boolean = apiVersion != null || baseUrl != null
-    }
+    )
 }

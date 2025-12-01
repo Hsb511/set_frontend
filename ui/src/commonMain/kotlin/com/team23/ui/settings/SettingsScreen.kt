@@ -85,11 +85,9 @@ private fun SettingsScreen(
                     onAction = onAction,
                 )
 
-                if (settingsUiModel.backend.isVisible) {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = LocalSpacings.current.medium))
+                HorizontalDivider(modifier = Modifier.padding(vertical = LocalSpacings.current.medium))
 
-                    SettingsBackendSection(backend = settingsUiModel.backend)
-                }
+                SettingsAboutSection(about = settingsUiModel.about)
             }
         }
     }
@@ -137,17 +135,17 @@ private fun SettingsPreferencesSection(
 }
 
 @Composable
-private fun SettingsBackendSection(backend: SettingsUiModel.Backend) {
+private fun SettingsAboutSection(about: SettingsUiModel.About) {
     SettingsSectionTitle(
-        label = "Backend",
+        label = "About",
         modifier = Modifier
             .padding(bottom = LocalSpacings.current.medium)
     )
-
-    backend.apiVersion?.let { apiVersion ->
+    SettingsRow(label = "Version", value = about.appVersion)
+    about.apiVersion?.let { apiVersion ->
         SettingsRow(label = "API", value = apiVersion)
     }
-    backend.baseUrl?.let { baseUrl ->
+    about.baseUrl?.let { baseUrl ->
         SettingsRow(label = "baseUrl", value = baseUrl)
     }
 }
@@ -220,7 +218,7 @@ private fun SettingsRow(
             text = label,
             color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.width(70.dp),
+            modifier = Modifier.width(80.dp),
         )
         SelectionContainer {
             Text(
@@ -272,7 +270,8 @@ private fun SettingsScreenPreview() {
                     cardPortrait = true,
                     forceDarkMode = true,
                 ),
-                backend = SettingsUiModel.Backend(
+                about = SettingsUiModel.About(
+                    appVersion = "v2.3.2",
                     apiVersion = "SET Game Server v0.7.6",
                     baseUrl = "https://base_url-com",
                 ),

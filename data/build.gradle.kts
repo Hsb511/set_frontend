@@ -86,7 +86,7 @@ kotlin {
 
 android {
     namespace = "com.team23.data"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = (findProperty("compileSdk") as String).toInt()
     buildFeatures.buildConfig = true
 
     compileOptions {
@@ -94,12 +94,20 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+
+    val versionMaj = (findProperty("versionMaj") as String).toInt()
+    val versionMin = (findProperty("versionMin") as String).toInt()
+    val versionFix = (findProperty("versionFix") as String).toInt()
+    val appVersionName = "$versionMaj.$versionMin.$versionFix"
+
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"https://settest.souchefr.synology.me/\"")
+            buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
         }
         release {
             buildConfigField("String", "BASE_URL", "\"https://set.souchefr.synology.me/\"")
+            buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
         }
     }
 }

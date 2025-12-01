@@ -9,3 +9,7 @@ internal actual fun platformModule(): Module {
 actual fun getBaseUrl(): String {
     TODO("Not yet implemented")
 }
+
+actual fun getVersionName(): String {
+    TODO("Not yet implemented")
+}

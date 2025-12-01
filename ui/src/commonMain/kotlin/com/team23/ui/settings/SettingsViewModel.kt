@@ -43,12 +43,15 @@ class SettingsViewModel(
                     settingsState.copy(account = settingsState.account.copy(userId = userId.toString(), username = username))
                 }
             }
+            _settingsStateFlow.update { settingsState ->
+                settingsState.copy(about = settingsState.about.copy(appVersion = adminRepository.getAppVersion()))
+            }
             if (isDebug()) {
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(backend = settingsState.backend.copy(baseUrl = adminRepository.getBaseUrl()))
+                    settingsState.copy(about = settingsState.about.copy(baseUrl = adminRepository.getBaseUrl()))
                 }
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(backend = settingsState.backend.copy(apiVersion = adminRepository.getApiVersion()))
+                    settingsState.copy(about = settingsState.about.copy(apiVersion = adminRepository.getApiVersion()))
                 }
             }
             updateSettingsWithPreferences()

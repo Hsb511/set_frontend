@@ -14,3 +14,7 @@ internal actual fun createHttpClient(): HttpClient {
 actual fun getBaseUrl(): String {
     TODO("Not yet implemented")
 }
+
+actual fun getVersionName(): String {
+    TODO("Not yet implemented")
+}

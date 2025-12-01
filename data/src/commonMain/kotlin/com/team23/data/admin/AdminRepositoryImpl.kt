@@ -1,5 +1,6 @@
 package com.team23.data.admin
 
+import com.team23.data.getVersionName
 import com.team23.domain.admin.AdminClearMode
 import com.team23.domain.admin.AdminRepository
 import com.team23.data.getBaseUrl as getBaseUrlFromModule
@@ -20,6 +21,10 @@ class AdminRepositoryImpl(
             is AdminClearResponse.Success -> Result.success(response.message)
             is AdminClearResponse.Failure -> Result.failure(Exception(response.error))
         }
+    }
+
+    override fun getAppVersion(): String {
+        return getVersionName()
     }
 
     override suspend fun getBaseUrl(): String? {

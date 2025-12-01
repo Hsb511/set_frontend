@@ -78,7 +78,7 @@ kotlin {
 
 android {
     namespace = "com.team23.ui"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = (findProperty("compileSdk") as String).toInt()
     buildFeatures.buildConfig = true
 
     compileOptions {
