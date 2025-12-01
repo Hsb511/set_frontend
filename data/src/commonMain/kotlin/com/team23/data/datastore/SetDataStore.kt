@@ -1,9 +1,12 @@
 package com.team23.data.datastore
 
+import kotlinx.coroutines.flow.Flow
+
 interface SetDataStore {
 
     suspend fun setValue(key: String, value: String)
     suspend fun getValue(key: String): String?
+    fun getFlowValue(key: String): Flow<String?>
     suspend fun clear()
 
     companion object {

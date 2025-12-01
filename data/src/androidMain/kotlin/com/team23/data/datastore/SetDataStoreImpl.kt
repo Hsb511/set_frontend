@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.team23.data.datastore.SetDataStore.Companion.DATA_STORE_FILE_NAME
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
@@ -27,6 +29,13 @@ class SetDataStoreImpl() : SetDataStore {
 
         val prefKey = stringPreferencesKey(key)
         return dataStore.data.map { preferences -> preferences[prefKey] }.firstOrNull()
+    }
+
+    override fun getFlowValue(key: String): Flow<String?> {
+        if (!isDataStoreInitialized()) return emptyFlow()
+
+        val prefKey = stringPreferencesKey(key)
+        return dataStore.data.map { preferences -> preferences[prefKey] }
     }
 
     override suspend fun clear() {

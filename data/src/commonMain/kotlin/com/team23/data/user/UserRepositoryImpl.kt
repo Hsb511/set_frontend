@@ -3,6 +3,8 @@ package com.team23.data.user
 import com.team23.data.datastore.SetDataStore
 import com.team23.domain.settings.Preference
 import com.team23.domain.startup.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -17,6 +19,11 @@ class UserRepositoryImpl(
         val username = setDataStore.getValue(SetDataStore.USERNAME_KEY)
         requireNotNull(username)
         Uuid.parse(rawUserId) to username
+    }
+
+    override fun getUserPreferenceAsFlow(preference: Preference): Flow<Boolean?> {
+        val key = mapToKeyDataStore(preference)
+        return setDataStore.getFlowValue(key).map { value -> value?.toBoolean() }
     }
 
     override suspend fun getUserPreference(preference: Preference): Boolean? {

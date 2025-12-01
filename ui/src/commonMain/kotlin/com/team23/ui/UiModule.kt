@@ -8,6 +8,7 @@ import com.team23.ui.auth.AuthViewModel
 import com.team23.ui.debug.DebugViewModel
 import com.team23.ui.settings.SettingsViewModel
 import com.team23.ui.splash.SplashViewModel
+import com.team23.ui.theming.ThemeViewModel
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.dsl.factoryOf
@@ -68,6 +69,14 @@ val uiModule = module {
             userRepository = get(),
             gameUiMapper = get(),
             cardUiMapper = get(),
+            dispatcher = Dispatchers.Default,
+            coroutineName = CoroutineName("viewmodel"),
+        )
+    }
+
+    single {
+        ThemeViewModel(
+            userRepository = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )
