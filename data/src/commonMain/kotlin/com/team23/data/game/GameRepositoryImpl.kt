@@ -104,9 +104,7 @@ class GameRepositoryImpl(
     }
 
     private fun mapToUploadRequest(finished: GameState.Finished) = UploadDeckRequest(
-        gameId = finished.gameId,
         uploadMode = UploadDeckRequest.UploadMode.Final,
-        turn = finished.setsFound.size + 1,
         pile = emptyList(),
         table = finished.cards.map(cardDataMapper::toBase10Code),
         pit = finished.setsFound.map { set ->

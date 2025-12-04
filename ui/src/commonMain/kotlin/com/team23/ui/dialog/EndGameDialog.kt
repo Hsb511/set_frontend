@@ -22,6 +22,14 @@ fun EndGameDialog(
 ) {
     AlertDialog(
         onDismissRequest = { },
+        confirmButton = {
+            Button(
+                onClick = { onAction(completionType.action) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = completionType.label)
+            }
+        },
         dismissButton = {
             Button(
                 onClick = { onAction(GameAction.ChangeGameType) },
@@ -32,14 +40,6 @@ fun EndGameDialog(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Change game mode")
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onAction(completionType.action) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = completionType.label)
             }
         },
         text = {

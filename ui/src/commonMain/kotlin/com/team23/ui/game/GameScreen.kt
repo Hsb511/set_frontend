@@ -176,7 +176,10 @@ private fun GameScreen(
                 gameUiEvent.collect { gameEvent ->
                     when (gameEvent) {
                         is GameUiEvent.AnimateSelectedCards -> handleAnimateCards(gameEvent.cardsWithIndex)
-                        is GameUiEvent.ResetScreen -> resetNonce ++
+                        is GameUiEvent.ResetScreen -> {
+                            resetNonce ++
+                            completionType = null
+                        }
                         is GameUiEvent.GameCompletion -> completionType = gameEvent.type
                     }
                 }
