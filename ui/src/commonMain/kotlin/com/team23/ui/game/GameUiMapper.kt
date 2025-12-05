@@ -12,17 +12,24 @@ class GameUiMapper(
     fun toUiModel(
         gameState: GameState,
         isPortrait: Boolean,
+        hasAnimation: Boolean,
     ): GameUiModel = when (gameState) {
-        is GameState.EmptyDeck -> GameUiModel()
+        is GameState.EmptyDeck -> GameUiModel(
+            isPortrait = isPortrait,
+            hasAnimation = hasAnimation,
+        )
         is GameState.Playing -> GameUiModel(
             cardsInDeck = mapCards(gameState.deck, gameState.selected, isPortrait),
             playingCards = mapCards(gameState.table, gameState.selected, isPortrait),
             isPortrait = isPortrait,
+            hasAnimation = hasAnimation,
         )
 
         is GameState.Finished -> GameUiModel(
             playingCards = mapCards(gameState.cards, emptySet(), isPortrait),
+            isPortrait = isPortrait,
             isFinished = true,
+            hasAnimation = hasAnimation,
         )
     }
 

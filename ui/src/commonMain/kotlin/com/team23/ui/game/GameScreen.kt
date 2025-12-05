@@ -68,7 +68,7 @@ import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 @Composable
 fun GameScreen() {
     val gameVM = koinInject<GameViewModel>()
-    gameVM.checkIsPortrait()
+    gameVM.start()
     val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(
@@ -117,7 +117,7 @@ private fun GameScreen(
                         isPortrait = game.isPortrait,
                         isSelectable = !game.isFinished,
                         onAction = onAction,
-                        modifier = Modifier.animateItem(
+                        modifier = if (!game.hasAnimation) Modifier else Modifier.animateItem(
                             fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
                             placementSpec = tween(durationMillis = 500, easing = LinearEasing),
                         ).onSizeChanged { size ->
@@ -156,11 +156,13 @@ private fun GameScreen(
 
     var cardsToAnimate: Set<Pair<IntOffset, Slot.CardUiModel>> by remember { mutableStateOf(emptySet()) }
 
-    FlyOutAnimation(
-        cards = cardsToAnimate,
-        isPortrait = game.isPortrait,
-        widthPx = slotWidthPx,
-    )
+    if (game.hasAnimation) {
+        FlyOutAnimation(
+            cards = cardsToAnimate,
+            isPortrait = game.isPortrait,
+            widthPx = slotWidthPx,
+        )
+    }
 
     fun handleAnimateCards(cardsWithIndex: Set<Pair<Int, Slot.CardUiModel>>) {
         cardsToAnimate = cardsWithIndex

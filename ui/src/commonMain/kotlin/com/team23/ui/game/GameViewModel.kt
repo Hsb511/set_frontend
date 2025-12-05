@@ -49,13 +49,15 @@ class GameViewModel(
     private val job = SupervisorJob()
     private val viewModelScope = CoroutineScope(job + dispatcher + coroutineName)
 
-    private val _isPortraitFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val isPortraitFlow: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val hasAnimationFlow: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
     val gameUiModelFlow: StateFlow<GameUiModel> = combine(
         _gameStateFlow.onEach(::confirmFinishedGame),
-        _isPortraitFlow
-    ) { game, isPortrait ->
-        gameUiMapper.toUiModel(game, isPortrait)
+        isPortraitFlow,
+        hasAnimationFlow
+    ) { game, isPortrait, hasAnimation ->
+        gameUiMapper.toUiModel(game, isPortrait, hasAnimation)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -76,11 +78,16 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun checkIsPortrait() {
+    fun start() {
         viewModelScope.launch {
-            _isPortraitFlow.value = runCatching {
+            isPortraitFlow.value = runCatching {
                 userRepository.getUserPreference(Preference.CardPortrait)
             }.getOrNull() ?: false
+        }
+        viewModelScope.launch {
+            hasAnimationFlow.value = runCatching {
+                userRepository.getUserPreference(Preference.DisableAnimation)?.not()
+            }.getOrNull() ?: true
         }
     }
 
@@ -170,7 +177,7 @@ class GameViewModel(
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {
         is GameSideEffect.SetFound -> GameUiEvent.AnimateSelectedCards(
             sideEffect.cards.map { (index, card) ->
-                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = _isPortraitFlow.value)
+                index to cardUiMapper.toUiModel(card, isSelected = false, isPortrait = isPortraitFlow.value)
             }.toSet()
         )
 
