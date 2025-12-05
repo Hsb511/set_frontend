@@ -65,6 +65,7 @@ class SettingsViewModel(
             is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardPortrait, action.currentValue)
             is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode, action.currentValue)
             is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode, action.currentValue)
+            is SettingsAction.ToggleDisableAnimation -> handleTogglePreference(Preference.DisableAnimation, action.currentValue)
         }
     }
 
@@ -101,6 +102,7 @@ class SettingsViewModel(
                     cardPortrait = preferences[Preference.CardPortrait] ?: true,
                     forceDarkMode = preferences[Preference.ForceDarkMode] ?: false,
                     forceLightMode = preferences[Preference.ForceLightMode] ?: false,
+                    disableAnimation = preferences[Preference.DisableAnimation] ?: false,
                 )
             )
         }

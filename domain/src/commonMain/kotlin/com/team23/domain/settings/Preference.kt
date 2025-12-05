@@ -4,4 +4,5 @@ enum class Preference {
     CardPortrait,
     ForceLightMode,
     ForceDarkMode,
+    DisableAnimation,
 }

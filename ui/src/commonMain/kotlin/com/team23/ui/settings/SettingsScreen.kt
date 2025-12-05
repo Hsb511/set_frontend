@@ -120,7 +120,6 @@ private fun SettingsPreferencesSection(
         onValueChanged = { onAction(SettingsAction.ToggleCardOrientation(preferences.cardPortrait)) }
     )
 
-
     SettingsRowCheckBox(
         label = "Force dark mode",
         checked = preferences.forceDarkMode,
@@ -131,6 +130,12 @@ private fun SettingsPreferencesSection(
         label = "Force light mode",
         checked = preferences.forceLightMode,
         onValueChanged = { onAction(SettingsAction.ToggleForceLightMode(preferences.forceLightMode)) }
+    )
+
+    SettingsRowCheckBox(
+        label = "Disable animation",
+        checked = preferences.disableAnimation,
+        onValueChanged = { onAction(SettingsAction.ToggleDisableAnimation(preferences.disableAnimation)) }
     )
 }
 

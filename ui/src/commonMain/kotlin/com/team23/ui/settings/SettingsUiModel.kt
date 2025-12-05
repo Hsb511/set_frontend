@@ -14,6 +14,7 @@ data class SettingsUiModel(
         val cardPortrait: Boolean = true,
         val forceDarkMode: Boolean = false,
         val forceLightMode: Boolean = false,
+        val disableAnimation: Boolean = false,
     )
 
     data class About(

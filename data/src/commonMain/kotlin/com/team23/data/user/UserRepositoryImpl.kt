@@ -40,5 +40,6 @@ class UserRepositoryImpl(
         Preference.CardPortrait -> SetDataStore.PREFERENCE_CARD_ORIENTATION_KEY
         Preference.ForceLightMode -> SetDataStore.PREFERENCE_FORCE_LIGHT_MODE_KEY
         Preference.ForceDarkMode -> SetDataStore.PREFERENCE_FORCE_DARK_MODE_KEY
+        Preference.DisableAnimation -> SetDataStore.PREFERENCE_DISABLE_ANIMATION_KEY
     }
 }

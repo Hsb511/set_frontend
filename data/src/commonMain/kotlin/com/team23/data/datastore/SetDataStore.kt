@@ -19,5 +19,6 @@ interface SetDataStore {
         internal const val PREFERENCE_CARD_ORIENTATION_KEY = "preference.cardOrientation"
         internal const val PREFERENCE_FORCE_DARK_MODE_KEY = "preference.forceDarkMode"
         internal const val PREFERENCE_FORCE_LIGHT_MODE_KEY = "preference.forceLightMode"
+        internal const val PREFERENCE_DISABLE_ANIMATION_KEY = "preference.disableAnimation"
     }
 }

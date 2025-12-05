@@ -6,4 +6,5 @@ sealed interface SettingsAction {
     data class ToggleCardOrientation(val currentValue: Boolean): SettingsAction
     data class ToggleForceDarkMode(val currentValue: Boolean): SettingsAction
     data class ToggleForceLightMode(val currentValue: Boolean): SettingsAction
+    data class ToggleDisableAnimation(val currentValue: Boolean): SettingsAction
 }
