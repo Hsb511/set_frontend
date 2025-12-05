@@ -106,11 +106,7 @@ private fun CardContainer(
         shadowElevation = if (isSelected) 8.dp else 0.dp,
         modifier = modifier.border(
             width = if (isSelected) 3.dp else 1.dp,
-            color = when {
-                !isSelected -> Color.Black
-                isSystemInDarkTheme() -> orange
-                else -> Color.Cyan
-            },
+            color = if (isSelected) MaterialTheme.colorScheme.tertiary else Color.Black,
             shape = MaterialTheme.shapes.small,
         ),
     ) {

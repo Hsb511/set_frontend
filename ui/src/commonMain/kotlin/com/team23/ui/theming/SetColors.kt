@@ -10,12 +10,14 @@ import androidx.compose.runtime.Composable
 fun lightSetColorScheme() = lightColorScheme(
     background = Color.White,
     onBackground = Color.Black,
+    tertiary = Color.Cyan,
 )
 
 @Composable
 fun darkSetColorScheme() = darkColorScheme(
     background = Color.Black,
     onBackground = Color.White,
+    tertiary = orange
 )
 
 internal val officeGreen = Color(0xFF008002)
