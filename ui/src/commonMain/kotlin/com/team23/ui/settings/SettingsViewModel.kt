@@ -98,7 +98,7 @@ class SettingsViewModel(
         _settingsStateFlow.update { settingsState ->
             settingsState.copy(
                 preferences = settingsState.preferences.copy(
-                    cardPortrait = preferences[Preference.CardPortrait] ?: false,
+                    cardPortrait = preferences[Preference.CardPortrait] ?: true,
                     forceDarkMode = preferences[Preference.ForceDarkMode] ?: false,
                     forceLightMode = preferences[Preference.ForceLightMode] ?: false,
                 )
