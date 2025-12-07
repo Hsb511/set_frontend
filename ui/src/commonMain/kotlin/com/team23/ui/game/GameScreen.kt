@@ -75,13 +75,14 @@ fun GameScreen() {
     Box(
         modifier = Modifier
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .fillMaxSize()
-            .padding(all = if (game.isPortrait) LocalSpacings.current.large else LocalSpacings.current.none)
     ) {
         GameScreen(
             game = game,
             gameUiEvent = gameVM.gameUiEvent,
             onAction = gameVM::onAction,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = if (game.isPortrait) LocalSpacings.current.large else LocalSpacings.current.none)
         )
 
         if (isDebug()) {
