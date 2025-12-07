@@ -1,6 +1,7 @@
 package com.team23.domain.game.usecase
 
 import com.team23.domain.game.GameTestUtils.createCard
+import com.team23.domain.game.GameTestUtils.createPlayingGame
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.model.Card.Data.Color
 import com.team23.domain.game.model.Card.Data.Fill
@@ -10,17 +11,21 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertIs
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 class UpdateGameAfterSetFoundUseCaseTest {
 
     private lateinit var isSetUseCase: IsSetUseCase
+    private lateinit var findFirstSetUseCase: FindFirstSetUseCase
     private lateinit var containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase
     private lateinit var useCase: UpdateGameAfterSetFoundUseCase
 
     @BeforeTest
     fun setup() {
         isSetUseCase = IsSetUseCase()
-        containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(isSetUseCase)
+        findFirstSetUseCase = FindFirstSetUseCase(isSetUseCase)
+        containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(findFirstSetUseCase)
         useCase = UpdateGameAfterSetFoundUseCase(containsAtLeastOneSetUseCase)
     }
 
@@ -30,9 +35,10 @@ class UpdateGameAfterSetFoundUseCaseTest {
         val table = row1 + set1 + row3 + row4
         val setFound = set1.toSet()
         val deck = set2
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Playing>(gameState)
 
         // Then replace the cards from the set by the top ones from the deck to have a 12 cards table
@@ -46,9 +52,10 @@ class UpdateGameAfterSetFoundUseCaseTest {
         val table = row1 + set1 + row3 + row4
         val setFound = set1.toSet()
         val deck = row2 + set2
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Playing>(gameState)
 
         // Then replace the cards from the set by the top 3 ones from the deck and append the 3 next ones to have a 15 cards table
@@ -62,9 +69,10 @@ class UpdateGameAfterSetFoundUseCaseTest {
         val table = row1 + set1 + row2 + row3 + row4
         val setFound = set1.toSet()
         val deck = set2
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Playing>(gameState)
 
         // Then replace the cards from the set by the top ones from the deck to have a 15 cards table
@@ -78,9 +86,10 @@ class UpdateGameAfterSetFoundUseCaseTest {
         val table = row1 + row2 + row3 + set1 + set2
         val setFound = set1.toSet()
         val deck = row4
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Playing>(gameState)
 
         // Then remove the cards of the set and move only the last 3 cards of the table to take the place of the cards removed
@@ -93,10 +102,11 @@ class UpdateGameAfterSetFoundUseCaseTest {
         // Given table with 12 cards and deck is empty
         val table = row1 + row2 + set1 + set2
         val setFound = set1.toSet()
-        val deck = emptyList<Card>()
+        val deck = emptyList<Card.Data>()
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Playing>(gameState)
 
         // Then replace the cards in the table by empty ones
@@ -109,10 +119,11 @@ class UpdateGameAfterSetFoundUseCaseTest {
         // Given table with 9 cards and 3 empty and no set, deck is empty
         val table = row1 + set1 + row3 + emptyRow
         val setFound = set1.toSet()
-        val deck = emptyList<Card>()
+        val deck = emptyList<Card.Data>()
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Finished>(gameState)
 
         // Then replace the cards in the table by empty ones
@@ -124,10 +135,11 @@ class UpdateGameAfterSetFoundUseCaseTest {
         // Given table with 15 cards only 1 set, deck is empty
         val table = row1 + row2 + set1 + row3 + row4
         val setFound = set1.toSet()
-        val deck = emptyList<Card>()
+        val deck = emptyList<Card.Data>()
+        val game = createPlayingGame(table, deck)
 
         // When updating the table after set has been found
-        val gameState = useCase.invoke(table, setFound, deck)
+        val gameState = useCase.invoke(game, setFound)
         assertIs<GameState.Finished>(gameState)
 
         // Then replace the cards in the table by empty ones

@@ -15,6 +15,7 @@ import kotlin.test.assertEquals
 class CreateNewSoloGameUseCaseTest {
 
     private lateinit var isSetUseCase: IsSetUseCase
+    private lateinit var findFirstSetUseCase: FindFirstSetUseCase
     private lateinit var containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase
     private lateinit var createFullShuffledDeckUseCase: CreateFullShuffledDeckUseCase
     private lateinit var useCase: CreateNewSoloGameUseCase
@@ -22,8 +23,9 @@ class CreateNewSoloGameUseCaseTest {
     @BeforeTest
     fun setup() {
         isSetUseCase = IsSetUseCase()
-        containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(isSetUseCase)
-        createFullShuffledDeckUseCase = mock<CreateFullShuffledDeckUseCase>()
+        findFirstSetUseCase = FindFirstSetUseCase(isSetUseCase)
+        containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(findFirstSetUseCase)
+        createFullShuffledDeckUseCase = mock()
         useCase = CreateNewSoloGameUseCase(containsAtLeastOneSetUseCase, createFullShuffledDeckUseCase)
     }
 

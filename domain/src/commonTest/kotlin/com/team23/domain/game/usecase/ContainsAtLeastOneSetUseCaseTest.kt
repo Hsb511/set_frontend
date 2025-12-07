@@ -14,12 +14,14 @@ class ContainsAtLeastOneSetUseCaseTest {
 
 
     private lateinit var isSetUseCase: IsSetUseCase
+    private lateinit var findFirstSetUseCase: FindFirstSetUseCase
     private lateinit var useCase: ContainsAtLeastOneSetUseCase
 
     @BeforeTest
     fun setup() {
         isSetUseCase = IsSetUseCase()
-        useCase = ContainsAtLeastOneSetUseCase(isSetUseCase)
+        findFirstSetUseCase = FindFirstSetUseCase(isSetUseCase)
+        useCase = ContainsAtLeastOneSetUseCase(findFirstSetUseCase)
     }
 
     @Test
