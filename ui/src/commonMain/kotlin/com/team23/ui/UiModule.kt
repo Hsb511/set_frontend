@@ -65,6 +65,7 @@ val uiModule = module {
     single {
         GameViewModel(
             stateMachine = get(),
+            findFirstSetUseCase = get(),
             gameRepository = get(),
             userRepository = get(),
             gameUiMapper = get(),

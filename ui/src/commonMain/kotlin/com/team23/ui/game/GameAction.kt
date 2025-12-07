@@ -9,4 +9,5 @@ sealed interface GameAction {
     data object Restart : GameAction
     data object RetryConfirmation : GameAction
     data object ChangeGameType : GameAction
+    data object SelectSet: GameAction
 }

@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
+import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.EndGameDialog
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.theming.LocalSpacings
@@ -82,6 +83,15 @@ fun GameScreen() {
             gameUiEvent = gameVM.gameUiEvent,
             onAction = gameVM::onAction,
         )
+
+        if (isDebug()) {
+            GameDebugSelectSetFAB(
+                onAction = gameVM::onAction,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(all = LocalSpacings.current.largeIncreased)
+            )
+        }
     }
 }
 

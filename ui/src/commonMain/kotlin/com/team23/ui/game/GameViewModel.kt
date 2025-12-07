@@ -7,6 +7,7 @@ import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.statemachine.GameStateMachine
+import com.team23.domain.game.usecase.FindFirstSetUseCase
 import com.team23.domain.settings.Preference
 import com.team23.domain.startup.model.GameType
 import com.team23.domain.startup.repository.UserRepository
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
+    private val findFirstSetUseCase: FindFirstSetUseCase,
     private val gameRepository: GameRepository,
     private val userRepository: UserRepository,
     private val gameUiMapper: GameUiMapper,
@@ -99,6 +101,7 @@ class GameViewModel(
             is GameAction.StartSolo -> startSoloGame()
             is GameAction.StartMulti -> TODO()
             is GameAction.RetryConfirmation -> confirmFinishedGame(_gameStateFlow.value)
+            is GameAction.SelectSet -> selectSet()
         }
     }
 
@@ -188,5 +191,15 @@ class GameViewModel(
         is GameSideEffect.InvalidSet -> SetSnackbarVisuals.InvalidSet
         is GameSideEffect.CannotCreateGame -> SetSnackbarVisuals.CannotCreateGame(sideEffect.throwable.message)
         else -> null
+    }
+
+    private fun selectSet() {
+        val currentGame = _gameStateFlow.value
+        if (currentGame !is GameState.Playing) return
+        val set = findFirstSetUseCase.invoke(currentGame.table) ?: return
+
+        viewModelScope.launch {
+            updateGameState(_gameStateFlow.value, GameEvent.CardsSelected(set))
+        }
     }
 }

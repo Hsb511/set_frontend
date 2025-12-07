@@ -5,6 +5,7 @@ import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.game.usecase.CreateFullShuffledDeckUseCase
 import com.team23.domain.game.usecase.CreateFullShuffledDeckUseCaseImpl
 import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
+import com.team23.domain.game.usecase.FindFirstSetUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import com.team23.domain.settings.GetAllPreferencesUseCase
@@ -20,6 +21,7 @@ val domainModule = module {
     factoryOf(::ContainsAtLeastOneSetUseCase)
     single<CreateFullShuffledDeckUseCase> { CreateFullShuffledDeckUseCaseImpl() }
     factoryOf(::CreateNewSoloGameUseCase)
+    factoryOf(::FindFirstSetUseCase)
     factoryOf(::GetAllPreferencesUseCase)
     factoryOf(::IsSetUseCase)
     factoryOf(::TogglePreferenceUseCase)
