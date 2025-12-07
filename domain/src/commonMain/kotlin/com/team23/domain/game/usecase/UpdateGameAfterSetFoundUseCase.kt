@@ -66,7 +66,7 @@ class UpdateGameAfterSetFoundUseCase(
                     val idx = newTable.indexOf(card)
                     newTable[idx] = Card.Empty
                 }
-                table.takeLast(3).filterIsInstance<Card.Data>().forEach { cardToMove ->
+                table.takeLast(3).filterIsInstance<Card.Data>().filter { it !in setFound }.forEach { cardToMove ->
                     val idx = newTable.indexOfFirst { it is Card.Empty }
                     newTable[idx] = cardToMove
                 }

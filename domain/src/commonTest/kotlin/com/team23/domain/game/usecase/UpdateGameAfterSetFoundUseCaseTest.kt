@@ -98,6 +98,23 @@ class UpdateGameAfterSetFoundUseCaseTest {
     }
 
     @Test
+    fun `input table with 15 cards, output table with 12 cards, set is partly on the last row`() {
+        // Given table with 15 cards and two sets and the top 3 card of the deck
+        val table = specialCase15To12Before
+        val setFound = setOf(specialCase15To12Card1, specialCase15To12Card2, specialCase15To12Card3)
+        val deck = row4
+        val game = createPlayingGame(table, deck)
+
+        // When updating the table after set has been found
+        val gameState = useCase.invoke(game, setFound)
+        assertIs<GameState.Playing>(gameState)
+
+        // Then remove the cards of the set and move only the last 3 cards of the table to take the place of the cards removed
+        assertContentEquals(specialCase15To12After, gameState.table)
+        assertContentEquals(row4, gameState.deck)
+    }
+
+    @Test
     fun `input table with 12 cards, output table with 9 cards and 3 empty`() {
         // Given table with 12 cards and deck is empty
         val table = row1 + row2 + set1 + set2
@@ -181,6 +198,59 @@ class UpdateGameAfterSetFoundUseCaseTest {
         createCard(3, Color.PRIMARY, Shape.OVAL, Fill.EMPTY),
         createCard(3, Color.SECONDARY, Shape.OVAL, Fill.EMPTY),
         createCard(3, Color.TERTIARY, Shape.OVAL, Fill.EMPTY),
+    )
+
+    private val specialCase15To12Card1 = createCard(1, Color.PRIMARY, Shape.OVAL, Fill.EMPTY)
+    private val specialCase15To12Card2 = createCard(3, Color.TERTIARY, Shape.SQUIGGLE, Fill.EMPTY)
+    private val specialCase15To12Card3 = createCard(2, Color.SECONDARY, Shape.DIAMOND, Fill.EMPTY)
+
+    private val specialCase15To12Before = listOf(
+        // row 1
+        specialCase15To12Card1,
+        createCard(3, Color.SECONDARY, Shape.SQUIGGLE, Fill.EMPTY),
+        specialCase15To12Card2,
+
+        // row 2
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(2, Color.PRIMARY, Shape.OVAL, Fill.EMPTY),
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.SOLID),
+
+        // row 3
+        createCard(2, Color.PRIMARY, Shape.SQUIGGLE, Fill.SOLID),
+        createCard(2, Color.SECONDARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(1, Color.PRIMARY, Shape.SQUIGGLE, Fill.SOLID),
+
+        // row 4
+        createCard(2, Color.TERTIARY, Shape.OVAL, Fill.EMPTY),
+        createCard(3, Color.PRIMARY, Shape.DIAMOND, Fill.SOLID),
+        createCard(2, Color.PRIMARY, Shape.DIAMOND, Fill.EMPTY),
+
+        // row 5
+        specialCase15To12Card3,
+        createCard(2, Color.TERTIARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(3, Color.SECONDARY, Shape.SQUIGGLE, Fill.SOLID),
+    )
+
+    private val specialCase15To12After = listOf(
+        // row 1
+        createCard(2, Color.TERTIARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(3, Color.SECONDARY, Shape.SQUIGGLE, Fill.EMPTY),
+        createCard(3, Color.SECONDARY, Shape.SQUIGGLE, Fill.SOLID),
+
+        // row 2
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(2, Color.PRIMARY, Shape.OVAL, Fill.EMPTY),
+        createCard(1, Color.SECONDARY, Shape.DIAMOND, Fill.SOLID),
+
+        // row 3
+        createCard(2, Color.PRIMARY, Shape.SQUIGGLE, Fill.SOLID),
+        createCard(2, Color.SECONDARY, Shape.DIAMOND, Fill.STRIPED),
+        createCard(1, Color.PRIMARY, Shape.SQUIGGLE, Fill.SOLID),
+
+        // row 4
+        createCard(2, Color.TERTIARY, Shape.OVAL, Fill.EMPTY),
+        createCard(3, Color.PRIMARY, Shape.DIAMOND, Fill.SOLID),
+        createCard(2, Color.PRIMARY, Shape.DIAMOND, Fill.EMPTY),
     )
 
     private val emptyRow = List(3) { Card.Empty }
