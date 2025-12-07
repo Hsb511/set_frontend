@@ -152,7 +152,7 @@ private fun GameScreen(
                 }
             }
         }
-        if (game.isFinished) {
+        if (game.isFinished && completionType == null) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
