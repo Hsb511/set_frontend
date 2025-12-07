@@ -49,9 +49,17 @@ class SetDataStoreImpl() : SetDataStore {
         private fun isDataStoreInitialized(): Boolean = ::dataStore.isInitialized
 
         fun injectContext(context: Context) {
-            dataStore = PreferenceDataStoreFactory.createWithPath(
-                produceFile = { context.filesDir.resolve(DATA_STORE_FILE_NAME).absolutePath.toPath() }
-            )
+            if (!isDataStoreInitialized()) {
+                val appContext = context.applicationContext
+                dataStore = PreferenceDataStoreFactory.createWithPath(
+                    produceFile = {
+                        appContext.filesDir
+                            .resolve(DATA_STORE_FILE_NAME)
+                            .absolutePath
+                            .toPath()
+                    }
+                )
+            }
         }
     }
 }
