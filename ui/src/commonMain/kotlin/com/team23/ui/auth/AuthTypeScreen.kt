@@ -73,6 +73,6 @@ private fun AuthTypeScreen(
 @Preview(showBackground = true)
 private fun LoginScreenPreview() {
     SetTheme {
-        AuthTypeScreen()
+        AuthTypeScreen {}
     }
 }

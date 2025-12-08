@@ -9,4 +9,5 @@ data class GameUiModel(
     val isPortrait: Boolean = true,
     val isFinished: Boolean = false,
     val hasAnimation: Boolean = true,
+    val timer: String = "00:00"
 )

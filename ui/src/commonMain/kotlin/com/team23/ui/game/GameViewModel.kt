@@ -22,7 +22,9 @@ import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
@@ -53,13 +56,16 @@ class GameViewModel(
 
     private val isPortraitFlow: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val hasAnimationFlow: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val _timerFlow: MutableStateFlow<Int> = MutableStateFlow(0)
+    private var timerJob: Job? = null
     private val _gameStateFlow: MutableStateFlow<GameState> = MutableStateFlow(GameState.EmptyDeck)
     val gameUiModelFlow: StateFlow<GameUiModel> = combine(
-        _gameStateFlow.onEach(::confirmFinishedGame),
+        _gameStateFlow.onEach(::checkState),
         isPortraitFlow,
-        hasAnimationFlow
-    ) { game, isPortrait, hasAnimation ->
-        gameUiMapper.toUiModel(game, isPortrait, hasAnimation)
+        hasAnimationFlow,
+        _timerFlow.map(::toReadableDuration),
+    ) { game, isPortrait, hasAnimation, time ->
+        gameUiMapper.toUiModel(game, isPortrait, hasAnimation, time)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -100,7 +106,7 @@ class GameViewModel(
             is GameAction.ChangeGameType -> navigate(NavigationScreen.GameTypeSelection)
             is GameAction.StartSolo -> startSoloGame()
             is GameAction.StartMulti -> TODO()
-            is GameAction.RetryConfirmation -> confirmFinishedGame(_gameStateFlow.value)
+            is GameAction.RetryConfirmation -> checkState(_gameStateFlow.value)
             is GameAction.SelectSet -> selectSet()
         }
     }
@@ -152,24 +158,45 @@ class GameViewModel(
         _gameStateFlow.value = stateMachine.reduce(state, event)
     }
 
-    private fun confirmFinishedGame(gameState: GameState) {
-        if (gameState !is GameState.Finished) return
-
-        viewModelScope.launch {
-            gameRepository.notifySoloGameFinished(gameState)
-                .onSuccess { completed ->
-                    if (completed) {
-                        SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionSuccess)
-                    } else {
-                        println("This should never happen")
-                    }
-                    sendCompletionEvent(completed)
+    private fun checkState(gameState: GameState) {
+        when(gameState) {
+            is GameState.EmptyDeck -> Unit
+            is GameState.Playing -> createTimerJob()
+            is GameState.Finished -> {
+                cancelTimerJob()
+                viewModelScope.launch {
+                    gameRepository.notifySoloGameFinished(gameState)
+                        .onSuccess { completed ->
+                            if (completed) {
+                                SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionSuccess)
+                            } else {
+                                println("This should never happen")
+                            }
+                            sendCompletionEvent(completed)
+                        }
+                        .onFailure { throwable ->
+                            SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionError(throwable.message))
+                            sendCompletionEvent(false)
+                        }
                 }
-                .onFailure { throwable ->
-                    SnackbarManager.showMessage(SetSnackbarVisuals.GameCompletionError(throwable.message))
-                    sendCompletionEvent(false)
-                }
+            }
         }
+    }
+
+    private fun createTimerJob() {
+        if (timerJob != null) return
+
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(1.seconds)
+                _timerFlow.value ++
+            }
+        }
+    }
+
+    private fun cancelTimerJob() {
+        timerJob?.cancel()
+        timerJob = null
     }
 
     private suspend fun sendCompletionEvent(isConfirmed: Boolean) {
@@ -200,6 +227,23 @@ class GameViewModel(
 
         viewModelScope.launch {
             updateGameState(_gameStateFlow.value, GameEvent.CardsSelected(set))
+        }
+    }
+
+    private fun toReadableDuration(durationInSeconds: Int): String {
+        val hours = durationInSeconds / 3600
+        val minutes = (durationInSeconds % 3600) / 60
+        val seconds = durationInSeconds % 60
+
+        val readableHours = hours.toString().padStart(2, '0')
+        val readableMinutes =  minutes.toString().padStart(2, '0')
+        val readableSeconds =  seconds.toString().padStart(2, '0')
+
+
+        return if (hours > 0) {
+            "$readableHours:$readableMinutes:$readableSeconds"
+        } else {
+            "$readableMinutes:$readableSeconds"
         }
     }
 }

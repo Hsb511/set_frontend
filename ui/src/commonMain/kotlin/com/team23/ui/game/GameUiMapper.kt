@@ -13,16 +13,19 @@ class GameUiMapper(
         gameState: GameState,
         isPortrait: Boolean,
         hasAnimation: Boolean,
+        time: String,
     ): GameUiModel = when (gameState) {
         is GameState.EmptyDeck -> GameUiModel(
             isPortrait = isPortrait,
             hasAnimation = hasAnimation,
+            timer = time,
         )
         is GameState.Playing -> GameUiModel(
             cardsInDeck = mapCards(gameState.deck, gameState.selected, isPortrait),
             playingCards = mapCards(gameState.table, gameState.selected, isPortrait),
             isPortrait = isPortrait,
             hasAnimation = hasAnimation,
+            timer = time,
         )
 
         is GameState.Finished -> GameUiModel(
@@ -30,6 +33,7 @@ class GameUiMapper(
             isPortrait = isPortrait,
             isFinished = true,
             hasAnimation = hasAnimation,
+            timer = time,
         )
     }
 

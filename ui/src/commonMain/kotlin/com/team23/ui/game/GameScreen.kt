@@ -119,6 +119,14 @@ private fun GameScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
             ) {
+                item(span = { GridItemSpan(columnsCount) }) {
+                    GameTimer(
+                        timerValue = game.timer,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = LocalSpacings.current.medium)
+                    )
+                }
                 itemsIndexed(
                     items = game.playingCards,
                     key = { _, slot -> slot.id },
@@ -242,6 +250,19 @@ fun FlyOutAnimation(
                 .alpha(alpha.value),
         )
     }
+}
+
+@Composable
+private fun GameTimer(
+    timerValue: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = timerValue,
+        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+        textAlign = TextAlign.Center,
+        modifier = modifier,
+    )
 }
 
 @Composable
