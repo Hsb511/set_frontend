@@ -5,7 +5,9 @@ import com.team23.domain.startup.repository.UserRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class StartupStateMachine(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
@@ -13,7 +15,6 @@ class StartupStateMachine(
     private val _startupSideEffect: MutableSharedFlow<StartupSideEffect> = MutableSharedFlow()
     val startupSideEffect: SharedFlow<StartupSideEffect> = _startupSideEffect
 
-    @OptIn(ExperimentalUuidApi::class)
     suspend fun reduce(state: StartupState, event: StartupEvent): StartupState = when (state) {
         is StartupState.Splash -> when (event) {
             is StartupEvent.Init -> handleInitWorkflow()
@@ -23,6 +24,7 @@ class StartupStateMachine(
         is StartupState.UserSignInUp -> when (event) {
             is StartupEvent.SignIn -> handleSignIn(state, event)
             is StartupEvent.SignUp -> handleSignUp(state, event)
+            is StartupEvent.GuestRegistration -> handleGuestRegistration(state)
             else -> state
         }
 
@@ -34,7 +36,6 @@ class StartupStateMachine(
         is StartupState.StartGame -> state
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     private suspend fun handleInitWorkflow(): StartupState {
         val isUserSignedIn = userRepository.getUserInfo().isSuccess
         return when {
@@ -59,6 +60,18 @@ class StartupStateMachine(
             .getOrElse { throwable ->
                 _startupSideEffect.emit(StartupSideEffect.SignUpError(throwable))
                 println("Startup - error while signing up: ${throwable.stackTraceToString()}")
+                state
+            }
+    }
+
+    private suspend fun handleGuestRegistration(state: StartupState): StartupState {
+        val username = Uuid.random().toString()
+        val password = Uuid.random().toString()
+        return authRepository.registerAndStoreUserInfo(username, password, null, null)
+            .map { StartupState.GameTypeChoice }
+            .getOrElse { throwable ->
+                _startupSideEffect.emit(StartupSideEffect.SignInError(throwable))
+                println("Startup - error while registering as a guest: ${throwable.stackTraceToString()}")
                 state
             }
     }
