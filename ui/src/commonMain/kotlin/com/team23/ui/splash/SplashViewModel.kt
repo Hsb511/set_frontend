@@ -39,7 +39,8 @@ class SplashViewModel(
                 }
             }
 
-            val remaining = 3.seconds - elapsed
+            // TODO DISABLING FOR NOW
+            val remaining = 0.seconds - elapsed
             if (remaining.isPositive()) {
                 delay(remaining)
             }

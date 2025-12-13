@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -28,10 +26,12 @@ import org.koin.compose.koinInject
 
 @Composable
 fun SplashScreen() {
-    val splashViewModel = koinInject<SplashViewModel>()
-    val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }
+    // TODO DISABLING FOR NOW
+    koinInject<SplashViewModel>()
 
-    SplashScreen(card)
+    /*val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }
+
+    SplashScreen(card)*/
 }
 
 @Composable
