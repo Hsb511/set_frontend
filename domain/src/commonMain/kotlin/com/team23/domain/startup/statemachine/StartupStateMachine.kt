@@ -43,7 +43,6 @@ class StartupStateMachine(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     private suspend fun handleSignIn(state: StartupState, event: StartupEvent.SignIn): StartupState = with (event) {
         authRepository.loginAndStoreUserInfo(username, password)
             .map { StartupState.GameTypeChoice }

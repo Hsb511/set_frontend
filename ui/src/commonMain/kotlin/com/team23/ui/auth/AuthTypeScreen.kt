@@ -61,9 +61,8 @@ private fun AuthTypeScreen(
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
-            text = "\uD83D\uDEA7 Play as guest \uD83D\uDEA7",
-            onClick = { TODO() },
-            enabled = false,
+            text = "Play as guest",
+            onClick = { onAction(AuthTypeAction.PlayAsGuest) },
             modifier = Modifier.fillMaxWidth(),
         )
     }

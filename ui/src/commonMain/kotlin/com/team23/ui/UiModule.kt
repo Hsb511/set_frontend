@@ -29,6 +29,7 @@ val uiModule = module {
 
     single {
         AuthTypeViewModel(
+            startupStateMachine = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

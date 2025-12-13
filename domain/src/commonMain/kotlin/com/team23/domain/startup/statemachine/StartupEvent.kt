@@ -14,5 +14,6 @@ sealed interface StartupEvent {
         val firstname: String? = null,
         val lastname: String? = null,
     ): StartupEvent
+    data object GuestRegistration: StartupEvent
     data class StartGameType(val gameType: GameType): StartupEvent
 }
