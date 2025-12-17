@@ -46,7 +46,7 @@ class GameRepositoryImpl(
                 )
 
                 is GetLastDeckResponse.Failure -> throw Exception(response.error)
-                is GetLastDeckResponse.InvalidSessionToken -> throw RefreshSessionTokenException
+                is GetLastDeckResponse.InvalidSessionToken -> throw RefreshSessionTokenException()
             }
 
             is GetGameResponse.Failure -> throw Exception(gameResponse.error)
@@ -59,8 +59,7 @@ class GameRepositoryImpl(
     private suspend fun createSoloGameAndRetry(retry: Boolean): GameState.Playing {
         val sessionToken = getCachedSessionToken()
         val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
-        val response = gameApi.createGame(sessionToken, request)
-        return when (response) {
+        return when (val response = gameApi.createGame(sessionToken, request)) {
             is CreateGameResponse.Success -> mapToPlayingGame(
                 gameId = response.gameId,
                 table = response.table,
@@ -77,8 +76,7 @@ class GameRepositoryImpl(
     private suspend fun notifySoloGameFinishedAndRetry(finished: GameState.Finished, retry: Boolean): Boolean {
         val sessionToken = getCachedSessionToken()
         val request = mapToUploadRequest(finished)
-        val response = gameApi.uploadDeck(sessionToken, request)
-        return when (response) {
+        return when (val response = gameApi.uploadDeck(sessionToken, request)) {
             is UploadDeckResponse.Success -> response.gameCompleted
             is UploadDeckResponse.Failure -> throw Exception(response.error)
             is UploadDeckResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
@@ -116,7 +114,7 @@ class GameRepositoryImpl(
         if (retry && tryRefreshSessionToken()) {
             return run()
         } else {
-            throw RefreshSessionTokenException
+            throw RefreshSessionTokenException()
         }
     }
 
@@ -128,5 +126,5 @@ class GameRepositoryImpl(
         return authRepository.loginAndStoreUserInfo(username, password).isSuccess
     }
 
-    private object RefreshSessionTokenException : Exception("Session token has expired and couldn't refresh it")
+    private class RefreshSessionTokenException : Exception("Session token has expired and couldn't refresh it")
 }

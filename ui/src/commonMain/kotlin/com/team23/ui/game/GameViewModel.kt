@@ -88,6 +88,9 @@ class GameViewModel(
 
     fun start() {
         viewModelScope.launch {
+            initSoloGame()
+        }
+        viewModelScope.launch {
             isPortraitFlow.value = runCatching {
                 userRepository.getUserPreference(Preference.CardPortrait)
             }.getOrNull() ?: false
@@ -103,9 +106,7 @@ class GameViewModel(
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
             is Restart -> startNewGame()
-            is GameAction.ChangeGameType -> navigate(NavigationScreen.Lobby)
-            is GameAction.StartSolo -> startSoloGame()
-            is GameAction.StartMulti -> TODO()
+            is GameAction.ChangeGameType -> navigateToLobby()
             is GameAction.RetryConfirmation -> checkState(_gameStateFlow.value)
             is GameAction.SelectSet -> selectSet()
         }
@@ -119,22 +120,13 @@ class GameViewModel(
         }
     }
 
-    private fun startSoloGame() {
-        viewModelScope.launch {
-            initSoloGame()
-            if (_gameStateFlow.value is GameState.Playing) {
-                navigate(NavigationScreen.Game)
-            }
-        }
-    }
-
     private suspend fun initSoloGame() {
         updateGameState(GameState.EmptyDeck, GameEvent.Init(GameType.Solo))
     }
 
-    private fun navigate(screen: NavigationScreen) {
+    private fun navigateToLobby() {
         viewModelScope.launch {
-            NavigationManager.handle(screen)
+            NavigationManager.handle(NavigationScreen.Lobby)
         }
     }
 

@@ -6,6 +6,7 @@ import com.team23.ui.game.GameUiMapper
 import com.team23.ui.game.GameViewModel
 import com.team23.ui.auth.AuthViewModel
 import com.team23.ui.debug.DebugViewModel
+import com.team23.ui.lobby.LobbyViewModel
 import com.team23.ui.settings.SettingsViewModel
 import com.team23.ui.splash.SplashViewModel
 import com.team23.ui.theming.ThemeViewModel
@@ -58,6 +59,13 @@ val uiModule = module {
             adminRepository = get(),
             authRepository = get(),
             userRepository = get(),
+            dispatcher = Dispatchers.Default,
+            coroutineName = CoroutineName("viewmodel"),
+        )
+    }
+
+    single {
+        LobbyViewModel(
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

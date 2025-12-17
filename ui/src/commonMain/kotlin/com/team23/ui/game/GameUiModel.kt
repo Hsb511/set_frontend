@@ -10,4 +10,7 @@ data class GameUiModel(
     val isFinished: Boolean = false,
     val hasAnimation: Boolean = true,
     val timer: String = "00:00"
-)
+) {
+    val isLoading: Boolean
+        get() = cardsInDeck.isEmpty() && playingCards.isEmpty() && selectedCards.isEmpty() && !isFinished
+}

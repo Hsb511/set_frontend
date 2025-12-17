@@ -13,8 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.team23.ui.button.ActionButton
 import com.team23.ui.debug.isDebug
-import com.team23.ui.game.GameAction
-import com.team23.ui.game.GameViewModel
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -22,11 +20,11 @@ import org.koin.compose.koinInject
 
 @Composable
 fun LobbyScreen() {
-    val gameViewModel = koinInject<GameViewModel>()
+    val lobbyViewModel = koinInject<LobbyViewModel>()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LobbyScreen(
-            onAction = gameViewModel::onAction,
+            onAction = lobbyViewModel::onAction,
             modifier = Modifier.align(Alignment.Center)
         )
     }
@@ -35,7 +33,7 @@ fun LobbyScreen() {
 @Composable
 private fun LobbyScreen(
     modifier: Modifier = Modifier,
-    onAction: (GameAction) -> Unit,
+    onAction: (LobbyAction) -> Unit,
 ) {
 
     Column(
@@ -53,14 +51,14 @@ private fun LobbyScreen(
 
         ActionButton(
             text = "Solo",
-            onClick = { onAction(GameAction.StartSolo) },
+            onClick = { onAction(LobbyAction.StartSolo) },
             modifier = Modifier.fillMaxWidth(),
         )
 
         ActionButton(
             text = "\uD83D\uDEA7 Multi \uD83D\uDEA7 ",
             enabled = isDebug(),
-            onClick = { onAction(GameAction.StartMulti) },
+            onClick = { onAction(LobbyAction.StartMulti) },
             modifier = Modifier.fillMaxWidth(),
         )
     }

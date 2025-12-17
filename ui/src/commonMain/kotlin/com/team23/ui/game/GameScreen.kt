@@ -1,9 +1,12 @@
 package com.team23.ui.game
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -69,7 +72,9 @@ import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 @Composable
 fun GameScreen() {
     val gameVM = koinInject<GameViewModel>()
-    gameVM.start()
+    LaunchedEffect(Unit) {
+        gameVM.start()
+    }
     val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(
@@ -113,54 +118,60 @@ private fun GameScreen(
 
     Box(modifier = modifier) {
         key(resetNonce) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(columnsCount),
-                contentPadding = PaddingValues(all = LocalSpacings.current.small),
-                modifier = Modifier
-                    .fillMaxWidth(),
+            AnimatedVisibility(
+                visible = !game.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut(),
             ) {
-                item(span = { GridItemSpan(columnsCount) }) {
-                    GameTimer(
-                        timerValue = game.timer,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = LocalSpacings.current.medium)
-                    )
-                }
-                itemsIndexed(
-                    items = game.playingCards,
-                    key = { _, slot -> slot.id },
-                ) { index, slot ->
-                    Slot(
-                        slot = slot,
-                        isPortrait = game.isPortrait,
-                        isSelectable = !game.isFinished,
-                        onAction = onAction,
-                        modifier = if (!game.hasAnimation) Modifier else Modifier.animateItem(
-                            fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
-                            placementSpec = tween(durationMillis = 500, easing = LinearEasing),
-                        ).onSizeChanged { size ->
-                            slotWidthPx = size.width
-                        }.onGloballyPositioned { coords ->
-                            val tempMap = positionsByIndex.toMutableMap()
-                            tempMap[index] = coords.positionInRoot().round()
-                            positionsByIndex = tempMap
-                        }
-                    )
-                }
-                item(span = { GridItemSpan(columnsCount) }) {
-                    Text(
-                        text = "${game.cardsInDeck.size} cards remaining in deck",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = LocalSpacings.current.small)
-                    )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(columnsCount),
+                    contentPadding = PaddingValues(all = LocalSpacings.current.small),
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                ) {
+                    item(span = { GridItemSpan(columnsCount) }) {
+                        GameTimer(
+                            timerValue = game.timer,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = LocalSpacings.current.medium)
+                        )
+                    }
+                    itemsIndexed(
+                        items = game.playingCards,
+                        key = { _, slot -> slot.id },
+                    ) { index, slot ->
+                        Slot(
+                            slot = slot,
+                            isPortrait = game.isPortrait,
+                            isSelectable = !game.isFinished,
+                            onAction = onAction,
+                            modifier = if (!game.hasAnimation) Modifier else Modifier.animateItem(
+                                fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
+                                placementSpec = tween(durationMillis = 500, easing = LinearEasing),
+                            ).onSizeChanged { size ->
+                                slotWidthPx = size.width
+                            }.onGloballyPositioned { coords ->
+                                val tempMap = positionsByIndex.toMutableMap()
+                                tempMap[index] = coords.positionInRoot().round()
+                                positionsByIndex = tempMap
+                            }
+                        )
+                    }
+                    item(span = { GridItemSpan(columnsCount) }) {
+                        Text(
+                            text = "${game.cardsInDeck.size} cards remaining in deck",
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = LocalSpacings.current.small)
+                        )
+                    }
                 }
             }
         }
-        if (game.isFinished && completionType == null) {
+        if (game.isLoading || (game.isFinished && completionType == null)) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
