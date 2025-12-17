@@ -1,7 +1,7 @@
 package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.repository.AuthRepository
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.uuid.ExperimentalUuidApi

@@ -2,7 +2,8 @@ package com.team23.data.user
 
 import com.team23.data.datastore.SetDataStore
 import com.team23.domain.settings.Preference
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserInfo
+import com.team23.domain.user.UserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.uuid.ExperimentalUuidApi
@@ -13,12 +14,18 @@ class UserRepositoryImpl(
 ): UserRepository {
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun getUserInfo(): Result<Pair<Uuid, String>> = runCatching {
+    override suspend fun getUserInfo(): Result<UserInfo> = runCatching {
         val rawUserId = setDataStore.getValue(SetDataStore.USER_ID_KEY)
         requireNotNull(rawUserId)
         val username = setDataStore.getValue(SetDataStore.USERNAME_KEY)
         requireNotNull(username)
-        Uuid.parse(rawUserId) to username
+        val isGuest = setDataStore.getValue(SetDataStore.IS_GUEST_KEY)
+        requireNotNull(isGuest)
+        UserInfo(
+            userId = Uuid.parse(rawUserId),
+            username = username,
+            isGuest = isGuest.toBoolean(),
+        )
     }
 
     override fun getUserPreferenceAsFlow(preference: Preference): Flow<Boolean?> {

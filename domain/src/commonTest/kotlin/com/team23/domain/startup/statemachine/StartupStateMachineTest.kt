@@ -2,7 +2,7 @@ package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.model.GameType
 import com.team23.domain.startup.repository.AuthRepository
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock

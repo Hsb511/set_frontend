@@ -5,7 +5,7 @@ import com.team23.domain.settings.GetAllPreferencesUseCase
 import com.team23.domain.settings.Preference
 import com.team23.domain.settings.TogglePreferenceUseCase
 import com.team23.domain.startup.repository.AuthRepository
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
@@ -38,9 +38,16 @@ class SettingsViewModel(
 
     init {
         viewModelScope.launch {
-            userRepository.getUserInfo().onSuccess { (userId, username) ->
+            userRepository.getUserInfo().onSuccess { userInfo ->
                 _settingsStateFlow.update { settingsState ->
-                    settingsState.copy(account = settingsState.account.copy(userId = userId.toString(), username = username))
+                    val account = with(userInfo) {
+                        settingsState.account.copy(
+                            userId = userId.toString(),
+                            username = if (isGuest) "Guest#${userId.toString().take(8)}" else username,
+                            isGuest = isGuest,
+                        )
+                    }
+                    settingsState.copy(account = account)
                 }
             }
             _settingsStateFlow.update { settingsState ->
@@ -62,10 +69,25 @@ class SettingsViewModel(
         when (action) {
             is SettingsAction.Logout -> handleLogOut()
             is SettingsAction.NavigateBack -> handleNavigateBack()
-            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(Preference.CardPortrait, action.currentValue)
-            is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(Preference.ForceDarkMode, action.currentValue)
-            is SettingsAction.ToggleForceLightMode -> handleTogglePreference(Preference.ForceLightMode, action.currentValue)
-            is SettingsAction.ToggleDisableAnimation -> handleTogglePreference(Preference.DisableAnimation, action.currentValue)
+            is SettingsAction.ToggleCardOrientation -> handleTogglePreference(
+                Preference.CardPortrait,
+                action.currentValue
+            )
+
+            is SettingsAction.ToggleForceDarkMode -> handleTogglePreference(
+                Preference.ForceDarkMode,
+                action.currentValue
+            )
+
+            is SettingsAction.ToggleForceLightMode -> handleTogglePreference(
+                Preference.ForceLightMode,
+                action.currentValue
+            )
+
+            is SettingsAction.ToggleDisableAnimation -> handleTogglePreference(
+                Preference.DisableAnimation,
+                action.currentValue
+            )
         }
     }
 

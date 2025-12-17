@@ -14,7 +14,7 @@ import com.team23.data.user.UserRepositoryImpl
 import com.team23.domain.admin.AdminRepository
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.startup.repository.AuthRepository
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import io.ktor.client.HttpClient
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf

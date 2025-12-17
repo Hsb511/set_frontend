@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.NoAccounts
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -59,7 +60,7 @@ private fun SettingsScreen(
     Scaffold(
         topBar = {
             SettingsTopBar(
-                username = settingsUiModel.account.username,
+                account = settingsUiModel.account,
                 onAction = onAction,
             )
         },
@@ -158,13 +159,15 @@ private fun SettingsAboutSection(about: SettingsUiModel.About) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsTopBar(
-    username: String,
+    account: SettingsUiModel.Account,
     onAction: (SettingsAction) -> Unit,
 ) {
     var logoutDialogVisible by remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text(text = username) },
+        title = {
+            SettingsTopbarTitle(account)
+        },
         navigationIcon = {
             IconButton(
                 onClick = { onAction(SettingsAction.NavigateBack) }
@@ -197,6 +200,24 @@ private fun SettingsTopBar(
                 logoutDialogVisible = false
             },
         )
+    }
+}
+
+@Composable
+private fun SettingsTopbarTitle(account: SettingsUiModel.Account) {
+    if (account.isGuest) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.medium)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.NoAccounts,
+                contentDescription = null,
+            )
+            Text(text = account.username)
+        }
+    } else {
+        Text(text = account.username)
     }
 }
 

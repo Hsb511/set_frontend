@@ -10,7 +10,7 @@ import com.team23.domain.game.statemachine.GameStateMachine
 import com.team23.domain.game.usecase.FindFirstSetUseCase
 import com.team23.domain.settings.Preference
 import com.team23.domain.startup.model.GameType
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart

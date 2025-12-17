@@ -8,6 +8,7 @@ data class SettingsUiModel(
     data class Account(
         val username: String = "",
         val userId: String = "",
+        val isGuest: Boolean = false,
     )
 
     data class Preferences(

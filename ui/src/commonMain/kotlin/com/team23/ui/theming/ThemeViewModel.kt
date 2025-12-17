@@ -1,7 +1,7 @@
 package com.team23.ui.theming
 
 import com.team23.domain.settings.Preference
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope

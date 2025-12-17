@@ -1,6 +1,6 @@
 package com.team23.domain.settings
 
-import com.team23.domain.startup.repository.UserRepository
+import com.team23.domain.user.UserRepository
 
 class TogglePreferenceUseCase(
     private val userRepository: UserRepository,
