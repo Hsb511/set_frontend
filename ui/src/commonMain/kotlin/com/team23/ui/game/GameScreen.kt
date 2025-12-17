@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
@@ -113,70 +114,61 @@ private fun GameScreen(
     val columnsCount = getGridColumnsCount(game.isPortrait)
     var slotWidthPx by remember { mutableStateOf(0) }
     var positionsByIndex: Map<Int, IntOffset> by remember { mutableStateOf(emptyMap()) }
-    var resetNonce by remember { mutableIntStateOf(0) }
-    var completionType: GameCompletionType? by remember { mutableStateOf(null) }
+    val resetNonce = remember { mutableIntStateOf(0) }
+    val completionType = remember { mutableStateOf<GameCompletionType?>(null) }
 
     Box(modifier = modifier) {
-        key(resetNonce) {
-            AnimatedVisibility(
-                visible = !game.isLoading,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(columnsCount),
-                    contentPadding = PaddingValues(all = LocalSpacings.current.small),
+        GameContainer(
+            resetNonce = resetNonce.value,
+            isVisible = !game.isLoading,
+            columnsCount = columnsCount,
+        ) {
+            item(span = { GridItemSpan(columnsCount) }) {
+                GameTimer(
+                    timerValue = game.timer,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                ) {
-                    item(span = { GridItemSpan(columnsCount) }) {
-                        GameTimer(
-                            timerValue = game.timer,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = LocalSpacings.current.medium)
-                        )
+                        .fillMaxWidth()
+                        .padding(vertical = LocalSpacings.current.medium)
+                )
+            }
+            itemsIndexed(
+                items = game.playingCards,
+                key = { _, slot -> slot.id },
+            ) { index, slot ->
+                Slot(
+                    slot = slot,
+                    isPortrait = game.isPortrait,
+                    isSelectable = !game.isFinished,
+                    onAction = onAction,
+                    modifier = if (!game.hasAnimation) Modifier else Modifier.animateItem(
+                        fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
+                        placementSpec = tween(durationMillis = 500, easing = LinearEasing),
+                    ).onSizeChanged { size ->
+                        slotWidthPx = size.width
+                    }.onGloballyPositioned { coords ->
+                        val tempMap = positionsByIndex.toMutableMap()
+                        tempMap[index] = coords.positionInRoot().round()
+                        positionsByIndex = tempMap
                     }
-                    itemsIndexed(
-                        items = game.playingCards,
-                        key = { _, slot -> slot.id },
-                    ) { index, slot ->
-                        Slot(
-                            slot = slot,
-                            isPortrait = game.isPortrait,
-                            isSelectable = !game.isFinished,
-                            onAction = onAction,
-                            modifier = if (!game.hasAnimation) Modifier else Modifier.animateItem(
-                                fadeInSpec = tween(durationMillis = 500, easing = LinearEasing),
-                                placementSpec = tween(durationMillis = 500, easing = LinearEasing),
-                            ).onSizeChanged { size ->
-                                slotWidthPx = size.width
-                            }.onGloballyPositioned { coords ->
-                                val tempMap = positionsByIndex.toMutableMap()
-                                tempMap[index] = coords.positionInRoot().round()
-                                positionsByIndex = tempMap
-                            }
-                        )
-                    }
-                    item(span = { GridItemSpan(columnsCount) }) {
-                        Text(
-                            text = "${game.cardsInDeck.size} cards remaining in deck",
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = LocalSpacings.current.small)
-                        )
-                    }
-                }
+                )
+            }
+            item(span = { GridItemSpan(columnsCount) }) {
+                Text(
+                    text = "${game.cardsInDeck.size} cards remaining in deck",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = LocalSpacings.current.small)
+                )
             }
         }
-        if (game.isLoading || (game.isFinished && completionType == null)) {
+        if (game.isLoading || (game.isFinished && completionType.value == null)) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        completionType?.let { completionType ->
+        completionType.value?.let { completionType ->
             EndGameDialog(
                 completionType = completionType,
                 onAction = onAction,
@@ -184,18 +176,18 @@ private fun GameScreen(
         }
     }
 
-    var cardsToAnimate: Set<Pair<IntOffset, Slot.CardUiModel>> by remember { mutableStateOf(emptySet()) }
+    val cardsToAnimate = remember { mutableStateOf(emptySet<Pair<IntOffset, Slot.CardUiModel>>()) }
 
     if (game.hasAnimation) {
         FlyOutAnimation(
-            cards = cardsToAnimate,
+            cards = cardsToAnimate.value,
             isPortrait = game.isPortrait,
             widthPx = slotWidthPx,
         )
     }
 
     fun handleAnimateCards(cardsWithIndex: Set<Pair<Int, Slot.CardUiModel>>) {
-        cardsToAnimate = cardsWithIndex
+        cardsToAnimate.value = cardsWithIndex
             .map { (index, card) ->
                 val initialPosition = positionsByIndex[index] ?: IntOffset(0, 0)
                 initialPosition to card
@@ -209,13 +201,38 @@ private fun GameScreen(
                     when (gameEvent) {
                         is GameUiEvent.AnimateSelectedCards -> handleAnimateCards(gameEvent.cardsWithIndex)
                         is GameUiEvent.ResetScreen -> {
-                            resetNonce ++
-                            completionType = null
+                            resetNonce.value++
+                            completionType.value = null
                         }
-                        is GameUiEvent.GameCompletion -> completionType = gameEvent.type
+
+                        is GameUiEvent.GameCompletion -> completionType.value = gameEvent.type
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GameContainer(
+    resetNonce: Int,
+    isVisible: Boolean,
+    columnsCount: Int,
+    content: LazyGridScope.() -> Unit,
+) {
+    key(resetNonce) {
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columnsCount),
+                contentPadding = PaddingValues(all = LocalSpacings.current.small),
+                content = content,
+                modifier = Modifier
+                    .fillMaxWidth(),
+            )
         }
     }
 }
@@ -231,9 +248,11 @@ fun FlyOutAnimation(
     val targetOffset = IntOffset(x = screenWidth + widthPx, y = screenHeight / 2)
 
     cards.forEach { (initialPosition, card) ->
-        val offset = remember { Animatable(
-            initialValue = initialPosition,
-            typeConverter = IntOffset.VectorConverter)
+        val offset = remember {
+            Animatable(
+                initialValue = initialPosition,
+                typeConverter = IntOffset.VectorConverter
+            )
         }
         val alpha = remember { Animatable(initialValue = 1f) }
         LaunchedEffect(card.id) {
