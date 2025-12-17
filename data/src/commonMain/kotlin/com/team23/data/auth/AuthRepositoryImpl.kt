@@ -16,6 +16,7 @@ class AuthRepositoryImpl(
         password: String,
         firstname: String?,
         lastname: String?,
+        isGuest: Boolean,
     ): Result<Unit> = runCatching {
         val request = AuthRequest(
             username = username,
@@ -23,22 +24,21 @@ class AuthRepositoryImpl(
             name = firstname.orEmpty(),
             surname = lastname.orEmpty()
         )
-        val response = authApi.register(request)
-        when (response) {
-            is AuthRegisterResponse.Success -> loginAndStoreUserInfo(username, password)
+        when (val response = authApi.register(request)) {
+            is AuthRegisterResponse.Success -> loginAndStoreUserInfo(username, password, isGuest)
             is AuthRegisterResponse.Failure -> throw IllegalArgumentException(response.error)
         }
     }
 
-    override suspend fun loginAndStoreUserInfo(username: String, password: String): Result<Unit> = runCatching {
+    override suspend fun loginAndStoreUserInfo(username: String, password: String, isGuest: Boolean): Result<Unit> = runCatching {
         val request = AuthRequest(username = username, password = password)
-        val response = authApi.signin(request)
-        when (response) {
+        when (val response = authApi.signin(request)) {
             is AuthSignResponse.Success -> {
                 setDataStore.setValue(SetDataStore.USER_ID_KEY, response.playerId.toString())
                 setDataStore.setValue(SetDataStore.USERNAME_KEY, username)
                 setDataStore.setValue(SetDataStore.PASSWORD_KEY, password)
                 setDataStore.setValue(SetDataStore.SESSION_TOKEN_KEY, response.sessionToken.toString())
+                setDataStore.setValue(SetDataStore.IS_GUEST_KEY, isGuest.toString())
             }
             is AuthSignResponse.Failure -> throw IllegalArgumentException(response.error)
         }
@@ -46,8 +46,7 @@ class AuthRepositoryImpl(
 
     override suspend fun logout(): Result<Unit> = runCatching {
         val sessionToken = getCachedSessionToken()
-        val response = authApi.signOut(sessionToken)
-        when (response) {
+        when (val response = authApi.signOut(sessionToken)) {
             is AuthSignOutResponse.Success -> setDataStore.clear()
             is AuthSignOutResponse.Failure -> Exception(response.error)
         }

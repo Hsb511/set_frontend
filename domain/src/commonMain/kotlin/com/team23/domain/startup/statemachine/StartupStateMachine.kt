@@ -67,7 +67,7 @@ class StartupStateMachine(
     private suspend fun handleGuestRegistration(state: StartupState): StartupState {
         val username = Uuid.random().toString()
         val password = Uuid.random().toString()
-        return authRepository.registerAndStoreUserInfo(username, password, null, null)
+        return authRepository.registerAndStoreUserInfo(username, password, isGuest = true)
             .map { StartupState.GameTypeChoice }
             .getOrElse { throwable ->
                 _startupSideEffect.emit(StartupSideEffect.SignInError(throwable))
