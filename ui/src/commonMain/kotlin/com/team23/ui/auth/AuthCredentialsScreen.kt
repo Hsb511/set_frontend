@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
+import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -129,7 +130,10 @@ private fun AuthCredentialsScreen(
             Spacer(modifier = Modifier.height(LocalSpacings.current.large))
 
             ActionButton(
-                text = authType.capitalizedLabel,
+                uiModel = ActionButtonUiModel(
+                    text = authType.capitalizedLabel,
+                    enabled = !isUsernameError && !isPasswordError,
+                ),
                 onClick = {
                     onAction(
                         Auth(
@@ -141,7 +145,6 @@ private fun AuthCredentialsScreen(
                         )
                     )
                 },
-                enabled = !isUsernameError && !isPasswordError,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }

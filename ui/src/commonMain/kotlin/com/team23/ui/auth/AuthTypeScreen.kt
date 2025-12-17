@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.team23.ui.button.ActionButton
+import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -45,7 +46,9 @@ private fun AuthTypeScreen(
             .padding(horizontal = LocalSpacings.current.large),
     ) {
         ActionButton(
-            text = "Sign up",
+            uiModel = ActionButtonUiModel(
+                text = "Sign up",
+            ),
             onClick = { onAction(AuthTypeAction.NavigateToSignUp) },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -53,7 +56,9 @@ private fun AuthTypeScreen(
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
-            text = "Sign in",
+            uiModel = ActionButtonUiModel(
+                text = "Sign in",
+            ),
             onClick = { onAction(AuthTypeAction.NavigateToSignIn) },
             modifier = Modifier.fillMaxWidth(),
         )
@@ -61,7 +66,9 @@ private fun AuthTypeScreen(
         Spacer(modifier = Modifier.height(LocalSpacings.current.largeIncreased))
 
         ActionButton(
-            text = "Play as guest",
+            uiModel = ActionButtonUiModel(
+                text = "Play as guest",
+            ),
             onClick = { onAction(AuthTypeAction.PlayAsGuest) },
             modifier = Modifier.fillMaxWidth(),
         )

@@ -6,41 +6,58 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.team23.ui.theming.LocalSpacings
+import androidx.compose.ui.text.style.TextAlign
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 fun ActionButton(
-    text: String,
+    uiModel: ActionButtonUiModel,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        enabled = enabled,
+        enabled = uiModel.enabled,
         contentPadding = PaddingValues(
-            horizontal = LocalSpacings.current.extraLargeIncreased,
-            vertical = LocalSpacings.current.largeIncreased
+            horizontal = uiModel.horizontalContentPadding(),
+            vertical = uiModel.verticalContentPadding(),
         ),
         modifier = modifier,
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.headlineMedium,
+            text = uiModel.text,
+            style = uiModel.textStyle(),
+            textAlign = TextAlign.Center,
         )
     }
 }
 
+
 @Composable
 @Preview
-private fun ActionButtonPreview() {
+private fun ActionButtonPreview(
+    @PreviewParameter(ActionButtonPreviewProvider::class) uiModel: ActionButtonUiModel,
+) {
     SetTheme {
         ActionButton(
-            text = "Action button",
+            uiModel = uiModel,
             onClick = {},
         )
     }
+}
+
+private class ActionButtonPreviewProvider: PreviewParameterProvider<ActionButtonUiModel> {
+    override val values: Sequence<ActionButtonUiModel> = ActionButtonUiModel.Size.entries.flatMap { size ->
+        listOf(true, false).map { enabled ->
+            ActionButtonUiModel(
+                text =  "Action button",
+                size = size,
+                enabled = enabled
+            )
+        }
+    }.asSequence()
 }
