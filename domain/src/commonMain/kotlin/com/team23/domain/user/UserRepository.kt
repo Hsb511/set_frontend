@@ -3,7 +3,6 @@ package com.team23.domain.user
 import com.team23.domain.settings.Preference
 import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 interface UserRepository {
 

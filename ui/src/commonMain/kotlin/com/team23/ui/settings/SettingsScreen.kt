@@ -26,15 +26,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.LogoutDialog
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 
 @Composable
@@ -72,24 +72,25 @@ private fun SettingsScreen(
                 .padding(paddingValues = paddingValues)
                 .padding(all = LocalSpacings.current.large),
         ) {
-            if (isDebug()) {
+            if (settingsUiModel.isDebug) {
                 SettingsAccountSection(settingsUiModel.account)
 
                 HorizontalDivider(
                     modifier = Modifier
-                        .padding(vertical = LocalSpacings.current.medium
-                    )
+                        .padding(
+                            vertical = LocalSpacings.current.medium
+                        )
                 )
-
-                SettingsPreferencesSection(
-                    preferences = settingsUiModel.preferences,
-                    onAction = onAction,
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = LocalSpacings.current.medium))
-
-                SettingsAboutSection(about = settingsUiModel.about)
             }
+
+            SettingsPreferencesSection(
+                preferences = settingsUiModel.preferences,
+                onAction = onAction,
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = LocalSpacings.current.medium))
+
+            SettingsAboutSection(about = settingsUiModel.about)
         }
     }
 }
@@ -162,7 +163,7 @@ private fun SettingsTopBar(
     account: SettingsUiModel.Account,
     onAction: (SettingsAction) -> Unit,
 ) {
-    var logoutDialogVisible by remember { mutableStateOf(false) }
+    val logoutDialogVisible = remember { mutableStateOf(false) }
 
     TopAppBar(
         title = {
@@ -181,7 +182,7 @@ private fun SettingsTopBar(
         actions = {
             IconButton(
                 onClick = {
-                    logoutDialogVisible = true
+                    logoutDialogVisible.value = true
                 }
             ) {
                 Icon(
@@ -192,12 +193,12 @@ private fun SettingsTopBar(
         }
     )
 
-    if (logoutDialogVisible) {
+    if (logoutDialogVisible.value) {
         LogoutDialog(
-            onDismiss = { logoutDialogVisible = false },
+            onDismiss = { logoutDialogVisible.value = false },
             onConfirm = {
                 onAction(SettingsAction.Logout)
-                logoutDialogVisible = false
+                logoutDialogVisible.value = false
             },
         )
     }
@@ -284,24 +285,47 @@ private fun SettingsRowCheckBox(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-private fun SettingsScreenPreview() {
+private fun SettingsScreenPreview(
+    @PreviewParameter(SettingsPreviewProvider::class) settingsUiModel: SettingsUiModel,
+) {
     SetTheme {
         SettingsScreen(
-            settingsUiModel = SettingsUiModel(
-                account = SettingsUiModel.Account(
-                    username = "My username",
-                    userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a8",
-                ),
-                preferences = SettingsUiModel.Preferences(
-                    cardPortrait = true,
-                    forceDarkMode = true,
-                ),
-                about = SettingsUiModel.About(
-                    appVersion = "v2.3.2",
-                    apiVersion = "SET Game Server v0.7.6",
-                    baseUrl = "https://base_url-com",
-                ),
-            )
+            settingsUiModel = settingsUiModel,
         )
     }
+}
+
+private class SettingsPreviewProvider : PreviewParameterProvider<SettingsUiModel> {
+    override val values: Sequence<SettingsUiModel> = sequenceOf(
+        SettingsUiModel(
+            isDebug = true,
+            account = SettingsUiModel.Account(
+                username = "My username",
+                userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a8",
+            ),
+            preferences = SettingsUiModel.Preferences(
+                cardPortrait = true,
+                forceDarkMode = true,
+            ),
+            about = SettingsUiModel.About(
+                appVersion = "v2.3.2",
+            ),
+        ),
+        SettingsUiModel(
+            isDebug = false,
+            account = SettingsUiModel.Account(
+                username = "Guest#7a5b5f94",
+                userId = "7a5b5f94-1a6b-4f4a-b92e-d8795c4e58a9",
+                isGuest = true,
+            ),
+            preferences = SettingsUiModel.Preferences(
+                disableAnimation = true,
+            ),
+            about = SettingsUiModel.About(
+                appVersion = "v2.3.2",
+                apiVersion = "SET Game Server v0.7.6",
+                baseUrl = "https://base_url-com",
+            ),
+        )
+    )
 }

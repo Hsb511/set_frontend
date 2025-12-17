@@ -2,6 +2,7 @@ package com.team23.domain.startup.statemachine
 
 import com.team23.domain.startup.model.GameType
 import com.team23.domain.startup.repository.AuthRepository
+import com.team23.domain.startup.statemachine.StartupTestUtils.createUserInfo
 import com.team23.domain.user.UserRepository
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
@@ -11,7 +12,6 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class StartupStateMachineTest {
@@ -49,7 +49,7 @@ class StartupStateMachineTest {
         // Given
         val state = StartupState.Splash
         val event = StartupEvent.Init
-        everySuspend { userRepository.getUserInfo() } returns Result.success(Uuid.random() to "")
+        everySuspend { userRepository.getUserInfo() } returns Result.success(createUserInfo())
 
         // When
         val newState = machine.reduce(state, event)

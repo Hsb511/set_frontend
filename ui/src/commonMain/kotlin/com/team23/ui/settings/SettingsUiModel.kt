@@ -1,6 +1,7 @@
 package com.team23.ui.settings
 
 data class SettingsUiModel(
+    val isDebug: Boolean,
     val account: Account = Account(),
     val preferences: Preferences = Preferences(),
     val about: About = About(),
