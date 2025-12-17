@@ -114,6 +114,7 @@ class GameViewModel(
     private fun startNewGame() {
         viewModelScope.launch {
             initSoloGame()
+            _timerFlow.value = 0
             _gameUiEvent.emit(GameUiEvent.ResetScreen)
         }
     }
