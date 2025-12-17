@@ -55,7 +55,7 @@ class StartupStateMachineTest {
         val newState = machine.reduce(state, event)
 
         // Then
-        assertEquals(StartupState.GameTypeChoice, newState)
+        assertEquals(StartupState.Lobby, newState)
     }
 
     @Test
@@ -89,7 +89,7 @@ class StartupStateMachineTest {
         val newState = machine.reduce(state, event)
 
         // Then
-        assertEquals(StartupState.GameTypeChoice, newState)
+        assertEquals(StartupState.Lobby, newState)
     }
 
     @Test
@@ -113,7 +113,7 @@ class StartupStateMachineTest {
     @Test
     fun `StartGameType solo - GameTypeChoice to StartGame - Given GameTypeChoice and StartGameType solo, When reducing, Then returns StartGame`() = runTest {
         // Given
-        val state = StartupState.GameTypeChoice
+        val state = StartupState.Lobby
         val event = StartupEvent.StartGameType(GameType.Solo)
 
         // When
@@ -126,7 +126,7 @@ class StartupStateMachineTest {
     @Test
     fun `StartGameType multi - GameTypeChoice to StartGame - Given GameTypeChoice and StartGameType multi, When reducing, Then returns StartGame`() = runTest {
         // Given
-        val state = StartupState.GameTypeChoice
+        val state = StartupState.Lobby
         val event = StartupEvent.StartGameType(GameType.Multi)
 
         // When

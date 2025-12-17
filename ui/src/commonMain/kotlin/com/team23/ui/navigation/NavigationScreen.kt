@@ -5,12 +5,12 @@ enum class NavigationScreen {
     AuthType,
     SignInWithCredentials,
     SignUpWithCredentials,
-    GameTypeSelection,
+    Lobby,
     Game,
     Settings;
 
     companion object {
         fun canAccessSettings(route: String?): Boolean =
-            route in listOf(GameTypeSelection, Game).map { it.name }
+            route in listOf(Lobby, Game).map { it.name }
     }
 }

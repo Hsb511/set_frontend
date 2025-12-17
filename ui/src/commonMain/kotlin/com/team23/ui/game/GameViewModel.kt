@@ -103,7 +103,7 @@ class GameViewModel(
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
             is Restart -> startNewGame()
-            is GameAction.ChangeGameType -> navigate(NavigationScreen.GameTypeSelection)
+            is GameAction.ChangeGameType -> navigate(NavigationScreen.Lobby)
             is GameAction.StartSolo -> startSoloGame()
             is GameAction.StartMulti -> TODO()
             is GameAction.RetryConfirmation -> checkState(_gameStateFlow.value)

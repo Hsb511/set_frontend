@@ -39,7 +39,7 @@ fun EndGameDialog(
                 ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Change game mode")
+                Text("Go back to lobby")
             }
         },
         text = {

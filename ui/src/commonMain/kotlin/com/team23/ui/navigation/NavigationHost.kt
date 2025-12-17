@@ -19,7 +19,7 @@ import com.team23.ui.auth.AuthCredentialsScreen
 import com.team23.ui.auth.AuthType
 import com.team23.ui.auth.AuthTypeScreen
 import com.team23.ui.game.GameScreen
-import com.team23.ui.game.GameTypeScreen
+import com.team23.ui.lobby.LobbyScreen
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
@@ -64,8 +64,8 @@ fun NavigationHost(
         composable(route = NavigationScreen.SignInWithCredentials.name) {
             AuthCredentialsScreen(authType = AuthType.SignIn)
         }
-        composable(route = NavigationScreen.GameTypeSelection.name) {
-            GameTypeScreen()
+        composable(route = NavigationScreen.Lobby.name) {
+            LobbyScreen()
         }
         composable(route = NavigationScreen.Game.name) {
             GameScreen()

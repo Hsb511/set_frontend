@@ -39,8 +39,8 @@ class AuthTypeViewModel(
                 state = StartupState.UserSignInUp,
                 event = StartupEvent.GuestRegistration
             )
-            if (newState is StartupState.GameTypeChoice) {
-                navigate(NavigationScreen.GameTypeSelection)
+            if (newState is StartupState.Lobby) {
+                navigate(NavigationScreen.Lobby)
             } else {
                 SnackbarManager.showMessage(SetSnackbarVisuals.GuestRegistrationError)
             }

@@ -7,7 +7,7 @@ sealed class GameCompletionType(
 
     data object Restart: GameCompletionType(
         action = GameAction.Restart,
-        label = "Play again",
+        label = "Play solo again",
     )
 
     data object Retry: GameCompletionType(
