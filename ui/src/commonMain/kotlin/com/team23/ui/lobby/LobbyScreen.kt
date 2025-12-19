@@ -93,7 +93,7 @@ private fun LobbyScreen(
             }
             ActionButton(
                 uiModel = ActionButtonUiModel(
-                    text = "Create new",
+                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create new ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
                 onClick = { onAction(LobbyAction.StartSolo) },
@@ -104,7 +104,7 @@ private fun LobbyScreen(
         HorizontalDivider()
 
         Text(
-            text = "MULTI",
+            text = "\uD83D\uDEA7 MULTI \uD83D\uDEA7",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -112,7 +112,7 @@ private fun LobbyScreen(
 
         ActionButton(
             uiModel = ActionButtonUiModel(
-                text = "Create new multi game",
+                text = "\uD83D\uDEA7 Create new multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
             ),
             onClick = {  },
@@ -121,7 +121,7 @@ private fun LobbyScreen(
 
         ActionButton(
             uiModel = ActionButtonUiModel(
-                text = "Join multi game",
+                text = "\uD83D\uDEA7 Join multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
             ),
             onClick = {  },
