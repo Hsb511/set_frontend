@@ -40,8 +40,5 @@ sealed class NavigationScreen(val name: String) {
         private const val AUTH_CREDENTIALS_SCREEN_NAME = "AuthCredentials"
         private const val LOBBY_SCREEN_NAME = "Lobby"
         private const val GAME_SCREEN_NAME = "Game"
-
-        fun canAccessSettings(route: String?): Boolean =
-            route in listOf(LOBBY_SCREEN_NAME, GAME_SCREEN_NAME)
     }
 }

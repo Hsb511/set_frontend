@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.team23.ui.navigation.NavigationScreen
 
@@ -19,8 +20,10 @@ fun SettingsFAB(
     modifier: Modifier = Modifier,
 ) {
     val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination ?: return
 
-    if (NavigationScreen.canAccessSettings(currentBackStack?.destination?.route))  {
+    if (currentDestination.hasRoute<NavigationScreen.Lobby>() ||
+        currentDestination.hasRoute<NavigationScreen.Game>())  {
         FloatingActionButton(
             onClick = { navController.navigate(NavigationScreen.Settings.name) },
             modifier = modifier.size(56.dp),
