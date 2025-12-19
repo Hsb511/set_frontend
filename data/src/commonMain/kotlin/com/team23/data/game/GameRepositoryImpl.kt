@@ -35,6 +35,10 @@ class GameRepositoryImpl(
         notifySoloGameFinishedAndRetry(finished, retry = true)
     }
 
+    override suspend fun hasActiveSoloGame(): Result<Unit> = runCatching {
+        hasActiveSoloGameAndRetry(retry = true)
+    }
+
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
         val sessionToken = getCachedSessionToken()
         return when (val gameResponse = gameApi.getGame(sessionToken)) {
@@ -81,6 +85,17 @@ class GameRepositoryImpl(
             is UploadDeckResponse.Failure -> throw Exception(response.error)
             is UploadDeckResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
                 notifySoloGameFinishedAndRetry(finished, retry = false)
+            }
+        }
+    }
+
+    private suspend fun hasActiveSoloGameAndRetry(retry: Boolean) {
+        val sessionToken = getCachedSessionToken()
+        return when (val response = gameApi.getGame(sessionToken)) {
+            is GetGameResponse.Success -> Unit
+            is GetGameResponse.Failure ->  throw Exception(response.error)
+            is GetGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                hasActiveSoloGameAndRetry(retry = false)
             }
         }
     }

@@ -66,6 +66,7 @@ val uiModule = module {
 
     single {
         LobbyViewModel(
+            gameRepository = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

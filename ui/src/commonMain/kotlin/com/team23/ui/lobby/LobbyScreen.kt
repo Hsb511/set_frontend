@@ -2,6 +2,7 @@ package com.team23.ui.lobby
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,16 +13,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.theming.LocalSpacings
@@ -37,27 +41,27 @@ import kotlin.uuid.Uuid
 @Composable
 fun LobbyScreen() {
     val lobbyViewModel = koinInject<LobbyViewModel>()
+    LaunchedEffect(Unit) {
+        lobbyViewModel.onStart()
+    }
 
-    LobbyScreen(
-        // TODO USE VM
-        lobbyUiModel = LobbyUiModel(
-            hasAnOngoingSoloGame = true,
-            multiGames = List(23) {
-                val gameId = Uuid.random()
-                LobbyUiModel.MultiGame(
-                    gameId = gameId,
-                    hostName = "Guest#${gameId.toString().take(8)}",
-                    playersCount = it,
-                )
-            },
-        ),
-        onAction = lobbyViewModel::onAction,
-    )
+    when (val lobbyUiModel = lobbyViewModel.lobbyUiModel.collectAsStateWithLifecycle().value) {
+        is LobbyUiModel.Loading -> Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            CircularProgressIndicator()
+        }
+        is LobbyUiModel.Data ->  LobbyScreen(
+            lobbyUiModel = lobbyUiModel,
+            onAction = lobbyViewModel::onAction,
+        )
+    }
 }
 
 @Composable
 private fun LobbyScreen(
-    lobbyUiModel: LobbyUiModel,
+    lobbyUiModel: LobbyUiModel.Data,
     modifier: Modifier = Modifier,
     onAction: (LobbyAction) -> Unit,
 ) {
@@ -93,7 +97,7 @@ private fun LobbyScreen(
             }
             ActionButton(
                 uiModel = ActionButtonUiModel(
-                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create new ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""}",
+                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
                 onClick = { onAction(LobbyAction.StartSolo) },
@@ -171,7 +175,7 @@ private fun LobbyMultiTableHeader() {
 }
 
 @Composable
-private fun LobbyMultiTableItem(multiGame: LobbyUiModel.MultiGame) {
+private fun LobbyMultiTableItem(multiGame: LobbyUiModel.Data.MultiGame) {
     Column {
         Row(
             modifier = Modifier
@@ -204,7 +208,7 @@ private fun firstColumnWidth(): Dp {
 @Composable
 @Preview(showBackground = true)
 private fun LobbyScreenPreview(
-    @PreviewParameter(LobbyPreviewProvider::class) lobbyUiModel: LobbyUiModel,
+    @PreviewParameter(LobbyPreviewProvider::class) lobbyUiModel: LobbyUiModel.Data,
 ) {
     SetTheme {
         LobbyScreen(
@@ -214,7 +218,7 @@ private fun LobbyScreenPreview(
 }
 
 @OptIn(ExperimentalUuidApi::class)
-private class LobbyPreviewProvider : PreviewParameterProvider<LobbyUiModel> {
+private class LobbyPreviewProvider : PreviewParameterProvider<LobbyUiModel.Data> {
     private val fixedRandomUuids = listOf(
         "3f2c1c8a-9a6e-4a4a-b7b7-4c1e1b7e8f01",
         "a1d4e6c9-7b9c-4b2f-9c9f-1e8c2b4a6d32",
@@ -241,18 +245,18 @@ private class LobbyPreviewProvider : PreviewParameterProvider<LobbyUiModel> {
         "1a8c4f2d-6b5e-4e9a-9c7d-f3a2b1c4e155",
     )
 
-    override val values: Sequence<LobbyUiModel> = sequenceOf(
-        LobbyUiModel(
+    override val values: Sequence<LobbyUiModel.Data> = sequenceOf(
+        LobbyUiModel.Data(
             hasAnOngoingSoloGame = true,
             multiGames = fixedRandomUuids.map { gameId ->
-                LobbyUiModel.MultiGame(
+                LobbyUiModel.Data.MultiGame(
                     gameId = Uuid.parse(gameId),
                     hostName = "Guest#${gameId.take(8)}",
                     playersCount = gameId.last().digitToInt(),
                 )
             },
         ),
-        LobbyUiModel(
+        LobbyUiModel.Data(
             hasAnOngoingSoloGame = false,
             multiGames = emptyList(),
         ),

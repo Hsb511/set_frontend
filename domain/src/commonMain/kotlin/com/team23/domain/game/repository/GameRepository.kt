@@ -9,4 +9,6 @@ interface GameRepository {
     suspend fun createSoloGame(): Result<GameState.Playing>
 
     suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean>
+
+    suspend fun hasActiveSoloGame(): Result<Unit>
 }

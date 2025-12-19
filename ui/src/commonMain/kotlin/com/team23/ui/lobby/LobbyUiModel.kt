@@ -4,17 +4,21 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-data class LobbyUiModel(
-    val hasAnOngoingSoloGame: Boolean,
-    val multiGames: List<MultiGame>,
-) {
+sealed interface LobbyUiModel {
+    data object Loading : LobbyUiModel
 
-    val hasMultiGames: Boolean
-        get() = multiGames.isNotEmpty()
+    data class Data(
+        val hasAnOngoingSoloGame: Boolean,
+        val multiGames: List<MultiGame> = emptyList(),
+    ) : LobbyUiModel {
 
-    data class MultiGame(
-        val gameId: Uuid,
-        val hostName: String,
-        val playersCount: Int,
-    )
+        val hasMultiGames: Boolean
+            get() = multiGames.isNotEmpty()
+
+        data class MultiGame(
+            val gameId: Uuid,
+            val hostName: String,
+            val playersCount: Int,
+        )
+    }
 }
