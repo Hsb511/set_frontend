@@ -1,13 +1,13 @@
 package com.team23.ui.navigation
 
-enum class NavigationScreen {
-    Splash,
-    AuthType,
-    SignInWithCredentials,
-    SignUpWithCredentials,
-    Lobby,
-    Game,
-    Settings;
+sealed class NavigationScreen(val name: String) {
+    data object Splash: NavigationScreen("Splash")
+    data object AuthType: NavigationScreen("AuthType")
+    data object SignInWithCredentials: NavigationScreen("SignInWithCredentials")
+    data object SignUpWithCredentials: NavigationScreen("SignUpWithCredentials")
+    data object Lobby: NavigationScreen("Lobby")
+    data object Game: NavigationScreen("Game")
+    data object Settings: NavigationScreen("Settings")
 
     companion object {
         fun canAccessSettings(route: String?): Boolean =
