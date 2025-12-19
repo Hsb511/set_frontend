@@ -1,6 +1,7 @@
 package com.team23.ui.lobby
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -28,8 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -97,7 +102,7 @@ private fun LobbyScreen(
             }
             ActionButton(
                 uiModel = ActionButtonUiModel(
-                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""}",
+                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else "new"}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
                 onClick = { onAction(LobbyAction.StartSolo) },
@@ -177,8 +182,17 @@ private fun LobbyMultiTableHeader() {
 @Composable
 private fun LobbyMultiTableItem(multiGame: LobbyUiModel.Data.MultiGame) {
     Column {
+
+        val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    // TODO DON'T DO THAT AND NOT HERE
+                    coroutineScope.launch {
+                        SnackbarManager.showMessage(SetSnackbarVisuals.JoiningMultiGame(multiGame.hostName))
+                    }
+                }
                 .padding(
                     vertical = LocalSpacings.current.medium,
                     horizontal = LocalSpacings.current.small
