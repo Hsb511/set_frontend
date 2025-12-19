@@ -1,5 +1,7 @@
 package com.team23.ui.auth
 
+import com.team23.ui.navigation.NavigationScreen.AuthCredentials.AuthType
+
 sealed interface AuthAction {
     data class Auth(
         val type: AuthType,

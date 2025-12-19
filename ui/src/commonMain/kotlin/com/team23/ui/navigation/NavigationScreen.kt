@@ -1,16 +1,47 @@
 package com.team23.ui.navigation
 
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class NavigationScreen(val name: String) {
-    data object Splash: NavigationScreen("Splash")
-    data object AuthType: NavigationScreen("AuthType")
-    data object SignInWithCredentials: NavigationScreen("SignInWithCredentials")
-    data object SignUpWithCredentials: NavigationScreen("SignUpWithCredentials")
-    data object Lobby: NavigationScreen("Lobby")
-    data object Game: NavigationScreen("Game")
+
+    @Serializable
+    data object Splash: NavigationScreen(SPLASH_SCREEN_NAME)
+
+    @Serializable
+    data object AuthType: NavigationScreen(AUTH_TYPE_SCREEN_NAME)
+
+    @Serializable
+    data class AuthCredentials(val authType: AuthType): NavigationScreen(AUTH_CREDENTIALS_SCREEN_NAME) {
+        enum class AuthType(val label: String) {
+            SignUp("sign up"), SignIn("sign in");
+
+            val capitalizedLabel
+                get() = label.capitalize(Locale.current)
+        }
+    }
+
+    @Serializable
+    data object Lobby: NavigationScreen(LOBBY_SCREEN_NAME)
+
+    @Serializable
+    data class Game(val startType: StartType): NavigationScreen(GAME_SCREEN_NAME) {
+        enum class StartType { Continue, Create }
+    }
+
+    @Serializable
     data object Settings: NavigationScreen("Settings")
 
     companion object {
+        private const val SPLASH_SCREEN_NAME = "Splash"
+        private const val AUTH_TYPE_SCREEN_NAME = "AuthType"
+        private const val AUTH_CREDENTIALS_SCREEN_NAME = "AuthCredentials"
+        private const val LOBBY_SCREEN_NAME = "Lobby"
+        private const val GAME_SCREEN_NAME = "Game"
+
         fun canAccessSettings(route: String?): Boolean =
-            route in listOf(Lobby, Game).map { it.name }
+            route in listOf(LOBBY_SCREEN_NAME, GAME_SCREEN_NAME)
     }
 }

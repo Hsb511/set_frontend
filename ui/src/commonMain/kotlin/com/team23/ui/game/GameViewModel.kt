@@ -86,8 +86,9 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun start() {
+    fun start(startType: NavigationScreen.Game.StartType) {
         viewModelScope.launch {
+            // TODO
             initSoloGame()
         }
         viewModelScope.launch {

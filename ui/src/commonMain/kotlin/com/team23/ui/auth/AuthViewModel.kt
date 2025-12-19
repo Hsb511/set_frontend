@@ -7,6 +7,7 @@ import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.navigation.NavigationScreen.AuthCredentials.AuthType
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CompletableJob

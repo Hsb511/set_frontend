@@ -5,6 +5,7 @@ import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.navigation.NavigationScreen.AuthCredentials.AuthType
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,8 +22,8 @@ class AuthTypeViewModel(
 
     fun onAction(action: AuthTypeAction) {
         when (action) {
-            is AuthTypeAction.NavigateToSignIn -> navigate(NavigationScreen.SignInWithCredentials)
-            is AuthTypeAction.NavigateToSignUp -> navigate(NavigationScreen.SignUpWithCredentials)
+            is AuthTypeAction.NavigateToSignIn -> navigate(NavigationScreen.AuthCredentials(AuthType.SignIn))
+            is AuthTypeAction.NavigateToSignUp -> navigate(NavigationScreen.AuthCredentials(AuthType.SignUp))
             is AuthTypeAction.PlayAsGuest -> handlePlayAsGuest()
         }
     }

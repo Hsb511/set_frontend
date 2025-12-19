@@ -27,6 +27,7 @@ import androidx.compose.ui.text.withStyle
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.navigation.NavigationScreen.AuthCredentials.AuthType
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview

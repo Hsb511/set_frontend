@@ -17,6 +17,7 @@ actual fun rememberSystemBarsController(): SystemBarsController {
 
     return remember(window) {
         object : SystemBarsController {
+            @Suppress("DEPRECATION")
             override fun setSystemBarsColor(
                 statusBarColor: Color,
                 navigationBarColor: Color,

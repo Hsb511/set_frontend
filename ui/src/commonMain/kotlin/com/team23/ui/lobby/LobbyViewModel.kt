@@ -3,6 +3,7 @@ package com.team23.ui.lobby
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.navigation.NavigationScreen.Game.StartType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -46,15 +47,16 @@ class LobbyViewModel(
 
     fun onAction(action: LobbyAction) {
         when (action) {
-            is LobbyAction.StartSolo -> startSoloGame()
+            is LobbyAction.CreateSolo -> startSoloGame(StartType.Create)
+            is LobbyAction.ContinueSolo -> startSoloGame(StartType.Continue)
             is LobbyAction.StartMulti -> TODO()
         }
     }
 
 
-    private fun startSoloGame() {
+    private fun startSoloGame(startType: StartType) {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.Game)
+            NavigationManager.handle(NavigationScreen.Game(startType))
         }
     }
 

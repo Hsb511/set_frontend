@@ -96,7 +96,7 @@ private fun LobbyScreen(
                         text = "Continue",
                         size = ActionButtonUiModel.Size.Small,
                     ),
-                    onClick = { onAction(LobbyAction.StartSolo) },
+                    onClick = { onAction(LobbyAction.ContinueSolo) },
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -105,7 +105,7 @@ private fun LobbyScreen(
                     text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else "new"}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
-                onClick = { onAction(LobbyAction.StartSolo) },
+                onClick = { onAction(LobbyAction.CreateSolo) },
                 modifier = Modifier.weight(1f),
             )
         }

@@ -9,7 +9,7 @@ object NavigationManager {
     val navigationEvent: SharedFlow<NavigationEvent> = _navigationEvent
 
     suspend fun handle(screen: NavigationScreen) {
-        _navigationEvent.emit(NavigationEvent.Navigate(screen.name))
+        _navigationEvent.emit(NavigationEvent.Navigate(screen))
     }
 
     suspend fun popBackStack() {
@@ -17,6 +17,6 @@ object NavigationManager {
     }
 
     suspend fun clearBackStackOrNavigate(screen: NavigationScreen) {
-        _navigationEvent.emit(NavigationEvent.ClearBackStackOrNavigate(screen.name))
+        _navigationEvent.emit(NavigationEvent.ClearBackStackOrNavigate(screen))
     }
 }

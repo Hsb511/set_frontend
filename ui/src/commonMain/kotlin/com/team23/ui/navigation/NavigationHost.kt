@@ -15,8 +15,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.team23.ui.auth.AuthCredentialsScreen
-import com.team23.ui.auth.AuthType
 import com.team23.ui.auth.AuthTypeScreen
 import com.team23.ui.game.GameScreen
 import com.team23.ui.lobby.LobbyScreen
@@ -36,10 +36,10 @@ fun NavigationHost(
             withContext(Dispatchers.Main.immediate) {
                 NavigationManager.navigationEvent.collect { event ->
                     when (event) {
-                        is NavigationEvent.Navigate -> navController.navigate(event.route)
+                        is NavigationEvent.Navigate -> navController.navigate(event.navigationScreen)
                         is NavigationEvent.PopBackStack -> navController.popBackStack()
-                        is NavigationEvent.ClearBackStackOrNavigate -> if (!navController.clearBackStack(event.route)) {
-                            navController.navigate(event.route)
+                        is NavigationEvent.ClearBackStackOrNavigate -> if (!navController.clearBackStack(event.navigationScreen)) {
+                            navController.navigate(event.navigationScreen)
                         }
                     }
                 }
@@ -49,26 +49,25 @@ fun NavigationHost(
 
     NavHost(
         navController = navController,
-        startDestination = NavigationScreen.Splash.name,
+        startDestination = NavigationScreen.Splash,
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
-        composable(route = NavigationScreen.Splash.name) {
+        composable<NavigationScreen.Splash> {
             SplashScreen()
         }
-        composable(route = NavigationScreen.AuthType.name) {
+        composable<NavigationScreen.AuthType> {
             AuthTypeScreen()
         }
-        composable(route = NavigationScreen.SignUpWithCredentials.name) {
-            AuthCredentialsScreen(authType = AuthType.SignUp)
+        composable<NavigationScreen.AuthCredentials> { authCredentials ->
+            val authType = authCredentials.toRoute<NavigationScreen.AuthCredentials>().authType
+            AuthCredentialsScreen(authType = authType)
         }
-        composable(route = NavigationScreen.SignInWithCredentials.name) {
-            AuthCredentialsScreen(authType = AuthType.SignIn)
-        }
-        composable(route = NavigationScreen.Lobby.name) {
+        composable<NavigationScreen.Lobby> {
             LobbyScreen()
         }
-        composable(route = NavigationScreen.Game.name) {
-            GameScreen()
+        composable<NavigationScreen.Game> { game ->
+            val startType = game.toRoute<NavigationScreen.Game>().startType
+            GameScreen(startType = startType)
         }
         composable(
             route = NavigationScreen.Settings.name,

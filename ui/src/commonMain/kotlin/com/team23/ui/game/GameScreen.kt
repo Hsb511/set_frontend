@@ -56,6 +56,7 @@ import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.EndGameDialog
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -71,10 +72,12 @@ import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
-fun GameScreen() {
+fun GameScreen(
+    startType: NavigationScreen.Game.StartType,
+) {
     val gameVM = koinInject<GameViewModel>()
     LaunchedEffect(Unit) {
-        gameVM.start()
+        gameVM.start(startType)
     }
     val game by gameVM.gameUiModelFlow.collectAsState()
 

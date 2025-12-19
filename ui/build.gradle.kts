@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -51,7 +52,14 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.domain)
+
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.koin.compose)
+            implementation(libs.kotlin.serialization.json)
             implementation(libs.kotlin.stdlib)
+            implementation(libs.navigation)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.materialIconsExtended)
@@ -59,11 +67,6 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(projects.domain)
-            implementation(libs.koin.compose)
-            implementation(libs.navigation)
         }
 
         androidMain.dependencies {
