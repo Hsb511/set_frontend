@@ -10,11 +10,9 @@ import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.usecase.ContainsAtLeastOneSetUseCase
 import com.team23.domain.game.usecase.CreateFullShuffledDeckUseCase
 import com.team23.domain.game.usecase.CreateFullShuffledDeckUseCaseImpl
-import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
 import com.team23.domain.game.usecase.FindFirstSetUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
-import com.team23.domain.startup.model.GameType
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
@@ -34,7 +32,6 @@ class GameStateMachineTest {
     private lateinit var containsAtLeastOneSetUseCase: ContainsAtLeastOneSetUseCase
     private lateinit var updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase
     private lateinit var createFullShuffledDeckUseCase: CreateFullShuffledDeckUseCase
-    private lateinit var createNewSoloGameUseCase: CreateNewSoloGameUseCase
     private lateinit var gameRepository: GameRepository
 
     @BeforeTest
@@ -43,11 +40,9 @@ class GameStateMachineTest {
         findFirstSetUseCase = FindFirstSetUseCase(isSetUseCase)
         containsAtLeastOneSetUseCase = ContainsAtLeastOneSetUseCase(findFirstSetUseCase)
         createFullShuffledDeckUseCase = CreateFullShuffledDeckUseCaseImpl()
-        createNewSoloGameUseCase = CreateNewSoloGameUseCase(containsAtLeastOneSetUseCase, createFullShuffledDeckUseCase)
         updateGameAfterSetFoundUseCase = UpdateGameAfterSetFoundUseCase(containsAtLeastOneSetUseCase)
         gameRepository = mock()
         machine = GameStateMachine(
-            createNewSoloGameUseCase,
             isSetUseCase,
             updateGameAfterSetFoundUseCase,
             gameRepository,
@@ -67,7 +62,7 @@ class GameStateMachineTest {
         )
 
         // When
-        val newState = machine.reduce(initialState, GameEvent.Init(GameType.Solo))
+        val newState = machine.reduce(initialState, GameEvent.CreateSolo)
 
         // Then
         assertIs<GameState.Playing>(newState)
@@ -202,8 +197,8 @@ class GameStateMachineTest {
         val finished = GameState.Finished(gameId = playing.gameId, emptyList())
 
         // When
-        val result1 = machine.reduce(playing, GameEvent.Init(GameType.Solo))
-        val result2 = machine.reduce(finished, GameEvent.Init(GameType.Solo))
+        val result1 = machine.reduce(playing, GameEvent.CreateSolo)
+        val result2 = machine.reduce(finished, GameEvent.CreateSolo)
 
         // Then
         assertEquals(playing, result1)

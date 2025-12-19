@@ -2,17 +2,14 @@ package com.team23.domain.game.statemachine
 
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.repository.GameRepository
-import com.team23.domain.game.usecase.CreateNewSoloGameUseCase
 import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
-import com.team23.domain.startup.model.GameType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 class GameStateMachine(
-    private val createNewSoloGameUseCase: CreateNewSoloGameUseCase,
     private val isSetUseCase: IsSetUseCase,
     private val updateGameAfterSetFoundUseCase: UpdateGameAfterSetFoundUseCase,
     private val gameRepository: GameRepository,
@@ -22,7 +19,8 @@ class GameStateMachine(
 
     suspend fun reduce(state: GameState, event: GameEvent): GameState = when (state) {
         is GameState.EmptyDeck -> when (event) {
-            is GameEvent.Init -> initializeGame(event.gameType)
+            is GameEvent.CreateSolo -> createSoloGame()
+            is GameEvent.ContinueSolo -> continueSoloGame()
             else -> state
         }
 
@@ -34,15 +32,17 @@ class GameStateMachine(
         is GameState.Finished -> state
     }
 
-    private suspend fun initializeGame(gameType: GameType): GameState {
-        return when (gameType) {
-            GameType.Solo -> gameRepository.getOngoingSoloGame().getOrElse {
-                gameRepository.createSoloGame().getOrElse { throwable ->
-                    _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
-                    GameState.EmptyDeck
-                }
-            }
-            GameType.Multi -> TODO()
+    private suspend fun createSoloGame(): GameState {
+        return gameRepository.createSoloGame().getOrElse { throwable ->
+            _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
+            GameState.EmptyDeck
+        }
+    }
+
+    private suspend fun continueSoloGame(): GameState {
+        return gameRepository.getOngoingSoloGame().getOrElse { throwable ->
+            _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
+            GameState.EmptyDeck
         }
     }
 

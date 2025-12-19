@@ -9,7 +9,6 @@ import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.statemachine.GameStateMachine
 import com.team23.domain.game.usecase.FindFirstSetUseCase
 import com.team23.domain.settings.Preference
-import com.team23.domain.startup.model.GameType
 import com.team23.domain.user.UserRepository
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
@@ -17,6 +16,7 @@ import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.navigation.NavigationScreen.Game.StartType
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -86,10 +86,9 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun start(startType: NavigationScreen.Game.StartType) {
+    fun start(startType: StartType) {
         viewModelScope.launch {
-            // TODO
-            initSoloGame()
+            initSoloGame(startType)
         }
         viewModelScope.launch {
             isPortraitFlow.value = runCatching {
@@ -115,14 +114,18 @@ class GameViewModel(
 
     private fun startNewGame() {
         viewModelScope.launch {
-            initSoloGame()
+            initSoloGame(StartType.Create)
             _timerFlow.value = 0
             _gameUiEvent.emit(GameUiEvent.ResetScreen)
         }
     }
 
-    private suspend fun initSoloGame() {
-        updateGameState(GameState.EmptyDeck, GameEvent.Init(GameType.Solo))
+    private suspend fun initSoloGame(startType: StartType) {
+        val event = when (startType) {
+            StartType.Continue -> GameEvent.ContinueSolo
+            StartType.Create -> GameEvent.CreateSolo
+        }
+        updateGameState(GameState.EmptyDeck, event)
     }
 
     private fun navigateToLobby() {
@@ -153,7 +156,7 @@ class GameViewModel(
     }
 
     private fun checkState(gameState: GameState) {
-        when(gameState) {
+        when (gameState) {
             is GameState.EmptyDeck -> Unit
             is GameState.Playing -> createTimerJob()
             is GameState.Finished -> {
@@ -183,7 +186,7 @@ class GameViewModel(
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(1.seconds)
-                _timerFlow.value ++
+                _timerFlow.value++
             }
         }
     }
@@ -230,8 +233,8 @@ class GameViewModel(
         val seconds = durationInSeconds % 60
 
         val readableHours = hours.toString().padStart(2, '0')
-        val readableMinutes =  minutes.toString().padStart(2, '0')
-        val readableSeconds =  seconds.toString().padStart(2, '0')
+        val readableMinutes = minutes.toString().padStart(2, '0')
+        val readableSeconds = seconds.toString().padStart(2, '0')
 
 
         return if (hours > 0) {
