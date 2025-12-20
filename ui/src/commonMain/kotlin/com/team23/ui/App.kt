@@ -22,7 +22,7 @@ import com.team23.ui.snackbar.SetSnackbar
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.ThemeViewModel
-import com.team23.ui.theming.rememberSystemBarsController
+import com.team23.ui.system.rememberSystemBarsController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 

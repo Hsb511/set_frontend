@@ -29,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +59,7 @@ import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.EndGameDialog
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
+import com.team23.ui.system.rememberSystemScreenController
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +82,14 @@ fun GameScreen(
         gameVM.start(startType)
     }
     val game by gameVM.gameUiModelFlow.collectAsState()
+
+    val systemScreenController = rememberSystemScreenController()
+    DisposableEffect(Unit) {
+        systemScreenController.setKeepScreenOn()
+        onDispose {
+            systemScreenController.clearKeepScreenOn()
+        }
+    }
 
     Box(
         modifier = Modifier

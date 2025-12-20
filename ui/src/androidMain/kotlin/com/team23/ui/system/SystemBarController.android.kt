@@ -1,4 +1,4 @@
-package com.team23.ui.theming
+package com.team23.ui.system
 
 import android.os.Build
 import androidx.activity.compose.LocalActivity
