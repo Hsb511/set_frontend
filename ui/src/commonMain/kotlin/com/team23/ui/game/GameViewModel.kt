@@ -93,7 +93,7 @@ class GameViewModel(
         viewModelScope.launch {
             isPortraitFlow.value = runCatching {
                 userRepository.getUserPreference(Preference.CardPortrait)
-            }.getOrNull() ?: false
+            }.getOrNull() ?: true
         }
         viewModelScope.launch {
             hasAnimationFlow.value = runCatching {
