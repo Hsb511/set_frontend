@@ -22,7 +22,7 @@ fun SettingsFAB(
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination ?: return
 
-    if (currentDestination.hasRoute<NavigationScreen.Lobby>() ||
+    if (currentDestination.hasRoute<NavigationScreen.GameSelection>() ||
         currentDestination.hasRoute<NavigationScreen.Game>())  {
         FloatingActionButton(
             onClick = { navController.navigate(NavigationScreen.Settings.name) },

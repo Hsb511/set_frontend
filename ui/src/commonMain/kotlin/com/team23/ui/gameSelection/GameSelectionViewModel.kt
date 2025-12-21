@@ -1,4 +1,4 @@
-package com.team23.ui.lobby
+package com.team23.ui.gameSelection
 
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
@@ -15,7 +15,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class LobbyViewModel(
+class GameSelectionViewModel(
     private val gameRepository: GameRepository,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
@@ -23,18 +23,18 @@ class LobbyViewModel(
     private val job = SupervisorJob()
     private val viewModelScope = CoroutineScope(job + dispatcher + coroutineName)
 
-    private val _lobbyUiModel: MutableStateFlow<LobbyUiModel> = MutableStateFlow(LobbyUiModel.Loading)
-    val lobbyUiModel: StateFlow<LobbyUiModel> = _lobbyUiModel
+    private val _lobbyUiModel: MutableStateFlow<GameSelectionUiModel> = MutableStateFlow(GameSelectionUiModel.Loading)
+    val lobbyUiModel: StateFlow<GameSelectionUiModel> = _lobbyUiModel
 
     fun onStart() {
         viewModelScope.launch {
             val hasActiveSoloGame = gameRepository.hasActiveSoloGame().isSuccess
             _lobbyUiModel.value = when (val currentUiModel = _lobbyUiModel.value) {
-                is LobbyUiModel.Data ->  currentUiModel.copy(hasAnOngoingSoloGame = hasActiveSoloGame)
-                is LobbyUiModel.Loading -> LobbyUiModel.Data(
+                is GameSelectionUiModel.Data ->  currentUiModel.copy(hasAnOngoingSoloGame = hasActiveSoloGame)
+                is GameSelectionUiModel.Loading -> GameSelectionUiModel.Data(
                     hasAnOngoingSoloGame = hasActiveSoloGame,
                     multiGames = fixedRandomUuids.map { gameId ->
-                        LobbyUiModel.Data.MultiGame(
+                        GameSelectionUiModel.Data.MultiGame(
                             gameId = Uuid.parse(gameId),
                             hostName = "Guest#${gameId.take(8)}",
                             playersCount = gameId.last().digitToInt(),
@@ -45,9 +45,9 @@ class LobbyViewModel(
         }
     }
 
-    fun onAction(action: LobbyAction) {
+    fun onAction(action: GameSelectionAction) {
         when (action) {
-            is LobbyAction.CreateSolo -> {
+            is GameSelectionAction.CreateSolo -> {
                 val startType = if (action.hasAnOngoingSoloGame) {
                     StartType.CreateWithActive
                 } else {
@@ -55,8 +55,8 @@ class LobbyViewModel(
                 }
                 startSoloGame(startType)
             }
-            is LobbyAction.ContinueSolo -> startSoloGame(StartType.Continue)
-            is LobbyAction.StartMulti -> TODO()
+            is GameSelectionAction.ContinueSolo -> startSoloGame(StartType.Continue)
+            is GameSelectionAction.StartMulti -> TODO()
         }
     }
 

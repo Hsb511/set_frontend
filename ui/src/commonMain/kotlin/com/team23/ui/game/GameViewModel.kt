@@ -106,7 +106,7 @@ class GameViewModel(
         when (action) {
             is SelectOrUnselectCard -> selectOrUnselectCard(action.card)
             is Restart -> startNewGame()
-            is GameAction.ChangeGameType -> navigateToLobby()
+            is GameAction.ChangeGameType -> navigateToGameSelection()
             is GameAction.RetryConfirmation -> checkState(_gameStateFlow.value)
             is GameAction.SelectSet -> selectSet()
         }
@@ -129,9 +129,9 @@ class GameViewModel(
         updateGameState(GameState.EmptyDeck, event)
     }
 
-    private fun navigateToLobby() {
+    private fun navigateToGameSelection() {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.Lobby)
+            NavigationManager.handle(NavigationScreen.GameSelection)
         }
     }
 

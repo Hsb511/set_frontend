@@ -1,4 +1,4 @@
-package com.team23.ui.lobby
+package com.team23.ui.gameSelection
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,20 +44,20 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun LobbyScreen() {
-    val lobbyViewModel = koinInject<LobbyViewModel>()
+fun GameSelectionScreen() {
+    val lobbyViewModel = koinInject<GameSelectionViewModel>()
     LaunchedEffect(Unit) {
         lobbyViewModel.onStart()
     }
 
     when (val lobbyUiModel = lobbyViewModel.lobbyUiModel.collectAsStateWithLifecycle().value) {
-        is LobbyUiModel.Loading -> Box(
+        is GameSelectionUiModel.Loading -> Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
         ) {
             CircularProgressIndicator()
         }
-        is LobbyUiModel.Data ->  LobbyScreen(
+        is GameSelectionUiModel.Data ->  GameSelectionScreen(
             lobbyUiModel = lobbyUiModel,
             onAction = lobbyViewModel::onAction,
         )
@@ -65,10 +65,10 @@ fun LobbyScreen() {
 }
 
 @Composable
-private fun LobbyScreen(
-    lobbyUiModel: LobbyUiModel.Data,
+private fun GameSelectionScreen(
+    lobbyUiModel: GameSelectionUiModel.Data,
     modifier: Modifier = Modifier,
-    onAction: (LobbyAction) -> Unit,
+    onAction: (GameSelectionAction) -> Unit,
 ) {
 
     Column(
@@ -96,7 +96,7 @@ private fun LobbyScreen(
                         text = "Continue",
                         size = ActionButtonUiModel.Size.Small,
                     ),
-                    onClick = { onAction(LobbyAction.ContinueSolo) },
+                    onClick = { onAction(GameSelectionAction.ContinueSolo) },
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -105,7 +105,7 @@ private fun LobbyScreen(
                     text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else "new"}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
-                onClick = { onAction(LobbyAction.CreateSolo(lobbyUiModel.hasAnOngoingSoloGame)) },
+                onClick = { onAction(GameSelectionAction.CreateSolo(lobbyUiModel.hasAnOngoingSoloGame)) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -151,10 +151,10 @@ private fun LobbyScreen(
                     .padding(horizontal = LocalSpacings.current.large)
             ) {
                 stickyHeader {
-                    LobbyMultiTableHeader()
+                    GameSelectionMultiTableHeader()
                 }
                 items(lobbyUiModel.multiGames) { multiGame ->
-                    LobbyMultiTableItem(multiGame)
+                    GameSelectionMultiTableItem(multiGame)
                 }
             }
         }
@@ -162,7 +162,7 @@ private fun LobbyScreen(
 }
 
 @Composable
-private fun LobbyMultiTableHeader() {
+private fun GameSelectionMultiTableHeader() {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
         Row {
             Text(
@@ -180,7 +180,7 @@ private fun LobbyMultiTableHeader() {
 }
 
 @Composable
-private fun LobbyMultiTableItem(multiGame: LobbyUiModel.Data.MultiGame) {
+private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.MultiGame) {
     Column {
 
         val coroutineScope = rememberCoroutineScope()
@@ -221,18 +221,18 @@ private fun firstColumnWidth(): Dp {
 
 @Composable
 @Preview(showBackground = true)
-private fun LobbyScreenPreview(
-    @PreviewParameter(LobbyPreviewProvider::class) lobbyUiModel: LobbyUiModel.Data,
+private fun GameSelectionScreenPreview(
+    @PreviewParameter(GameSelectionPreviewProvider::class) lobbyUiModel: GameSelectionUiModel.Data,
 ) {
     SetTheme {
-        LobbyScreen(
+        GameSelectionScreen(
             lobbyUiModel = lobbyUiModel,
         ) {}
     }
 }
 
 @OptIn(ExperimentalUuidApi::class)
-private class LobbyPreviewProvider : PreviewParameterProvider<LobbyUiModel.Data> {
+private class GameSelectionPreviewProvider : PreviewParameterProvider<GameSelectionUiModel.Data> {
     private val fixedRandomUuids = listOf(
         "3f2c1c8a-9a6e-4a4a-b7b7-4c1e1b7e8f01",
         "a1d4e6c9-7b9c-4b2f-9c9f-1e8c2b4a6d32",
@@ -259,18 +259,18 @@ private class LobbyPreviewProvider : PreviewParameterProvider<LobbyUiModel.Data>
         "1a8c4f2d-6b5e-4e9a-9c7d-f3a2b1c4e155",
     )
 
-    override val values: Sequence<LobbyUiModel.Data> = sequenceOf(
-        LobbyUiModel.Data(
+    override val values: Sequence<GameSelectionUiModel.Data> = sequenceOf(
+        GameSelectionUiModel.Data(
             hasAnOngoingSoloGame = true,
             multiGames = fixedRandomUuids.map { gameId ->
-                LobbyUiModel.Data.MultiGame(
+                GameSelectionUiModel.Data.MultiGame(
                     gameId = Uuid.parse(gameId),
                     hostName = "Guest#${gameId.take(8)}",
                     playersCount = gameId.last().digitToInt(),
                 )
             },
         ),
-        LobbyUiModel.Data(
+        GameSelectionUiModel.Data(
             hasAnOngoingSoloGame = false,
             multiGames = emptyList(),
         ),

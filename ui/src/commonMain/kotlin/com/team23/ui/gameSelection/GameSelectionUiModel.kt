@@ -1,16 +1,16 @@
-package com.team23.ui.lobby
+package com.team23.ui.gameSelection
 
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-sealed interface LobbyUiModel {
-    data object Loading : LobbyUiModel
+sealed interface GameSelectionUiModel {
+    data object Loading : GameSelectionUiModel
 
     data class Data(
         val hasAnOngoingSoloGame: Boolean,
         val multiGames: List<MultiGame> = emptyList(),
-    ) : LobbyUiModel {
+    ) : GameSelectionUiModel {
 
         val hasMultiGames: Boolean
             get() = multiGames.isNotEmpty()

@@ -19,7 +19,7 @@ import androidx.navigation.toRoute
 import com.team23.ui.auth.AuthCredentialsScreen
 import com.team23.ui.auth.AuthTypeScreen
 import com.team23.ui.game.GameScreen
-import com.team23.ui.lobby.LobbyScreen
+import com.team23.ui.gameSelection.GameSelectionScreen
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
@@ -62,8 +62,8 @@ fun NavigationHost(
             val authType = authCredentials.toRoute<NavigationScreen.AuthCredentials>().authType
             AuthCredentialsScreen(authType = authType)
         }
-        composable<NavigationScreen.Lobby> {
-            LobbyScreen()
+        composable<NavigationScreen.GameSelection> {
+            GameSelectionScreen()
         }
         composable<NavigationScreen.Game> { game ->
             val startType = game.toRoute<NavigationScreen.Game>().startType

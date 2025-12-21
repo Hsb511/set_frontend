@@ -34,7 +34,7 @@ class SplashViewModel(
                 screen = when (newState) {
                     is StartupState.Splash,
                     is StartupState.StartGame -> NavigationScreen.Splash
-                    is StartupState.Lobby -> NavigationScreen.Lobby
+                    is StartupState.GameSelection -> NavigationScreen.GameSelection
                     is StartupState.UserSignInUp -> NavigationScreen.AuthType
                 }
             }

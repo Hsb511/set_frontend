@@ -72,8 +72,8 @@ class AuthViewModel(
         }
         viewModelScope?.launch {
             val newState = stateMachine.reduce(StartupState.UserSignInUp, startupEvent)
-            if (newState is StartupState.Lobby) {
-                NavigationManager.handle(NavigationScreen.Lobby)
+            if (newState is StartupState.GameSelection) {
+                NavigationManager.handle(NavigationScreen.GameSelection)
             }
         }
     }
