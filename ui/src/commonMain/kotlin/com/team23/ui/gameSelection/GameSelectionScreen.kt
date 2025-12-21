@@ -18,9 +18,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -64,12 +69,15 @@ fun GameSelectionScreen() {
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 private fun GameSelectionScreen(
     lobbyUiModel: GameSelectionUiModel.Data,
     modifier: Modifier = Modifier,
     onAction: (GameSelectionAction) -> Unit,
 ) {
+    var multiGameUuid by remember { mutableStateOf("") }
+    val isMultiGameUuidValid = runCatching { Uuid.parse(multiGameUuid) }.isSuccess
 
     Column(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
@@ -124,7 +132,19 @@ private fun GameSelectionScreen(
                 text = "\uD83D\uDEA7 Create new multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
             ),
-            onClick = {  },
+            onClick = { onAction(GameSelectionAction.CreateMulti) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        TextField(
+            value = multiGameUuid,
+            onValueChange = { multiGameUuid = it },
+            supportingText = {
+                Text(text = "Format: 12345678-1234-1234-1234-1234567890ab")
+            },
+            label = {
+                Text(text = "Paste here the game uuid you'd like to join")
+            },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -132,8 +152,9 @@ private fun GameSelectionScreen(
             uiModel = ActionButtonUiModel(
                 text = "\uD83D\uDEA7 Join multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
+                enabled = isMultiGameUuidValid,
             ),
-            onClick = {  },
+            onClick = { onAction(GameSelectionAction.JoinMulti(multiGameUuid)) },
             modifier = Modifier.fillMaxWidth(),
         )
 

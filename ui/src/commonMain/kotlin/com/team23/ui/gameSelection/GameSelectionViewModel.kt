@@ -4,6 +4,8 @@ import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.navigation.NavigationScreen.Game.StartType
+import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +32,7 @@ class GameSelectionViewModel(
         viewModelScope.launch {
             val hasActiveSoloGame = gameRepository.hasActiveSoloGame().isSuccess
             _lobbyUiModel.value = when (val currentUiModel = _lobbyUiModel.value) {
-                is GameSelectionUiModel.Data ->  currentUiModel.copy(hasAnOngoingSoloGame = hasActiveSoloGame)
+                is GameSelectionUiModel.Data -> currentUiModel.copy(hasAnOngoingSoloGame = hasActiveSoloGame)
                 is GameSelectionUiModel.Loading -> GameSelectionUiModel.Data(
                     hasAnOngoingSoloGame = hasActiveSoloGame,
                     multiGames = fixedRandomUuids.map { gameId ->
@@ -47,23 +49,44 @@ class GameSelectionViewModel(
 
     fun onAction(action: GameSelectionAction) {
         when (action) {
-            is GameSelectionAction.CreateSolo -> {
-                val startType = if (action.hasAnOngoingSoloGame) {
-                    StartType.CreateWithActive
-                } else {
-                    StartType.CreateWithoutActive
-                }
-                startSoloGame(startType)
-            }
+            is GameSelectionAction.CreateSolo -> createSoloGame(action.hasAnOngoingSoloGame)
             is GameSelectionAction.ContinueSolo -> startSoloGame(StartType.Continue)
-            is GameSelectionAction.StartMulti -> TODO()
+            is GameSelectionAction.CreateMulti -> createMultiGame()
+            is GameSelectionAction.JoinMulti -> joinMultiGame(action.rawGameId)
         }
     }
 
+    private fun createSoloGame(hasAnOngoingSoloGame: Boolean) {
+        val startType = if (hasAnOngoingSoloGame) {
+            StartType.CreateWithActive
+        } else {
+            StartType.CreateWithoutActive
+        }
+        startSoloGame(startType)
+    }
 
     private fun startSoloGame(startType: StartType) {
         viewModelScope.launch {
             NavigationManager.handle(NavigationScreen.Game(startType))
+        }
+    }
+
+    private fun createMultiGame() {
+        TODO("Not yet implemented")
+    }
+
+    private fun joinMultiGame(rawGameId: String) {
+        val gameId = runCatching { Uuid.parse(rawGameId) }.getOrNull()
+        if (gameId == null) {
+            viewModelScope.launch {
+                SnackbarManager.showMessage(SetSnackbarVisuals.FormatErrorMultiGameId(rawGameId))
+            }
+            return
+        }
+
+        // TODO CALL PROPER ENDPOINT AND THEN NAVIGATE TO LOBBY SCREEN
+        viewModelScope.launch {
+            SnackbarManager.showMessage(SetSnackbarVisuals.JoiningMultiGame(rawGameId))
         }
     }
 
