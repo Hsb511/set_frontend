@@ -6,7 +6,7 @@ interface GameRepository {
 
     suspend fun getOngoingSoloGame(): Result<GameState.Playing>
 
-    suspend fun createSoloGame(): Result<GameState.Playing>
+    suspend fun createSoloGame(force: Boolean): Result<GameState.Playing>
 
     suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean>
 

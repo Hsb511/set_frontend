@@ -114,7 +114,7 @@ class GameViewModel(
 
     private fun startNewGame() {
         viewModelScope.launch {
-            initSoloGame(StartType.Create)
+            initSoloGame(StartType.CreateWithoutActive)
             _timerFlow.value = 0
             _gameUiEvent.emit(GameUiEvent.ResetScreen)
         }
@@ -123,7 +123,8 @@ class GameViewModel(
     private suspend fun initSoloGame(startType: StartType) {
         val event = when (startType) {
             StartType.Continue -> GameEvent.ContinueSolo
-            StartType.Create -> GameEvent.CreateSolo
+            StartType.CreateWithoutActive -> GameEvent.CreateSolo(force = false)
+            StartType.CreateWithActive -> GameEvent.CreateSolo(force = true)
         }
         updateGameState(GameState.EmptyDeck, event)
     }

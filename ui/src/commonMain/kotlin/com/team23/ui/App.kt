@@ -23,11 +23,9 @@ import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.ThemeViewModel
 import com.team23.ui.system.rememberSystemBarsController
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 
 @Composable
-@Preview
 fun App() {
     val themeViewModel = koinInject<ThemeViewModel>()
     val useDarkScheme = themeViewModel.isDarkTheme.collectAsState().value ?: isSystemInDarkTheme()

@@ -105,7 +105,7 @@ private fun LobbyScreen(
                     text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else "new"}",
                     size = ActionButtonUiModel.Size.Small,
                 ),
-                onClick = { onAction(LobbyAction.CreateSolo) },
+                onClick = { onAction(LobbyAction.CreateSolo(lobbyUiModel.hasAnOngoingSoloGame)) },
                 modifier = Modifier.weight(1f),
             )
         }

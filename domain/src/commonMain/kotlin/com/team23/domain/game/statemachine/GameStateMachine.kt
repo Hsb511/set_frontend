@@ -19,7 +19,7 @@ class GameStateMachine(
 
     suspend fun reduce(state: GameState, event: GameEvent): GameState = when (state) {
         is GameState.EmptyDeck -> when (event) {
-            is GameEvent.CreateSolo -> createSoloGame()
+            is GameEvent.CreateSolo -> createSoloGame(event.force)
             is GameEvent.ContinueSolo -> continueSoloGame()
             else -> state
         }
@@ -32,8 +32,8 @@ class GameStateMachine(
         is GameState.Finished -> state
     }
 
-    private suspend fun createSoloGame(): GameState {
-        return gameRepository.createSoloGame().getOrElse { throwable ->
+    private suspend fun createSoloGame(force: Boolean): GameState {
+        return gameRepository.createSoloGame(force).getOrElse { throwable ->
             _gameSideEffect.emit(GameSideEffect.CannotCreateGame(throwable))
             GameState.EmptyDeck
         }

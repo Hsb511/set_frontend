@@ -47,7 +47,14 @@ class LobbyViewModel(
 
     fun onAction(action: LobbyAction) {
         when (action) {
-            is LobbyAction.CreateSolo -> startSoloGame(StartType.Create)
+            is LobbyAction.CreateSolo -> {
+                val startType = if (action.hasAnOngoingSoloGame) {
+                    StartType.CreateWithActive
+                } else {
+                    StartType.CreateWithoutActive
+                }
+                startSoloGame(startType)
+            }
             is LobbyAction.ContinueSolo -> startSoloGame(StartType.Continue)
             is LobbyAction.StartMulti -> TODO()
         }

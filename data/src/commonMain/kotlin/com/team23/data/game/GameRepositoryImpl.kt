@@ -27,8 +27,8 @@ class GameRepositoryImpl(
         getOngoingSoloGameAndRetry(retry = true)
     }
 
-    override suspend fun createSoloGame(): Result<GameState.Playing> = runCatching {
-        createSoloGameAndRetry(retry = true)
+    override suspend fun createSoloGame(force: Boolean): Result<GameState.Playing> = runCatching {
+        createSoloGameAndRetry(force = force, retry = true)
     }
 
     override suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean> = runCatching {
@@ -60,8 +60,9 @@ class GameRepositoryImpl(
         }
     }
 
-    private suspend fun createSoloGameAndRetry(retry: Boolean): GameState.Playing {
+    private suspend fun createSoloGameAndRetry(force: Boolean, retry: Boolean): GameState.Playing {
         val sessionToken = getCachedSessionToken()
+        // TODO PASS FORCE TO THE ENDPOINT
         val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
         return when (val response = gameApi.createGame(sessionToken, request)) {
             is CreateGameResponse.Success -> mapToPlayingGame(
@@ -72,7 +73,7 @@ class GameRepositoryImpl(
 
             is CreateGameResponse.Failure -> throw Exception(response.error)
             is CreateGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
-                createSoloGameAndRetry(retry = false)
+                createSoloGameAndRetry(force = force, retry = false)
             }
         }
     }
