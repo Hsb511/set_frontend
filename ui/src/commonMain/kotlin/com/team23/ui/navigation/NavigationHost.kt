@@ -19,12 +19,15 @@ import androidx.navigation.toRoute
 import com.team23.ui.auth.AuthCredentialsScreen
 import com.team23.ui.auth.AuthTypeScreen
 import com.team23.ui.game.GameScreen
+import com.team23.ui.gameLobby.GameLobbyScreen
 import com.team23.ui.gameSelection.GameSelectionScreen
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun NavigationHost(
     navController: NavHostController = rememberNavController()
@@ -64,6 +67,10 @@ fun NavigationHost(
         }
         composable<NavigationScreen.GameSelection> {
             GameSelectionScreen()
+        }
+        composable<NavigationScreen.GameLobby> { gameLobby ->
+            val gameId = gameLobby.toRoute<NavigationScreen.GameLobby>().gameId
+            GameLobbyScreen(gameId)
         }
         composable<NavigationScreen.Game> { game ->
             val startType = game.toRoute<NavigationScreen.Game>().startType
