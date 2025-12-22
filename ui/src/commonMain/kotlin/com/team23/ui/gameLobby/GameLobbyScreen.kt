@@ -49,7 +49,9 @@ fun GameLobbyScreen(gameId: String?) {
     when (val gameLobbyUiModel = gameLobbyVM.gameLobbyUiModel.collectAsState().value) {
         is GameLobbyUiModel.Data -> GameLobbyScreen(
             gameLobbyUiModel = gameLobbyUiModel,
+            onAction = gameLobbyVM::onAction,
         )
+
         is GameLobbyUiModel.Loading -> Column(
             verticalArrangement = Arrangement.Center,
         ) {
@@ -63,6 +65,7 @@ fun GameLobbyScreen(gameId: String?) {
 @Composable
 private fun GameLobbyScreen(
     gameLobbyUiModel: GameLobbyUiModel.Data,
+    onAction: (GameLobbyAction) -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
@@ -71,10 +74,16 @@ private fun GameLobbyScreen(
             .fillMaxSize()
             .padding(all = LocalSpacings.current.large),
     ) {
-        TitleAndGameIdSection(gameLobbyUiModel)
+        TitleAndGameIdSection(
+            gameLobbyUiModel = gameLobbyUiModel,
+            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId) }
+        )
 
-        VisibilitySection(gameLobbyUiModel.isPrivate, gameLobbyUiModel.isHost)
-
+        VisibilitySection(
+            isPrivate = gameLobbyUiModel.isPrivate,
+            isHost = gameLobbyUiModel.isHost,
+            onChangeVisibility = { isPrivate -> onAction(GameLobbyAction.ChangeVisibility(isPrivate)) },
+        )
 
         PlayersSection(allPlayers = gameLobbyUiModel.allPlayers)
 
@@ -82,6 +91,7 @@ private fun GameLobbyScreen(
 
         GameActionButton(
             isHost = gameLobbyUiModel.isHost,
+            onStartGame = { onAction(GameLobbyAction.StartGame) },
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -91,6 +101,7 @@ private fun GameLobbyScreen(
 @Composable
 private fun TitleAndGameIdSection(
     gameLobbyUiModel: GameLobbyUiModel.Data,
+    onGameIdClicked: () -> Unit,
 ) {
     Text(
         text = if (gameLobbyUiModel.isHost) {
@@ -98,7 +109,7 @@ private fun TitleAndGameIdSection(
         } else {
             "You joined the game created by ${gameLobbyUiModel.hostUsername}, whose id is:"
         },
-        style = MaterialTheme.typography.titleLarge,
+        style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onBackground,
     )
     Row(
@@ -112,7 +123,7 @@ private fun TitleAndGameIdSection(
                 shape = MaterialTheme.shapes.small,
             )
             .clip(shape = MaterialTheme.shapes.small)
-            .clickable { /* TODO */ }
+            .clickable { onGameIdClicked() }
             .padding(horizontal = LocalSpacings.current.medium)
     ) {
         Text(
@@ -136,25 +147,27 @@ private fun TitleAndGameIdSection(
 private fun VisibilitySection(
     isPrivate: Boolean,
     isHost: Boolean,
+    onChangeVisibility: (Boolean) -> Unit,
 ) {
     Column {
-        val commonVisibilityText = if (isPrivate) "The game is private, it can only be joined with the game id." else "The game is public, anyone can join it from the main page."
+        val commonVisibilityText =
+            if (isPrivate) "The game is private, it can only be joined with the game id." else "The game is public, anyone can join it from the main page."
         val visibilityText = if (isHost) "$commonVisibilityText Change visibility: " else commonVisibilityText
         Text(
             text = visibilityText,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
         if (isHost) {
             VisibilityRadioRow(
                 selected = isPrivate,
                 label = "Make it private",
-                onClick = { /* TODO */ },
+                onClick = { onChangeVisibility(true) },
             )
             VisibilityRadioRow(
                 selected = !isPrivate,
                 label = "Make it public",
-                onClick = { /* TODO */ },
+                onClick = { onChangeVisibility(false) },
             )
         }
     }
@@ -187,7 +200,7 @@ private fun PlayersSection(
 ) {
     Text(
         text = "Players in the lobby:",
-        style = MaterialTheme.typography.titleLarge,
+        style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onBackground,
     )
     allPlayers.forEach { player ->
@@ -232,6 +245,7 @@ private fun GamePlayerRow(
 @Composable
 private fun GameActionButton(
     isHost: Boolean,
+    onStartGame: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (isHost) {
@@ -239,7 +253,7 @@ private fun GameActionButton(
             uiModel = ActionButtonUiModel(
                 text = "Start game"
             ),
-            onClick = { /* TODO */ },
+            onClick = onStartGame,
             modifier = modifier
         )
     } else {
@@ -278,7 +292,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
             hostUsername = "Guest#12345678",
             allPlayers = listOf(
                 GameLobbyUiModel.Data.Player("Guest#12345678", isHost = true, isYou = true),
-                GameLobbyUiModel.Data.Player( "JohnDoe"),
+                GameLobbyUiModel.Data.Player("JohnDoe"),
                 GameLobbyUiModel.Data.Player("JaneDoe"),
                 GameLobbyUiModel.Data.Player("Wow23"),
             )
@@ -290,7 +304,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
             hostUsername = "Guest#12345678",
             allPlayers = listOf(
                 GameLobbyUiModel.Data.Player("Guest#12345678", isHost = true),
-                GameLobbyUiModel.Data.Player( "JohnDoe"),
+                GameLobbyUiModel.Data.Player("JohnDoe"),
                 GameLobbyUiModel.Data.Player("JaneDoe"),
                 GameLobbyUiModel.Data.Player("Wow23", isYou = true),
             )

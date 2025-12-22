@@ -59,4 +59,17 @@ class GameLobbyViewModel(
             }
         }
     }
+
+    fun onAction(action: GameLobbyAction) {
+        when (action) {
+            is GameLobbyAction.CopyGameId -> TODO()
+            is GameLobbyAction.ChangeVisibility -> handleChangeVisibility(action.isPrivate)
+            is GameLobbyAction.StartGame -> TODO()
+        }
+    }
+
+    private fun handleChangeVisibility(private: Boolean) {
+        val currentGameLobby = _gameLobbyUiModel.value as? GameLobbyUiModel.Data ?: return
+        _gameLobbyUiModel.value = currentGameLobby.copy(isPrivate = private)
+    }
 }
