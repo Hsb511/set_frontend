@@ -25,9 +25,7 @@ import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun NavigationHost(
     navController: NavHostController = rememberNavController()

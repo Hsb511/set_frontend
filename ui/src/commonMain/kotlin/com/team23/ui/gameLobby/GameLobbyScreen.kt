@@ -37,17 +37,16 @@ import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun GameLobbyScreen(gameId: Uuid?) {
+fun GameLobbyScreen(gameId: String?) {
     val gameLobbyVM = koinInject<GameLobbyViewModel>()
     LaunchedEffect(Unit) {
         gameLobbyVM.start(gameId)
     }
 
-    when (val gameLobbyUiModel = gameLobbyVM.gameLobbyUiModel.collectAsState()) {
+    when (val gameLobbyUiModel = gameLobbyVM.gameLobbyUiModel.collectAsState().value) {
         is GameLobbyUiModel.Data -> GameLobbyScreen(
             gameLobbyUiModel = gameLobbyUiModel,
         )

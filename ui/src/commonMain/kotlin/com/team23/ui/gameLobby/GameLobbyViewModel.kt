@@ -1,5 +1,8 @@
 package com.team23.ui.gameLobby
 
+import com.team23.ui.navigation.NavigationManager
+import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -20,23 +23,39 @@ class GameLobbyViewModel(
     private val _gameLobbyUiModel = MutableStateFlow<GameLobbyUiModel>(GameLobbyUiModel.Loading)
     val gameLobbyUiModel: StateFlow<GameLobbyUiModel> = _gameLobbyUiModel
 
-    fun start(gameId: Uuid?) {
+    fun start(rawGameId: String?) {
         viewModelScope.launch {
-            // Create game
-            if (gameId == null) {
-                // TODO CREATE
-                /*_gameLobbyUiModel.value = GameLobbyUiModel.Data(
-                    gameId = gameId.toString(),
+            if (rawGameId == null) {
+                _gameLobbyUiModel.value = GameLobbyUiModel.Data(
+                    gameId = Uuid.random().toString(),
                     isHost = true,
-
-                    )*/
-            // Join game
+                    isPrivate = true,
+                    hostUsername = "You",
+                    allPlayers = listOf(
+                        GameLobbyUiModel.Data.Player(name = "You", isHost = true, isYou = true),
+                        GameLobbyUiModel.Data.Player(name = "Who's that?"),
+                        GameLobbyUiModel.Data.Player(name = "You got hacked"),
+                    ),
+                )
             } else {
-                /*_gameLobbyUiModel.value = GameLobbyUiModel.Data(
-                    gameId = gameId.toString(),
-                    isHost = false,
+                val gameId = runCatching { Uuid.parse(rawGameId) }.getOrNull()
 
-                )*/
+                if (gameId == null) {
+                    NavigationManager.popBackStack()
+                    SnackbarManager.showMessage(SetSnackbarVisuals.FormatErrorMultiGameId(rawGameId))
+                } else {
+                    _gameLobbyUiModel.value = GameLobbyUiModel.Data(
+                        gameId = gameId.toString(),
+                        isHost = false,
+                        isPrivate = true,
+                        hostUsername = "Who's that?",
+                        allPlayers = listOf(
+                            GameLobbyUiModel.Data.Player(name = "Who's that?", isHost = true),
+                            GameLobbyUiModel.Data.Player(name = "You", isYou = true),
+                            GameLobbyUiModel.Data.Player(name = "You got hacked"),
+                        ),
+                    )
+                }
             }
         }
     }

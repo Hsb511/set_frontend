@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
-import com.team23.ui.snackbar.SetSnackbarVisuals
-import com.team23.ui.snackbar.SnackbarManager
+import com.team23.ui.navigation.NavigationManager
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import kotlinx.coroutines.launch
@@ -200,6 +200,7 @@ private fun GameSelectionMultiTableHeader() {
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.MultiGame) {
     Column {
@@ -209,9 +210,8 @@ private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.Mul
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    // TODO DON'T DO THAT AND NOT HERE
                     coroutineScope.launch {
-                        SnackbarManager.showMessage(SetSnackbarVisuals.JoiningMultiGame(multiGame.hostName))
+                        NavigationManager.handle(NavigationScreen.GameLobby(gameId = multiGame.gameId.toString()))
                     }
                 }
                 .padding(

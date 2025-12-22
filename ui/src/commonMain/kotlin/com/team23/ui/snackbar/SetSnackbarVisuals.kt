@@ -49,10 +49,6 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "Logging out didn't succeed: $errorMessage"
     }
 
-    data class JoiningMultiGame(val hostName: String): ShortSnackbarVisuals() {
-        override val message: String = "Joining game of $hostName"
-    }
-
     data class FormatErrorMultiGameId(val gameId: String): ShortSnackbarVisuals() {
         override val message: String = "The format of gameId $gameId is not corret"
     }

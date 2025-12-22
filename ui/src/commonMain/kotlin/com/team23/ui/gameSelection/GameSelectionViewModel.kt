@@ -72,7 +72,9 @@ class GameSelectionViewModel(
     }
 
     private fun createMultiGame() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            NavigationManager.handle(NavigationScreen.GameLobby(gameId = null))
+        }
     }
 
     private fun joinMultiGame(rawGameId: String) {
@@ -84,9 +86,8 @@ class GameSelectionViewModel(
             return
         }
 
-        // TODO CALL PROPER ENDPOINT AND THEN NAVIGATE TO LOBBY SCREEN
         viewModelScope.launch {
-            SnackbarManager.showMessage(SetSnackbarVisuals.JoiningMultiGame(rawGameId))
+            NavigationManager.handle(NavigationScreen.GameLobby(gameId = gameId.toString()))
         }
     }
 

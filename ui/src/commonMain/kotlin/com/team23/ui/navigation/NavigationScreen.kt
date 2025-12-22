@@ -4,7 +4,6 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @Serializable
 @OptIn(ExperimentalUuidApi::class)
@@ -30,7 +29,7 @@ sealed class NavigationScreen(val name: String) {
     data object GameSelection: NavigationScreen(GAME_SELECTION_SCREEN_NAME)
 
     @Serializable
-    data class GameLobby(val gameId: Uuid?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
+    data class GameLobby(val gameId: String?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
 
     @Serializable
     data class Game(val startType: StartType): NavigationScreen(GAME_SCREEN_NAME) {
