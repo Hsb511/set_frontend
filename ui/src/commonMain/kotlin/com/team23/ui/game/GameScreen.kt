@@ -57,7 +57,6 @@ import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.EndGameDialog
-import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.system.rememberSystemScreenController
 import com.team23.ui.theming.LocalSpacings
@@ -75,21 +74,20 @@ import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
 fun GameScreen(
-    startType: NavigationScreen.Game.StartType,
+    forceCreate: Boolean,
 ) {
     val gameVM = koinInject<GameViewModel>()
-    LaunchedEffect(Unit) {
-        gameVM.start(startType)
-    }
-    val game by gameVM.gameUiModelFlow.collectAsState()
-
     val systemScreenController = rememberSystemScreenController()
     DisposableEffect(Unit) {
+        gameVM.start(forceCreate)
         systemScreenController.setKeepScreenOn()
         onDispose {
             systemScreenController.clearKeepScreenOn()
+            gameVM.stop()
         }
     }
+
+    val game by gameVM.gameUiModelFlow.collectAsState()
 
     Box(
         modifier = Modifier

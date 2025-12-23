@@ -104,16 +104,16 @@ private fun GameSelectionScreen(
                         text = "Continue",
                         size = ActionButtonUiModel.Size.Small,
                     ),
-                    onClick = { onAction(GameSelectionAction.ContinueSolo) },
+                    onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = false)) },
                     modifier = Modifier.weight(1f),
                 )
             }
             ActionButton(
                 uiModel = ActionButtonUiModel(
-                    text = "${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else ""} Create ${if (lobbyUiModel.hasAnOngoingSoloGame) "\uD83D\uDEA7" else "new"}",
+                    text = "Create new",
                     size = ActionButtonUiModel.Size.Small,
                 ),
-                onClick = { onAction(GameSelectionAction.CreateSolo(lobbyUiModel.hasAnOngoingSoloGame)) },
+                onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = lobbyUiModel.hasAnOngoingSoloGame)) },
                 modifier = Modifier.weight(1f),
             )
         }

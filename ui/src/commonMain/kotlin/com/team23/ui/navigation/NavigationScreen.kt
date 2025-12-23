@@ -32,9 +32,7 @@ sealed class NavigationScreen(val name: String) {
     data class GameLobby(val gameId: String?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
 
     @Serializable
-    data class Game(val startType: StartType): NavigationScreen(GAME_SCREEN_NAME) {
-        enum class StartType { Continue, CreateWithActive, CreateWithoutActive }
-    }
+    data class Game(val forceCreate: Boolean): NavigationScreen(GAME_SCREEN_NAME)
 
     @Serializable
     data object Settings: NavigationScreen("Settings")

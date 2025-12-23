@@ -10,6 +10,7 @@ data class CreateGameRequest(
     val gameMode: GameMode,
     @SerialName("response_mode")
     val responseMode: ResponseMode,
+    val force: Boolean,
 ) {
     @Serializable
     enum class GameMode {

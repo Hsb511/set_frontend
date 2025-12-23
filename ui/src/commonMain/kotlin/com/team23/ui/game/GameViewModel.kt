@@ -16,7 +16,6 @@ import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
-import com.team23.ui.navigation.NavigationScreen.Game.StartType
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -86,9 +85,9 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun start(startType: StartType) {
+    fun start(forceCreate: Boolean) {
         viewModelScope.launch {
-            initSoloGame(startType)
+            initSoloGame(forceCreate)
         }
         viewModelScope.launch {
             isPortraitFlow.value = runCatching {
@@ -99,6 +98,14 @@ class GameViewModel(
             hasAnimationFlow.value = runCatching {
                 userRepository.getUserPreference(Preference.DisableAnimation)?.not()
             }.getOrNull() ?: true
+        }
+    }
+
+    fun stop() {
+        viewModelScope.launch {
+            _gameStateFlow.value = GameState.EmptyDeck
+            _timerFlow.value = 0
+            _gameUiEvent.emit(GameUiEvent.ResetScreen)
         }
     }
 
@@ -114,18 +121,14 @@ class GameViewModel(
 
     private fun startNewGame() {
         viewModelScope.launch {
-            initSoloGame(StartType.CreateWithoutActive)
+            initSoloGame(forceCreate = true)
             _timerFlow.value = 0
             _gameUiEvent.emit(GameUiEvent.ResetScreen)
         }
     }
 
-    private suspend fun initSoloGame(startType: StartType) {
-        val event = when (startType) {
-            StartType.Continue -> GameEvent.ContinueSolo
-            StartType.CreateWithoutActive -> GameEvent.CreateSolo(force = false)
-            StartType.CreateWithActive -> GameEvent.CreateSolo(force = true)
-        }
+    private suspend fun initSoloGame(forceCreate: Boolean) {
+        val event = GameEvent.StartSolo(forceCreate)
         updateGameState(GameState.EmptyDeck, event)
     }
 

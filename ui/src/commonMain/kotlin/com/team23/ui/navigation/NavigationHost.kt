@@ -71,8 +71,8 @@ fun NavigationHost(
             GameLobbyScreen(gameId)
         }
         composable<NavigationScreen.Game> { game ->
-            val startType = game.toRoute<NavigationScreen.Game>().startType
-            GameScreen(startType = startType)
+            val forceCreate = game.toRoute<NavigationScreen.Game>().forceCreate
+            GameScreen(forceCreate = forceCreate)
         }
         composable(
             route = NavigationScreen.Settings.name,

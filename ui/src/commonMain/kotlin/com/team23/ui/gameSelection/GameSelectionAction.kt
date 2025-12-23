@@ -1,8 +1,7 @@
 package com.team23.ui.gameSelection
 
 sealed interface GameSelectionAction {
-    data class CreateSolo(val hasAnOngoingSoloGame: Boolean) : GameSelectionAction
-    data object ContinueSolo : GameSelectionAction
+    data class StartSolo(val forceCreate: Boolean) : GameSelectionAction
     data object CreateMulti : GameSelectionAction
     data class JoinMulti(val rawGameId: String) : GameSelectionAction
 }

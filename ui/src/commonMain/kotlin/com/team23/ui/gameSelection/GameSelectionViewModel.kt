@@ -3,7 +3,6 @@ package com.team23.ui.gameSelection
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
-import com.team23.ui.navigation.NavigationScreen.Game.StartType
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -49,25 +48,15 @@ class GameSelectionViewModel(
 
     fun onAction(action: GameSelectionAction) {
         when (action) {
-            is GameSelectionAction.CreateSolo -> createSoloGame(action.hasAnOngoingSoloGame)
-            is GameSelectionAction.ContinueSolo -> startSoloGame(StartType.Continue)
+            is GameSelectionAction.StartSolo -> startSoloGame(action.forceCreate)
             is GameSelectionAction.CreateMulti -> createMultiGame()
             is GameSelectionAction.JoinMulti -> joinMultiGame(action.rawGameId)
         }
     }
 
-    private fun createSoloGame(hasAnOngoingSoloGame: Boolean) {
-        val startType = if (hasAnOngoingSoloGame) {
-            StartType.CreateWithActive
-        } else {
-            StartType.CreateWithoutActive
-        }
-        startSoloGame(startType)
-    }
-
-    private fun startSoloGame(startType: StartType) {
+    private fun startSoloGame(forceCreate: Boolean) {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.Game(startType))
+            NavigationManager.handle(NavigationScreen.Game(forceCreate))
         }
     }
 

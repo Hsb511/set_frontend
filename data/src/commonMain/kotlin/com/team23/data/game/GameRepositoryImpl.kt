@@ -62,8 +62,11 @@ class GameRepositoryImpl(
 
     private suspend fun createSoloGameAndRetry(force: Boolean, retry: Boolean): GameState.Playing {
         val sessionToken = getCachedSessionToken()
-        // TODO PASS FORCE TO THE ENDPOINT
-        val request = CreateGameRequest(CreateGameRequest.GameMode.Solo, CreateGameRequest.ResponseMode.Full)
+        val request = CreateGameRequest(
+            gameMode = CreateGameRequest.GameMode.Solo,
+            responseMode = CreateGameRequest.ResponseMode.Full,
+            force = force,
+        )
         return when (val response = gameApi.createGame(sessionToken, request)) {
             is CreateGameResponse.Success -> mapToPlayingGame(
                 gameId = response.gameId,
