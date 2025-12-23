@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -92,6 +93,7 @@ private fun GameLobbyScreen(
         GameActionButton(
             isHost = gameLobbyUiModel.isHost,
             onStartGame = { onAction(GameLobbyAction.StartGame) },
+            onLeaveGame = { onAction(GameLobbyAction.LeaveGame) },
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -185,6 +187,7 @@ private fun VisibilityRadioRow(
         RadioButton(
             selected = selected,
             onClick = onClick,
+            modifier = Modifier.size(48.dp)
         )
         Text(
             text = label,
@@ -220,7 +223,7 @@ private fun GamePlayerRow(
                 imageVector = Icons.Outlined.PersonPin,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(48.dp)
             )
         } else if (player.isYou) {
             Text(
@@ -228,10 +231,10 @@ private fun GamePlayerRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(40.dp)
+                modifier = Modifier.width(48.dp)
             )
         } else {
-            Spacer(modifier = Modifier.width(40.dp))
+            Spacer(modifier = Modifier.width(48.dp))
         }
 
         Text(
@@ -246,6 +249,7 @@ private fun GamePlayerRow(
 private fun GameActionButton(
     isHost: Boolean,
     onStartGame: () -> Unit,
+    onLeaveGame: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (isHost) {
@@ -259,10 +263,9 @@ private fun GameActionButton(
     } else {
         ActionButton(
             uiModel = ActionButtonUiModel(
-                text = "Waiting for host to start game",
-                enabled = false,
+                text = "Leave game",
             ),
-            onClick = { },
+            onClick = onLeaveGame,
             modifier = modifier
         )
     }

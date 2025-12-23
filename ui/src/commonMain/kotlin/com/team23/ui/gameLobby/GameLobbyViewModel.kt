@@ -65,6 +65,7 @@ class GameLobbyViewModel(
             is GameLobbyAction.CopyGameId -> TODO()
             is GameLobbyAction.ChangeVisibility -> handleChangeVisibility(action.isPrivate)
             is GameLobbyAction.StartGame -> TODO()
+            is GameLobbyAction.LeaveGame -> TODO()
         }
     }
 
