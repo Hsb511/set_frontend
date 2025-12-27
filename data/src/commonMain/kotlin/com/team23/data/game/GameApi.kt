@@ -14,6 +14,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
+import kotlinx.serialization.json.Json
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -70,6 +71,7 @@ class GameApiImpl(
     }
 
     override suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse {
+        Logger.i("GameApi - /session/$sessionToken/upload-deck - request: ${Json.encodeToString(request)}")
         val response = client.post("/session/$sessionToken/upload-deck") {
             setBody(request)
         }

@@ -61,7 +61,11 @@ class GameStateMachine(
         return updateGameAfterSetFoundUseCase.invoke(
             game = state,
             setFound = event.selectedCards,
-        )
+        ).also { gameState ->
+            (gameState as? GameState.Playing)?.let { playingGame ->
+                gameRepository.notifySoloGameUpdated(playingGame)
+            }
+        }
     }
 
     private suspend fun emitSetFound(

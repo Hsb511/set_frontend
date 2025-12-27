@@ -8,6 +8,8 @@ interface GameRepository {
 
     suspend fun createSoloGame(force: Boolean): Result<GameState.Playing>
 
+    suspend fun notifySoloGameUpdated(game: GameState.Playing): Result<Unit>
+
     suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean>
 
     suspend fun hasActiveSoloGame(): Result<Unit>

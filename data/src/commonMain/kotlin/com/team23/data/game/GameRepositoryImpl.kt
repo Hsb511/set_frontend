@@ -31,6 +31,10 @@ class GameRepositoryImpl(
         createSoloGameAndRetry(force = force, retry = true)
     }
 
+    override suspend fun notifySoloGameUpdated(game: GameState.Playing): Result<Unit> = runCatching {
+        notifySoloGameUpdatedAndRetry(game, retry = true)
+    }
+
     override suspend fun notifySoloGameFinished(finished: GameState.Finished): Result<Boolean> = runCatching {
         notifySoloGameFinishedAndRetry(finished, retry = true)
     }
@@ -81,9 +85,22 @@ class GameRepositoryImpl(
         }
     }
 
+    private suspend fun notifySoloGameUpdatedAndRetry(game: GameState.Playing, retry: Boolean): Boolean {
+        val sessionToken = getCachedSessionToken()
+        val request = mapToNextUploadRequest(game)
+        return when (val response = gameApi.uploadDeck(sessionToken, request)) {
+            is UploadDeckResponse.Success -> response.gameCompleted
+            is UploadDeckResponse.Failure -> throw Exception(response.error)
+            is UploadDeckResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                notifySoloGameUpdatedAndRetry(game, retry = false)
+            }
+        }
+    }
+
     private suspend fun notifySoloGameFinishedAndRetry(finished: GameState.Finished, retry: Boolean): Boolean {
         val sessionToken = getCachedSessionToken()
-        val request = mapToUploadRequest(finished)
+        val request = mapToFinalUploadRequest(finished)
+
         return when (val response = gameApi.uploadDeck(sessionToken, request)) {
             is UploadDeckResponse.Success -> response.gameCompleted
             is UploadDeckResponse.Failure -> throw Exception(response.error)
@@ -120,7 +137,16 @@ class GameRepositoryImpl(
         )
     }
 
-    private fun mapToUploadRequest(finished: GameState.Finished) = UploadDeckRequest(
+    private fun mapToNextUploadRequest(game: GameState.Playing) = UploadDeckRequest(
+        uploadMode = UploadDeckRequest.UploadMode.Next,
+        pile = game.deck.map(cardDataMapper::toBase10Code),
+        table = game.table.map(cardDataMapper::toBase10Code),
+        pit = game.setsFound.map { set ->
+            set.map(cardDataMapper::toBase10Code)
+        },
+    )
+
+    private fun mapToFinalUploadRequest(finished: GameState.Finished) = UploadDeckRequest(
         uploadMode = UploadDeckRequest.UploadMode.Final,
         pile = emptyList(),
         table = finished.cards.map(cardDataMapper::toBase10Code),

@@ -15,7 +15,9 @@ import com.team23.domain.game.usecase.IsSetUseCase
 import com.team23.domain.game.usecase.UpdateGameAfterSetFoundUseCase
 import dev.mokkery.answering.returns
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
 import dev.mokkery.mock
+import dev.mokkery.verifySuspend
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,11 +52,12 @@ class GameStateMachineTest {
     }
 
     @Test
-    fun `when state is EmptyDeck and event is Init then state becomes Playing with 12 cards on table`() = runTest {
+    fun `when state is EmptyDeck and event is StartSolo without force create then state becomes Playing with 12 cards on table`() = runTest {
         // Given
         val initialState = GameState.EmptyDeck
+        val forceCreate = false
         everySuspend { gameRepository.getOngoingSoloGame() } returns Result.failure(Exception())
-        everySuspend { gameRepository.createSoloGame() } returns Result.success(
+        everySuspend { gameRepository.createSoloGame(forceCreate) } returns Result.success(
             createPlayingGame(
                 deck = List(81) { Card.Empty },
                 table = List(12) { Card.Empty },
@@ -62,7 +65,26 @@ class GameStateMachineTest {
         )
 
         // When
-        val newState = machine.reduce(initialState, GameEvent.CreateSolo)
+        val newState = machine.reduce(initialState, GameEvent.StartSolo(forceCreate))
+
+        // Then
+        assertIs<GameState.Playing>(newState)
+    }
+
+    @Test
+    fun `when state is EmptyDeck and event is StartSolo with force create then state becomes Playing with 12 cards on table`() = runTest {
+        // Given
+        val initialState = GameState.EmptyDeck
+        val forceCreate = true
+        everySuspend { gameRepository.createSoloGame(forceCreate) } returns Result.success(
+            createPlayingGame(
+                deck = List(81) { Card.Empty },
+                table = List(12) { Card.Empty },
+            )
+        )
+
+        // When
+        val newState = machine.reduce(initialState, GameEvent.StartSolo(forceCreate))
 
         // Then
         assertIs<GameState.Playing>(newState)
@@ -77,6 +99,7 @@ class GameStateMachineTest {
         val initialState = createPlayingGame(deck = deck, table = table)
 
         val selected = table.take(3)
+        everySuspend { gameRepository.notifySoloGameUpdated(any()) } returns Result.success(Unit)
 
         // When
         val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected.toSet()))
@@ -87,6 +110,7 @@ class GameStateMachineTest {
         assertEquals(66, newState.deck.size)
         assertEquals(12, newState.table.size)
         assertEquals(0, newState.selected.size)
+        verifySuspend {  gameRepository.notifySoloGameUpdated(newState) }
     }
 
     @Test
@@ -98,6 +122,7 @@ class GameStateMachineTest {
             val initialState = createPlayingGame(deck = deck, table = table)
 
             val selected = table.take(3)
+            everySuspend { gameRepository.notifySoloGameUpdated(any()) } returns Result.success(Unit)
 
             // When
             val newState = machine.reduce(initialState, GameEvent.CardsSelected(selected.toSet()))
@@ -106,6 +131,7 @@ class GameStateMachineTest {
             assertIs<GameState.Playing>(newState)
             assertEquals(15, newState.table.size)
             assertEquals(0, newState.deck.size)
+            verifySuspend {  gameRepository.notifySoloGameUpdated(newState) }
         }
 
     @Test
@@ -115,6 +141,7 @@ class GameStateMachineTest {
             val table = createTableFor15to15Cards()
             val deck = createDeckFor15to15Cards()
             val initialState = createPlayingGame(deck = deck, table = table)
+            everySuspend { gameRepository.notifySoloGameUpdated(any()) } returns Result.success(Unit)
 
             val selected = table.take(3)
 
@@ -125,6 +152,7 @@ class GameStateMachineTest {
             assertIs<GameState.Playing>(newState)
             assertEquals(15, newState.table.size)
             assertEquals(0, newState.deck.size)
+            verifySuspend {  gameRepository.notifySoloGameUpdated(newState) }
         }
 
     @Test
@@ -134,6 +162,7 @@ class GameStateMachineTest {
             val table = createTableFor15to12Cards()
             val deck = createDeckFor15to12Cards()
             val initialState = createPlayingGame(deck = deck, table = table)
+            everySuspend { gameRepository.notifySoloGameUpdated(any()) } returns Result.success(Unit)
 
             val selected = table.take(3)
 
@@ -150,6 +179,7 @@ class GameStateMachineTest {
             assertEquals(newState.table[0], card1)
             assertEquals(newState.table[1], card2)
             assertEquals(newState.table[2], card3)
+            verifySuspend {  gameRepository.notifySoloGameUpdated(newState) }
         }
 
     @Test
@@ -197,8 +227,8 @@ class GameStateMachineTest {
         val finished = GameState.Finished(gameId = playing.gameId, emptyList())
 
         // When
-        val result1 = machine.reduce(playing, GameEvent.CreateSolo)
-        val result2 = machine.reduce(finished, GameEvent.CreateSolo)
+        val result1 = machine.reduce(playing, GameEvent.StartSolo(forceCreation = false))
+        val result2 = machine.reduce(finished, GameEvent.StartSolo(forceCreation = false))
 
         // Then
         assertEquals(playing, result1)
