@@ -27,12 +27,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.system.clipEntryOf
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
@@ -61,6 +68,25 @@ fun GameLobbyScreen(gameId: String?) {
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val clipboard = LocalClipboard.current
+
+    suspend fun copyToClipboard(text: String) {
+        val clipEntry = clipEntryOf(text)
+        clipboard.setClipEntry(clipEntry)
+    }
+
+    LaunchedEffect(Unit) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            withContext(Dispatchers.Main.immediate) {
+                gameLobbyVM.gameLobbyUiEvent.collect { gameLobbyUiEvent ->
+                    when (gameLobbyUiEvent) {
+                        is GameLobbyUiEvent.CopyToClipboard -> copyToClipboard(gameLobbyUiEvent.text)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -77,7 +103,7 @@ private fun GameLobbyScreen(
     ) {
         TitleAndGameIdSection(
             gameLobbyUiModel = gameLobbyUiModel,
-            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId) }
+            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId(gameLobbyUiModel.gameId)) }
         )
 
         VisibilitySection(

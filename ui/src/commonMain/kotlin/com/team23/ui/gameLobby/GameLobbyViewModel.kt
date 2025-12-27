@@ -7,7 +7,9 @@ import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
@@ -24,6 +26,9 @@ class GameLobbyViewModel(
 
     private val _gameLobbyUiModel = MutableStateFlow<GameLobbyUiModel>(GameLobbyUiModel.Loading)
     val gameLobbyUiModel: StateFlow<GameLobbyUiModel> = _gameLobbyUiModel
+
+    private val _gameLobbyUiEvent = MutableSharedFlow<GameLobbyUiEvent>()
+    val gameLobbyUiEvent: SharedFlow<GameLobbyUiEvent> = _gameLobbyUiEvent
 
     fun start(rawGameId: String?) {
         viewModelScope.launch {
@@ -54,10 +59,16 @@ class GameLobbyViewModel(
 
     fun onAction(action: GameLobbyAction) {
         when (action) {
-            is GameLobbyAction.CopyGameId -> TODO()
+            is GameLobbyAction.CopyGameId -> handleCopyGameId(action.rawGameId)
             is GameLobbyAction.ChangeVisibility -> handleChangeVisibility(action.isPrivate)
             is GameLobbyAction.StartGame -> TODO()
             is GameLobbyAction.LeaveGame -> TODO()
+        }
+    }
+
+    private fun handleCopyGameId(rawGameId: String) {
+        viewModelScope.launch {
+            _gameLobbyUiEvent.emit(GameLobbyUiEvent.CopyToClipboard(rawGameId))
         }
     }
 
