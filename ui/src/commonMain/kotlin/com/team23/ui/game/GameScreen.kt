@@ -37,6 +37,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,8 +79,17 @@ fun GameScreen(
 ) {
     val gameVM = koinInject<GameViewModel>()
     val systemScreenController = rememberSystemScreenController()
-    DisposableEffect(Unit) {
-        gameVM.start(forceCreate)
+
+    val isInitialStart = rememberSaveable { mutableStateOf(true) }
+
+    DisposableEffect(forceCreate) {
+        if (isInitialStart.value) {
+            gameVM.start(forceCreate)
+            isInitialStart.value = false
+        } else {
+            gameVM.start(false)
+        }
+
         systemScreenController.setKeepScreenOn()
         onDispose {
             systemScreenController.clearKeepScreenOn()
