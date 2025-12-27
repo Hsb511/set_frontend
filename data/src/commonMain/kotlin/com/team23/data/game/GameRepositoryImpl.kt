@@ -43,6 +43,10 @@ class GameRepositoryImpl(
         hasActiveSoloGameAndRetry(retry = true)
     }
 
+    override suspend fun createMultiGame(): Result<Uuid> = runCatching {
+        createMultiGameAndRetry(retry = true)
+    }
+
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
         val sessionToken = getCachedSessionToken()
         return when (val gameResponse = gameApi.getGame(sessionToken)) {
@@ -117,6 +121,22 @@ class GameRepositoryImpl(
             is GetGameResponse.Failure ->  throw Exception(response.error)
             is GetGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
                 hasActiveSoloGameAndRetry(retry = false)
+            }
+        }
+    }
+
+    private suspend fun createMultiGameAndRetry(retry: Boolean): Uuid {
+        val sessionToken = getCachedSessionToken()
+        val request = CreateGameRequest(
+            gameMode = CreateGameRequest.GameMode.Multi,
+            responseMode = CreateGameRequest.ResponseMode.Full,
+            force = false,
+        )
+        return when (val response = gameApi.createGame(sessionToken, request)) {
+            is CreateGameResponse.Success -> response.gameId
+            is CreateGameResponse.Failure -> throw Exception(response.error)
+            is CreateGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                createMultiGameAndRetry(retry = false)
             }
         }
     }

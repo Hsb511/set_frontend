@@ -49,6 +49,10 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "Logging out didn't succeed: $errorMessage"
     }
 
+    data class CannotCreateMultiGame(val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "Cannot create multi game. We are using a random Uuid for mocking purposes: $errorMessage"
+    }
+
     data class FormatErrorMultiGameId(val gameId: String): ShortSnackbarVisuals() {
         override val message: String = "The format of gameId $gameId is not corret"
     }

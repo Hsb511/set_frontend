@@ -1,5 +1,6 @@
 package com.team23.ui.gameLobby
 
+import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
@@ -14,6 +15,7 @@ import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GameLobbyViewModel(
+    private val gameRepository: GameRepository,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
@@ -26,17 +28,7 @@ class GameLobbyViewModel(
     fun start(rawGameId: String?) {
         viewModelScope.launch {
             if (rawGameId == null) {
-                _gameLobbyUiModel.value = GameLobbyUiModel.Data(
-                    gameId = Uuid.random().toString(),
-                    isHost = true,
-                    isPrivate = true,
-                    hostUsername = "You",
-                    allPlayers = listOf(
-                        GameLobbyUiModel.Data.Player(name = "You", isHost = true, isYou = true),
-                        GameLobbyUiModel.Data.Player(name = "Who's that?"),
-                        GameLobbyUiModel.Data.Player(name = "You got hacked"),
-                    ),
-                )
+                createMultiGame()
             } else {
                 val gameId = runCatching { Uuid.parse(rawGameId) }.getOrNull()
 
@@ -67,6 +59,23 @@ class GameLobbyViewModel(
             is GameLobbyAction.StartGame -> TODO()
             is GameLobbyAction.LeaveGame -> TODO()
         }
+    }
+
+    private suspend fun createMultiGame() {
+        val gameId = gameRepository.createMultiGame().onFailure { error ->
+            SnackbarManager.showMessage(SetSnackbarVisuals.CannotCreateMultiGame(error.message))
+        }.getOrElse { Uuid.random() }
+        _gameLobbyUiModel.value = GameLobbyUiModel.Data(
+            gameId = gameId.toString(),
+            isHost = true,
+            isPrivate = true,
+            hostUsername = "You",
+            allPlayers = listOf(
+                GameLobbyUiModel.Data.Player(name = "You", isHost = true, isYou = true),
+                GameLobbyUiModel.Data.Player(name = "Who's that?"),
+                GameLobbyUiModel.Data.Player(name = "You got hacked"),
+            ),
+        )
     }
 
     private fun handleChangeVisibility(private: Boolean) {
