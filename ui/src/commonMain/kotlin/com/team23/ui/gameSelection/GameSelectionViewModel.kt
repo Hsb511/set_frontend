@@ -39,6 +39,7 @@ class GameSelectionViewModel(
                             gameId = Uuid.parse(gameId),
                             hostName = "Guest#${gameId.take(8)}",
                             playersCount = gameId.last().digitToInt(),
+                            type = GameSelectionUiModel.Data.MultiGame.Type.entries.random(),
                         )
                     }
                 )
@@ -49,7 +50,8 @@ class GameSelectionViewModel(
     fun onAction(action: GameSelectionAction) {
         when (action) {
             is GameSelectionAction.StartSolo -> startSoloGame(action.forceCreate)
-            is GameSelectionAction.CreateMulti -> createMultiGame()
+            is GameSelectionAction.CreateVersus -> createMultiGame()
+            is GameSelectionAction.CreateTimeTrial -> createMultiGame()
             is GameSelectionAction.JoinMulti -> joinMultiGame(action.rawGameId)
         }
     }

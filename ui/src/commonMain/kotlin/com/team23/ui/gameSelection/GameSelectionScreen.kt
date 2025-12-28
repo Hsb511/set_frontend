@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -30,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.gameSelection.GameSelectionUiModel.Data.MultiGame
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
@@ -97,26 +100,10 @@ private fun GameSelectionScreen(
             color = MaterialTheme.colorScheme.onBackground,
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)) {
-            if (lobbyUiModel.hasAnOngoingSoloGame) {
-                ActionButton(
-                    uiModel = ActionButtonUiModel(
-                        text = "Continue",
-                        size = ActionButtonUiModel.Size.Small,
-                    ),
-                    onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = false)) },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-            ActionButton(
-                uiModel = ActionButtonUiModel(
-                    text = "Create new",
-                    size = ActionButtonUiModel.Size.Small,
-                ),
-                onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = lobbyUiModel.hasAnOngoingSoloGame)) },
-                modifier = Modifier.weight(1f),
-            )
-        }
+        SoloActionButtons(
+            hasOngoingSoloGame = lobbyUiModel.hasAnOngoingSoloGame,
+            onAction = onAction,
+        )
 
         HorizontalDivider()
 
@@ -127,13 +114,8 @@ private fun GameSelectionScreen(
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        ActionButton(
-            uiModel = ActionButtonUiModel(
-                text = "\uD83D\uDEA7 Create new multi game \uD83D\uDEA7",
-                size = ActionButtonUiModel.Size.Small,
-            ),
-            onClick = { onAction(GameSelectionAction.CreateMulti) },
-            modifier = Modifier.fillMaxWidth(),
+        CreateMultiActionButtons(
+            onAction = onAction,
         )
 
         TextField(
@@ -145,6 +127,7 @@ private fun GameSelectionScreen(
             label = {
                 Text(text = "Paste here the game uuid you'd like to join")
             },
+            shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -183,6 +166,82 @@ private fun GameSelectionScreen(
 }
 
 @Composable
+fun SoloActionButtons(
+    hasOngoingSoloGame: Boolean = false,
+    onAction: (GameSelectionAction) -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)) {
+        if (hasOngoingSoloGame) {
+            ActionButton(
+                uiModel = ActionButtonUiModel(
+                    text = "Continue",
+                    size = ActionButtonUiModel.Size.Small,
+                ),
+                onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = false)) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+        ActionButton(
+            uiModel = ActionButtonUiModel(
+                text = "Create new",
+                size = ActionButtonUiModel.Size.Small,
+            ),
+            onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = hasOngoingSoloGame)) },
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+fun CreateMultiActionButtons(
+    onAction: (GameSelectionAction) -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)) {
+        CreateMultiButtonWithDescription(
+            buttonLabel = "Create Time trial",
+            description =  "Each player has the same game in parallel. The fastest wins",
+            onClick = { onAction(GameSelectionAction.CreateTimeTrial) },
+            modifier = Modifier.weight(1f),
+        )
+        CreateMultiButtonWithDescription(
+            buttonLabel = "Create Versus",
+            description =  "All the players play the same game synchronously. The one who find most sets wins",
+            onClick = { onAction(GameSelectionAction.CreateVersus) },
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun CreateMultiButtonWithDescription(
+    buttonLabel: String,
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.small),
+        modifier = modifier
+    ) {
+        ActionButton(
+            uiModel = ActionButtonUiModel(
+                text = buttonLabel,
+                size = ActionButtonUiModel.Size.Small,
+            ),
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
 private fun GameSelectionMultiTableHeader() {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
         Row {
@@ -194,6 +253,11 @@ private fun GameSelectionMultiTableHeader() {
             Text(
                 text = "Players",
                 color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.width(secondColumnWidth())
+            )
+            Text(
+                text = "Type",
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
         HorizontalDivider(thickness = 2.dp)
@@ -202,7 +266,7 @@ private fun GameSelectionMultiTableHeader() {
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.MultiGame) {
+private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
     Column {
 
         val coroutineScope = rememberCoroutineScope()
@@ -227,6 +291,12 @@ private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.Mul
             Text(
                 text = multiGame.playersCount.toString(),
                 color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.width(secondColumnWidth())
+            )
+            Icon(
+                imageVector = multiGame.type.imageVector,
+                tint = MaterialTheme.colorScheme.onBackground,
+                contentDescription = multiGame.type.name,
             )
         }
         HorizontalDivider()
@@ -237,7 +307,14 @@ private fun GameSelectionMultiTableItem(multiGame: GameSelectionUiModel.Data.Mul
 private fun firstColumnWidth(): Dp {
     val screenWidthPx = LocalWindowInfo.current.containerSize.width
     val screenWidthDp = with(LocalDensity.current) { screenWidthPx.toDp() }
-    return screenWidthDp / 2f
+    return screenWidthDp * 4f / 10f
+}
+
+@Composable
+private fun secondColumnWidth(): Dp {
+    val screenWidthPx = LocalWindowInfo.current.containerSize.width
+    val screenWidthDp = with(LocalDensity.current) { screenWidthPx.toDp() }
+    return screenWidthDp * 3f / 10f
 }
 
 @Composable
@@ -284,10 +361,12 @@ private class GameSelectionPreviewProvider : PreviewParameterProvider<GameSelect
         GameSelectionUiModel.Data(
             hasAnOngoingSoloGame = true,
             multiGames = fixedRandomUuids.map { gameId ->
-                GameSelectionUiModel.Data.MultiGame(
+                val playersCount = gameId.last().digitToInt()
+                MultiGame(
                     gameId = Uuid.parse(gameId),
                     hostName = "Guest#${gameId.take(8)}",
-                    playersCount = gameId.last().digitToInt(),
+                    playersCount = playersCount,
+                    type = if (playersCount % 2 == 0) MultiGame.Type.TimeTrial else MultiGame.Type.Versus,
                 )
             },
         ),
