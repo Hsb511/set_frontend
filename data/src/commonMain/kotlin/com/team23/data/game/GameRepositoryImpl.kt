@@ -9,6 +9,7 @@ import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
 import com.team23.data.game.model.response.UploadDeckResponse
+import com.team23.domain.game.model.Card
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.startup.repository.AuthRepository
@@ -54,7 +55,8 @@ class GameRepositoryImpl(
                 is GetLastDeckResponse.Success -> mapToPlayingGame(
                     gameId = gameResponse.gameId,
                     table = response.table,
-                    pile = response.pile
+                    pile = response.pile,
+                    pit = response.pit,
                 )
 
                 is GetLastDeckResponse.Failure -> throw Exception(response.error)
@@ -79,7 +81,7 @@ class GameRepositoryImpl(
             is CreateGameResponse.Success -> mapToPlayingGame(
                 gameId = response.gameId,
                 table = response.table,
-                pile = response.pileCards
+                pile = response.pileCards,
             )
 
             is CreateGameResponse.Failure -> throw Exception(response.error)
@@ -147,13 +149,19 @@ class GameRepositoryImpl(
         return Uuid.parse(cachedSessionToken)
     }
 
-    private fun mapToPlayingGame(gameId: Uuid, table: List<SetCard>?, pile: List<SetCard>?): GameState.Playing {
+    private fun mapToPlayingGame(
+        gameId: Uuid,
+        table: List<SetCard>?,
+        pile: List<SetCard>?,
+        pit: List<List<SetCard>> = emptyList(),
+    ): GameState.Playing {
         requireNotNull(table)
         requireNotNull(pile)
         return GameState.Playing(
             gameId = gameId,
             deck = pile.map(cardDataMapper::toDomainModel),
             table = table.map(cardDataMapper::toDomainModel),
+            setsFound = pit.map { set -> set.map(cardDataMapper::toDomainModel).filterIsInstance<Card.Data>().toSet() }
         )
     }
 
