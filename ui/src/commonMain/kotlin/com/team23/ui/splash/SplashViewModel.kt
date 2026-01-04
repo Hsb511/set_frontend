@@ -4,6 +4,7 @@ import com.team23.domain.startup.statemachine.StartupEvent
 import com.team23.domain.startup.statemachine.StartupState
 import com.team23.domain.startup.statemachine.StartupStateMachine
 import com.team23.ui.card.Slot
+import com.team23.ui.debug.showSplashScreen
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
@@ -39,8 +40,8 @@ class SplashViewModel(
                 }
             }
 
-            // TODO DISABLING FOR NOW
-            val remaining = 0.seconds - elapsed
+            val total = if (showSplashScreen()) 3.seconds else 0.seconds
+            val remaining = total - elapsed
             if (remaining.isPositive()) {
                 delay(remaining)
             }

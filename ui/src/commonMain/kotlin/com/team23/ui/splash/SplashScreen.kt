@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.card.Slot.CardUiModel.Color
+import com.team23.ui.debug.showSplashScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.theming.SetTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -26,12 +29,13 @@ import org.koin.compose.koinInject
 
 @Composable
 fun SplashScreen() {
-    // TODO DISABLING FOR NOW
-    koinInject<SplashViewModel>()
+    val splashViewModel = koinInject<SplashViewModel>()
 
-    /*val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }
+    if (showSplashScreen()) {
+        val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }
 
-    SplashScreen(card)*/
+        SplashScreen(card)
+    }
 }
 
 @Composable

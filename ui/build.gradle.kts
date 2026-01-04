@@ -18,6 +18,13 @@ buildkonfig {
 
     defaultConfigs {
         buildConfigField(STRING, "IS_DEBUG", (!isReleaseBuild).toString())
+        buildConfigField(STRING, "SHOW_CUSTOM_SPLASH_SCREEN", "true")
+    }
+
+    targetConfigs {
+        create("android") {
+            buildConfigField(STRING, "SHOW_CUSTOM_SPLASH_SCREEN", "false")
+        }
     }
 }
 

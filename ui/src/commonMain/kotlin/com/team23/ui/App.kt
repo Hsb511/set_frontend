@@ -19,10 +19,10 @@ import com.team23.ui.debug.isDebug
 import com.team23.ui.navigation.NavigationHost
 import com.team23.ui.settings.SettingsFAB
 import com.team23.ui.snackbar.SetSnackbar
+import com.team23.ui.system.rememberSystemBarsController
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.ThemeViewModel
-import com.team23.ui.system.rememberSystemBarsController
 import org.koin.compose.koinInject
 
 @Composable
