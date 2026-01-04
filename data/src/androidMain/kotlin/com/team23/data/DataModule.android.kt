@@ -1,7 +1,7 @@
 package com.team23.data
 
 import com.team23.data.datastore.SetDataStore
-import com.team23.data.datastore.SetDataStoreImpl
+import com.team23.data.datastore.AndroidSetDataStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
@@ -16,7 +16,7 @@ import javax.net.ssl.X509TrustManager
 
 
 internal actual fun platformModule() = module {
-    single { SetDataStoreImpl() as SetDataStore }
+    single { AndroidSetDataStore() as SetDataStore }
 }
 
 actual fun createHttpClient(): HttpClient {

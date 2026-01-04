@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
-class SetDataStoreImpl() : SetDataStore {
+class JvmSetDataStore() : SetDataStore {
 
     override suspend fun setValue(key: String, value: String) {
         if (isDataStoreInitialized()) {
@@ -40,7 +40,7 @@ class SetDataStoreImpl() : SetDataStore {
         }
     }
 
-    companion object {
+    companion object Companion {
         private lateinit var dataStore: DataStore<Preferences>
         private fun isDataStoreInitialized(): Boolean = ::dataStore.isInitialized
 

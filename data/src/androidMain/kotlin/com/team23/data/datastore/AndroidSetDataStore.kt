@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 
-class SetDataStoreImpl() : SetDataStore {
+class AndroidSetDataStore() : SetDataStore {
 
     override suspend fun setValue(key: String, value: String) {
         if (isDataStoreInitialized()) {
@@ -44,7 +44,7 @@ class SetDataStoreImpl() : SetDataStore {
         }
     }
 
-    companion object {
+    companion object Companion {
         private lateinit var dataStore: DataStore<Preferences>
         private fun isDataStoreInitialized(): Boolean = ::dataStore.isInitialized
 
