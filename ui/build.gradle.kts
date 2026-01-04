@@ -1,20 +1,21 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.serialization)
 }
 
 kotlin {
+    jvmToolchain(11)
 
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
+    @Suppress("UnstableApiUsage")
+    androidLibrary {
+        namespace = "com.team23.ui"
+        compileSdk = (findProperty("compileSdk") as String).toInt()
     }
 
     jvm()
@@ -76,16 +77,5 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.emoji2)
         }
-    }
-}
-
-android {
-    namespace = "com.team23.ui"
-    compileSdk = (findProperty("compileSdk") as String).toInt()
-    buildFeatures.buildConfig = true
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
     }
 }

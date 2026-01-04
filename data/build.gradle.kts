@@ -1,16 +1,39 @@
+import com.android.build.api.dsl.androidLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.serialization)
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+    jvmToolchain(11)
+
+    @Suppress("UnstableApiUsage")
+    androidLibrary {
+        namespace = "com.team23.data"
+        compileSdk = (findProperty("compileSdk") as String).toInt()
+
+        /*buildFeatures.buildConfig = true
+
+        val versionMaj = (findProperty("versionMaj") as String).toInt()
+        val versionMin = (findProperty("versionMin") as String).toInt()
+        val versionFix = (findProperty("versionFix") as String).toInt()
+        val appVersionName = "$versionMaj.$versionMin.$versionFix"
+
+        buildTypes {
+            debug {
+                buildConfigField("String", "BASE_URL", "\"https://settest.souchefr.synology.me/\"")
+                buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
+            }
+            release {
+                buildConfigField("String", "BASE_URL", "\"https://set.souchefr.synology.me/\"")
+                buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
+            }
+        }*/
+        androidResources {
+            enable = true
         }
     }
 
@@ -80,34 +103,6 @@ kotlin {
             implementation(libs.androidx.datastore)
             implementation(libs.androidx.datastore.preferences)
             implementation(libs.kotlinx.coroutines.swing)
-        }
-    }
-}
-
-android {
-    namespace = "com.team23.data"
-    compileSdk = (findProperty("compileSdk") as String).toInt()
-    buildFeatures.buildConfig = true
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-
-    val versionMaj = (findProperty("versionMaj") as String).toInt()
-    val versionMin = (findProperty("versionMin") as String).toInt()
-    val versionFix = (findProperty("versionFix") as String).toInt()
-    val appVersionName = "$versionMaj.$versionMin.$versionFix"
-
-    buildTypes {
-        debug {
-            buildConfigField("String", "BASE_URL", "\"https://settest.souchefr.synology.me/\"")
-            buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
-        }
-        release {
-            buildConfigField("String", "BASE_URL", "\"https://set.souchefr.synology.me/\"")
-            buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
         }
     }
 }

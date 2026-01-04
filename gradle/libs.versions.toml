@@ -1,6 +1,6 @@
 [versions]
 agp = "8.13.2"
-androidx-activity = "1.12.1"
+androidx-activity = "1.12.2"
 androidx-lifecycle = "2.9.6"
 androidUiTest = "1.10.0"
 composeHotReload = "1.0.0"
@@ -13,7 +13,7 @@ koin = "4.1.1"
 kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.3.3"
-mokkery = "3.1.0"
+mokkery = "3.1.1"
 navigation = "2.9.1"
 poolingcontainer = "1.1.0"
 serializationLibrary = "1.9.0"
@@ -56,7 +56,6 @@ navigation = { group = "org.jetbrains.androidx.navigation", name = "navigation-c
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
