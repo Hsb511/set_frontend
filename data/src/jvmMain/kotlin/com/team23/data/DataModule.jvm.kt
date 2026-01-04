@@ -1,20 +1,47 @@
 package com.team23.data
 
+import com.team23.data.datastore.SetDataStore
+import com.team23.data.datastore.SetDataStoreImpl
 import io.ktor.client.HttpClient
-import org.koin.core.module.Module
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.http.takeFrom
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import org.koin.dsl.module
 
-internal actual fun platformModule(): Module {
-    TODO("Not yet implemented")
+internal actual fun platformModule() = module {
+    single { SetDataStoreImpl() as SetDataStore }
 }
 
+
 internal actual fun createHttpClient(): HttpClient {
-    TODO("Not yet implemented")
+    return HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                }
+            )
+        }
+
+        install(DefaultRequest) {
+            url {
+                takeFrom(BuildKonfig.BASE_URL)
+            }
+            contentType(ContentType.Application.Json)
+        }
+    }
 }
 
 actual fun getBaseUrl(): String {
-    TODO("Not yet implemented")
+    return BuildKonfig.BASE_URL
 }
 
 actual fun getVersionName(): String {
-    TODO("Not yet implemented")
+    return BuildKonfig.VERSION_NAME
 }

@@ -25,6 +25,7 @@ import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.reflect.typeOf
 
 @Composable
 fun NavigationHost(
@@ -59,8 +60,10 @@ fun NavigationHost(
         composable<NavigationScreen.AuthType> {
             AuthTypeScreen()
         }
-        composable<NavigationScreen.AuthCredentials> { authCredentials ->
-            val authType = authCredentials.toRoute<NavigationScreen.AuthCredentials>().authType
+        composable<NavigationScreen.AuthCredentials>(
+            typeMap = mapOf(typeOf<NavigationScreen.AuthCredentials.AuthType>() to EnumNavType(NavigationScreen.AuthCredentials.AuthType.entries.toTypedArray()))
+        ) { backStackEntry ->
+            val authType = backStackEntry.toRoute<NavigationScreen.AuthCredentials>().authType
             AuthCredentialsScreen(authType = authType)
         }
         composable<NavigationScreen.GameSelection> {

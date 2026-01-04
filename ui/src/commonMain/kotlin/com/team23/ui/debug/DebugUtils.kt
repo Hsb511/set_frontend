@@ -1,3 +1,5 @@
 package com.team23.ui.debug
 
-expect fun isDebug(): Boolean
+import com.team23.ui.BuildKonfig
+
+fun isDebug(): Boolean = BuildKonfig.IS_DEBUG.toBoolean()

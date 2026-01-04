@@ -17,6 +17,8 @@ sealed class NavigationScreen(val name: String) {
 
     @Serializable
     data class AuthCredentials(val authType: AuthType): NavigationScreen(AUTH_CREDENTIALS_SCREEN_NAME) {
+
+        @Serializable
         enum class AuthType(val label: String) {
             SignUp("sign up"), SignIn("sign in");
 
