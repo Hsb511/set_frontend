@@ -1,15 +1,29 @@
 package com.team23.data.datastore
 
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.team23.data.datastore.SetDataStore.Companion.DATA_STORE_FILE_NAME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import okio.Path.Companion.toPath
+import java.io.File
 
-class JvmSetDataStore() : SetDataStore {
+class JvmSetDataStore : SetDataStore {
+
+    init {
+        if (!isDataStoreInitialized()) {
+            val file = File(System.getProperty("java.io.tmpdir"), DATA_STORE_FILE_NAME)
+
+            dataStore = PreferenceDataStoreFactory.createWithPath(
+                produceFile = { file.absolutePath.toPath() }
+            )
+        }
+    }
 
     override suspend fun setValue(key: String, value: String) {
         if (isDataStoreInitialized()) {
@@ -43,19 +57,5 @@ class JvmSetDataStore() : SetDataStore {
     companion object Companion {
         private lateinit var dataStore: DataStore<Preferences>
         private fun isDataStoreInitialized(): Boolean = ::dataStore.isInitialized
-
-        /*fun injectContext(context: Context) {
-            if (!isDataStoreInitialized()) {
-                val appContext = context.applicationContext
-                dataStore = PreferenceDataStoreFactory.createWithPath(
-                    produceFile = {
-                        appContext.filesDir
-                            .resolve(DATA_STORE_FILE_NAME)
-                            .absolutePath
-                            .toPath()
-                    }
-                )
-            }
-        }*/
     }
 }
