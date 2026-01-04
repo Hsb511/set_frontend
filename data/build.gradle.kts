@@ -1,37 +1,39 @@
-import com.android.build.api.dsl.androidLibrary
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.buildkonfig)
+}
+
+buildkonfig {
+    packageName = "com.team23.data"
+
+    val versionMaj = (findProperty("versionMaj") as String).toInt()
+    val versionMin = (findProperty("versionMin") as String).toInt()
+    val versionFix = (findProperty("versionFix") as String).toInt()
+    val appVersionName = "$versionMaj.$versionMin.$versionFix"
+
+
+    val requestedTasks = gradle.startParameter.taskNames.joinToString(" ")
+    val isReleaseBuild = requestedTasks.contains("Release", ignoreCase = true)
+    val baseUrl = if (isReleaseBuild) "https://set.souchefr.synology.me/" else "https://settest.souchefr.synology.me/"
+
+    defaultConfigs {
+        buildConfigField(STRING, "VERSION_NAME", appVersionName)
+        buildConfigField(STRING, "BASE_URL", baseUrl)
+    }
 }
 
 kotlin {
     jvmToolchain(11)
 
-    @Suppress("UnstableApiUsage")
     androidLibrary {
         namespace = "com.team23.data"
         compileSdk = (findProperty("compileSdk") as String).toInt()
 
-        /*buildFeatures.buildConfig = true
-
-        val versionMaj = (findProperty("versionMaj") as String).toInt()
-        val versionMin = (findProperty("versionMin") as String).toInt()
-        val versionFix = (findProperty("versionFix") as String).toInt()
-        val appVersionName = "$versionMaj.$versionMin.$versionFix"
-
-        buildTypes {
-            debug {
-                buildConfigField("String", "BASE_URL", "\"https://settest.souchefr.synology.me/\"")
-                buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
-            }
-            release {
-                buildConfigField("String", "BASE_URL", "\"https://set.souchefr.synology.me/\"")
-                buildConfigField("String", "VERSION_NAME", "\"$appVersionName\"")
-            }
-        }*/
         androidResources {
             enable = true
         }

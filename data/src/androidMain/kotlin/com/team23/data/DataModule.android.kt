@@ -31,7 +31,7 @@ actual fun createHttpClient(): HttpClient {
         }
 
         install(DefaultRequest) {
-            url(BuildConfig.BASE_URL)
+            url(BuildKonfig.BASE_URL)
             contentType(ContentType.Application.Json)
         }
 
@@ -48,9 +48,9 @@ actual fun createHttpClient(): HttpClient {
 }
 
 actual fun getBaseUrl(): String {
-    return BuildConfig.BASE_URL
+    return BuildKonfig.BASE_URL
 }
 
 actual fun getVersionName(): String {
-    return BuildConfig.VERSION_NAME
+    return BuildKonfig.VERSION_NAME
 }

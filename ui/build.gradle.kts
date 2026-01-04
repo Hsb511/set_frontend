@@ -1,4 +1,4 @@
-import com.android.build.api.dsl.androidLibrary
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -7,12 +7,23 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.buildkonfig)
+}
+
+buildkonfig {
+    packageName = "com.team23.ui"
+
+    val requestedTasks = gradle.startParameter.taskNames.joinToString(" ")
+    val isReleaseBuild = requestedTasks.contains("Release", ignoreCase = true)
+
+    defaultConfigs {
+        buildConfigField(STRING, "IS_DEBUG", (!isReleaseBuild).toString())
+    }
 }
 
 kotlin {
     jvmToolchain(11)
 
-    @Suppress("UnstableApiUsage")
     androidLibrary {
         namespace = "com.team23.ui"
         compileSdk = (findProperty("compileSdk") as String).toInt()

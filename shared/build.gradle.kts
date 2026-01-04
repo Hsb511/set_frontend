@@ -1,8 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 
 val versionMaj = (findProperty("versionMaj") as String).toInt()
 val versionMin = (findProperty("versionMin") as String).toInt()
@@ -13,19 +10,24 @@ val appVersionName = "$versionMaj.$versionMin.$versionFix"
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
+    jvmToolchain(11)
 
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
+    androidLibrary {
+        namespace = "com.team23.shared"
+        compileSdk = (findProperty("compileSdk") as String).toInt()
+        minSdk = (findProperty("minSdk") as String).toInt()
+
+        packaging {
+            resources {
+                excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            }
+        }
     }
 
     listOf(
@@ -33,7 +35,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "Shared"
             isStatic = true
         }
     }
@@ -67,6 +69,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.koin.core)
             implementation(projects.ui)
             implementation(projects.domain)
             implementation(projects.data)
@@ -85,71 +88,6 @@ kotlin {
             implementation(compose.desktop.currentOs)
         }
     }
-}
-
-android {
-    namespace = "com.team23.set"
-    compileSdk = (findProperty("compileSdk") as String).toInt()
-
-    defaultConfig {
-        applicationId = "com.team23.set_app"
-        minSdk = (findProperty("minSdk") as String).toInt()
-        targetSdk = (findProperty("targetSdk") as String).toInt()
-        versionCode = appVersionCode
-        versionName = appVersionName
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    signingConfigs {
-        create("release") {
-            val ksPath = System.getenv("KEYSTORE_PATH")
-            val ksPass = System.getenv("KEYSTORE_PASSWORD")
-            val alias = System.getenv("KEY_ALIAS")
-            val keyPass = System.getenv("KEY_PASSWORD")
-
-            if (ksPath != null && ksPass != null && alias != null && keyPass != null) {
-                storeFile = file(ksPath)
-                storePassword = ksPass
-                keyAlias = alias
-                keyPassword = keyPass
-            }
-        }
-    }
-
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-            val ksPath = System.getenv("KEYSTORE_PATH")
-            val ksPass = System.getenv("KEYSTORE_PASSWORD")
-            val alias = System.getenv("KEY_ALIAS")
-            val keyPass = System.getenv("KEY_PASSWORD")
-
-            if (ksPath != null && ksPass != null && alias != null && keyPass != null) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
-        getByName("debug") {
-            applicationIdSuffix = ".test"
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    dependencies {
-        androidTestImplementation(libs.androidx.ui.test.junit4.android)
-        debugImplementation(libs.androidx.ui.test.manifest)
-    }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {

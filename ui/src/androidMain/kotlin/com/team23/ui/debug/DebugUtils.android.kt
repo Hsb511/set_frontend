@@ -1,7 +1,8 @@
 package com.team23.ui.debug
 
-import com.team23.ui.BuildConfig
+import com.team23.ui.BuildKonfig
+
 
 actual fun isDebug(): Boolean {
-    return BuildConfig.DEBUG
+    return BuildKonfig.IS_DEBUG.toBoolean()
 }
