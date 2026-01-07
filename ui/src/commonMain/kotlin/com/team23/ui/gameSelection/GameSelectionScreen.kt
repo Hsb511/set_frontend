@@ -42,6 +42,7 @@ import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import com.team23.ui.theming.rememberWindowSize
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
@@ -82,11 +83,17 @@ private fun GameSelectionScreen(
     var multiGameUuid by remember { mutableStateOf("") }
     val isMultiGameUuidValid = runCatching { Uuid.parse(multiGameUuid) }.isSuccess
 
+    val windowSize = rememberWindowSize()
+
     Column(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
         modifier = modifier
             .fillMaxSize()
-            .padding(all = LocalSpacings.current.large),
+            .padding(
+                start = windowSize.getHorizontalGutter(),
+                end = windowSize.getHorizontalGutter(),
+                top = windowSize.getVerticalGutter(),
+            ),
     ) {
         Text(
             text = "SOLO",
