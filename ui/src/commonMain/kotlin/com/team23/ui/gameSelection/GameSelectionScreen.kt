@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,16 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.component.AdaptativeContainer
 import com.team23.ui.gameSelection.GameSelectionUiModel.Data.MultiGame
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import com.team23.ui.theming.WindowSize
 import com.team23.ui.theming.rememberWindowSize
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -66,34 +69,79 @@ fun GameSelectionScreen() {
         ) {
             CircularProgressIndicator()
         }
-        is GameSelectionUiModel.Data ->  GameSelectionScreen(
+
+        is GameSelectionUiModel.Data -> GameSelectionScreen(
             lobbyUiModel = lobbyUiModel,
             onAction = lobbyViewModel::onAction,
         )
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
 @Composable
 private fun GameSelectionScreen(
     lobbyUiModel: GameSelectionUiModel.Data,
     modifier: Modifier = Modifier,
     onAction: (GameSelectionAction) -> Unit,
 ) {
-    var multiGameUuid by remember { mutableStateOf("") }
-    val isMultiGameUuidValid = runCatching { Uuid.parse(multiGameUuid) }.isSuccess
 
     val windowSize = rememberWindowSize()
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+    AdaptativeContainer(
+        horizontal = windowSize == WindowSize.PhoneInLandscape,
+        arrangement = Arrangement.spacedBy(LocalSpacings.current.large),
         modifier = modifier
             .fillMaxSize()
             .padding(
                 start = windowSize.getHorizontalGutter(),
                 end = windowSize.getHorizontalGutter(),
                 top = windowSize.getVerticalGutter(),
-            ),
+            )
+    ) {
+        SoloSection(
+            hasOngoingSoloGame = lobbyUiModel.hasAnOngoingSoloGame,
+            buttonsHorizontal = windowSize != WindowSize.PhoneInLandscape,
+            modifier = soloSectionModifier(windowSize, lobbyUiModel.hasMultiGames),
+            onAction = onAction,
+        )
+
+        if (windowSize != WindowSize.PhoneInLandscape) {
+            HorizontalDivider()
+        } else {
+            VerticalDivider()
+        }
+
+        MultiSection(
+            lobbyUiModel = lobbyUiModel,
+            windowSize = windowSize,
+            onAction = onAction,
+        )
+    }
+}
+
+@Composable
+fun soloSectionModifier(
+    windowSize: WindowSize,
+    hasMultiGames: Boolean,
+): Modifier {
+    val screenWidthPx = LocalWindowInfo.current.containerSize.width
+    val screenWidth = with(LocalDensity.current) { screenWidthPx.toDp() }
+    return when (windowSize) {
+        WindowSize.PhoneInLandscape if hasMultiGames -> Modifier.width(screenWidth / 4f)
+        WindowSize.PhoneInLandscape if !hasMultiGames -> Modifier.width(screenWidth / 3f)
+        else -> Modifier.fillMaxWidth()
+    }
+}
+
+@Composable
+private fun SoloSection(
+    hasOngoingSoloGame: Boolean,
+    buttonsHorizontal: Boolean,
+    modifier: Modifier = Modifier,
+    onAction: (GameSelectionAction) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+        modifier = modifier,
     ) {
         Text(
             text = "SOLO",
@@ -102,28 +150,89 @@ private fun GameSelectionScreen(
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Text(
-            text = "You have ${if (lobbyUiModel.hasAnOngoingSoloGame) "an" else "no"} active solo game:",
+            text = "You have ${if (hasOngoingSoloGame) "an" else "no"} active solo game:",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
+        AdaptativeContainer(
+            horizontal = buttonsHorizontal,
+            arrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+        ) {
+            val buttonModifier = if (buttonsHorizontal) Modifier.weight(1f) else Modifier.fillMaxWidth()
+            if (hasOngoingSoloGame) {
+                ActionButton(
+                    uiModel = ActionButtonUiModel(
+                        text = "Continue",
+                        size = ActionButtonUiModel.Size.Small,
+                    ),
+                    onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = false)) },
+                    modifier = buttonModifier,
+                )
+            }
+            ActionButton(
+                uiModel = ActionButtonUiModel(
+                    text = "Create new",
+                    size = ActionButtonUiModel.Size.Small,
+                ),
+                onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = hasOngoingSoloGame)) },
+                modifier = buttonModifier,
+            )
+        }
+    }
+}
 
-        SoloActionButtons(
-            hasOngoingSoloGame = lobbyUiModel.hasAnOngoingSoloGame,
-            onAction = onAction,
-        )
-
-        HorizontalDivider()
-
+@Composable
+private fun MultiSection(
+    lobbyUiModel: GameSelectionUiModel.Data,
+    windowSize: WindowSize,
+    onAction: (GameSelectionAction) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)
+    ) {
         Text(
             text = "\uD83D\uDEA7 MULTI \uD83D\uDEA7",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
+        AdaptativeContainer(
+            horizontal = windowSize in listOf(WindowSize.PhoneInLandscape, WindowSize.TabletInLandscape),
+            arrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+        ) {
+            MultiCreateAndJoinSection(
+                windowSize = windowSize,
+                onAction = onAction,
+            )
+
+            if (lobbyUiModel.hasMultiGames) {
+                MultiPublicGamesSection(
+                    windowSize = windowSize,
+                    multiGames = lobbyUiModel.multiGames,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+@Composable
+private fun MultiCreateAndJoinSection(
+    windowSize: WindowSize,
+    onAction: (GameSelectionAction) -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+        modifier = multiCreateAndJoinSectionModifier(windowSize),
+    ) {
         CreateMultiActionButtons(
+            windowSize = windowSize,
             onAction = onAction,
         )
+
+        var multiGameUuid by remember { mutableStateOf("") }
+        val isMultiGameUuidValid = runCatching { Uuid.parse(multiGameUuid) }.isSuccess
 
         TextField(
             value = multiGameUuid,
@@ -132,7 +241,11 @@ private fun GameSelectionScreen(
                 Text(text = "Format: 12345678-1234-1234-1234-1234567890ab")
             },
             label = {
-                Text(text = "Paste here the game uuid you'd like to join")
+                Text(
+                    text = "Enter/paste UUID to join game",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             },
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth(),
@@ -143,76 +256,85 @@ private fun GameSelectionScreen(
                 text = "\uD83D\uDEA7 Join multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
                 enabled = isMultiGameUuidValid,
+                maxLines = 1,
             ),
             onClick = { onAction(GameSelectionAction.JoinMulti(multiGameUuid)) },
             modifier = Modifier.fillMaxWidth(),
         )
+    }
+}
 
+@Composable
+private fun MultiPublicGamesSection(
+    windowSize: WindowSize,
+    multiGames: List<MultiGame>,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
+    ) {
         Text(
             text = "\uD83D\uDEA7 Ongoing games:\uD83D\uDEA7",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
-        if (lobbyUiModel.hasMultiGames) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                contentPadding = PaddingValues(all = LocalSpacings.current.small),
-                modifier = Modifier
-                    .padding(horizontal = LocalSpacings.current.large)
-            ) {
-                stickyHeader {
-                    GameSelectionMultiTableHeader()
-                }
-                items(lobbyUiModel.multiGames) { multiGame ->
-                    GameSelectionMultiTableItem(multiGame)
-                }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(1),
+            contentPadding = PaddingValues(all = LocalSpacings.current.small),
+            modifier = multiGamesModifier(windowSize)
+        ) {
+            stickyHeader {
+                GameSelectionMultiTableHeader()
+            }
+            items(multiGames) { multiGame ->
+                GameSelectionMultiTableItem(multiGame)
             }
         }
     }
 }
 
 @Composable
-fun SoloActionButtons(
-    hasOngoingSoloGame: Boolean = false,
-    onAction: (GameSelectionAction) -> Unit,
-) {
-    Row(horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)) {
-        if (hasOngoingSoloGame) {
-            ActionButton(
-                uiModel = ActionButtonUiModel(
-                    text = "Continue",
-                    size = ActionButtonUiModel.Size.Small,
-                ),
-                onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = false)) },
-                modifier = Modifier.weight(1f),
-            )
-        }
-        ActionButton(
-            uiModel = ActionButtonUiModel(
-                text = "Create new",
-                size = ActionButtonUiModel.Size.Small,
-            ),
-            onClick = { onAction(GameSelectionAction.StartSolo(forceCreate = hasOngoingSoloGame)) },
-            modifier = Modifier.weight(1f),
-        )
+private fun multiCreateAndJoinSectionModifier(windowSize: WindowSize): Modifier {
+    val screenWidthPx = LocalWindowInfo.current.containerSize.width
+    val screenWidth = with(LocalDensity.current) { screenWidthPx.toDp() }
+    return when (windowSize) {
+        WindowSize.PhoneInLandscape -> Modifier.width(screenWidth * (3f / 8f))
+        WindowSize.TabletInLandscape -> Modifier.width(screenWidth / 2f)
+
+        else -> Modifier.fillMaxWidth()
+    }
+}
+
+@Composable
+private fun multiGamesModifier(windowSize: WindowSize): Modifier {
+    val screenWidthPx = LocalWindowInfo.current.containerSize.width
+    val screenWidth = with(LocalDensity.current) { screenWidthPx.toDp() }
+    return when (windowSize) {
+        WindowSize.PhoneInLandscape -> Modifier.width(screenWidth * (3f / 8f))
+        WindowSize.TabletInLandscape -> Modifier.width(screenWidth / 2f)
+
+        else -> Modifier.fillMaxWidth()
     }
 }
 
 @Composable
 fun CreateMultiActionButtons(
+    windowSize: WindowSize,
     onAction: (GameSelectionAction) -> Unit,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)) {
         CreateMultiButtonWithDescription(
             buttonLabel = "Create Time trial",
-            description =  "Each player has the same game in parallel. The fastest wins",
+            description = "Each player has the same game in parallel. The fastest wins",
+            windowSize = windowSize,
             onClick = { onAction(GameSelectionAction.CreateTimeTrial) },
             modifier = Modifier.weight(1f),
         )
         CreateMultiButtonWithDescription(
             buttonLabel = "Create Versus",
-            description =  "All the players play the same game synchronously. The one who find most sets wins",
+            description = "All the players play the same game synchronously. The one who finds most sets wins",
+            windowSize = windowSize,
             onClick = { onAction(GameSelectionAction.CreateVersus) },
             modifier = Modifier.weight(1f),
         )
@@ -223,6 +345,7 @@ fun CreateMultiActionButtons(
 private fun CreateMultiButtonWithDescription(
     buttonLabel: String,
     description: String,
+    windowSize: WindowSize,
     onClick: () -> Unit,
     modifier: Modifier,
 ) {
@@ -234,6 +357,7 @@ private fun CreateMultiButtonWithDescription(
             uiModel = ActionButtonUiModel(
                 text = buttonLabel,
                 size = ActionButtonUiModel.Size.Small,
+                maxLines = 1,
             ),
             onClick = onClick,
             modifier = Modifier.fillMaxWidth(),
@@ -243,6 +367,8 @@ private fun CreateMultiButtonWithDescription(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
+            maxLines = if (windowSize == WindowSize.PhoneInLandscape) 2 else 3,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -255,16 +381,17 @@ private fun GameSelectionMultiTableHeader() {
             Text(
                 text = "Host",
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(firstColumnWidth())
+                modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
             )
             Text(
                 text = "Players",
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(secondColumnWidth())
+                modifier = Modifier.weight(SECOND_COLUMN_WEIGHT),
             )
             Text(
                 text = "Type",
                 color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(THIRD_COLUMN_WEIGHT),
             )
         }
         HorizontalDivider(thickness = 2.dp)
@@ -275,7 +402,6 @@ private fun GameSelectionMultiTableHeader() {
 @Composable
 private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
     Column {
-
         val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier
@@ -293,36 +419,31 @@ private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
             Text(
                 text = multiGame.hostName,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(firstColumnWidth())
+                modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
             )
             Text(
                 text = multiGame.playersCount.toString(),
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(secondColumnWidth())
+                modifier = Modifier.weight(SECOND_COLUMN_WEIGHT),
             )
-            Icon(
-                imageVector = multiGame.type.imageVector,
-                tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = multiGame.type.name,
-            )
+            Box(
+                contentAlignment = Alignment.CenterStart,
+                modifier = Modifier.weight(THIRD_COLUMN_WEIGHT),
+            ) {
+                Icon(
+                    imageVector = multiGame.type.imageVector,
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    contentDescription = multiGame.type.name,
+                )   
+            }
         }
         HorizontalDivider()
     }
 }
 
-@Composable
-private fun firstColumnWidth(): Dp {
-    val screenWidthPx = LocalWindowInfo.current.containerSize.width
-    val screenWidthDp = with(LocalDensity.current) { screenWidthPx.toDp() }
-    return screenWidthDp * 4f / 10f
-}
-
-@Composable
-private fun secondColumnWidth(): Dp {
-    val screenWidthPx = LocalWindowInfo.current.containerSize.width
-    val screenWidthDp = with(LocalDensity.current) { screenWidthPx.toDp() }
-    return screenWidthDp * 3f / 10f
-}
+private const val FIRST_COLUMN_WEIGHT = 0.5f
+private const val SECOND_COLUMN_WEIGHT = 0.25f
+private const val THIRD_COLUMN_WEIGHT = 0.25f
 
 @Composable
 @Preview(showBackground = true)

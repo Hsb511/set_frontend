@@ -49,8 +49,8 @@ enum class WindowSize(
 
     @Composable
     fun getHorizontalGutter(): Dp = when(this) {
-        PhoneInPortrait -> LocalSpacings.current.large
-        PhoneInLandscape -> LocalSpacings.current.largeIncreased
+        PhoneInPortrait -> LocalSpacings.current.medium
+        PhoneInLandscape -> LocalSpacings.current.large
         TabletInPortrait -> LocalSpacings.current.extraLarge
         TabletInLandscape -> LocalSpacings.current.extraLargeIncreased
         DesktopInLandscape -> LocalSpacings.current.extraLargeIncreased

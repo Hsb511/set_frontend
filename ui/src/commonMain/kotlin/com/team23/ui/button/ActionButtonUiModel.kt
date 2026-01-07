@@ -5,11 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.team23.ui.theming.LocalSpacings
+import kotlin.Int.Companion
 
 data class ActionButtonUiModel(
     val text: String,
     val size: Size = Size.Large,
     val enabled: Boolean = true,
+    val maxLines: Int = Int.MAX_VALUE,
 ) {
 
     enum class Size {
