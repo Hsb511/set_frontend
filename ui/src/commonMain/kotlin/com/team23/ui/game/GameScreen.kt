@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
 import androidx.lifecycle.Lifecycle
@@ -62,6 +64,8 @@ import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.system.rememberSystemScreenController
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
+import com.team23.ui.theming.WindowSize
+import com.team23.ui.theming.rememberWindowSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -247,9 +251,12 @@ private fun GameContainer(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
+            val cardSpacing = cardSpacing()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columnsCount),
-                contentPadding = PaddingValues(all = LocalSpacings.current.small),
+                contentPadding = PaddingValues(all = cardSpacing / 2f),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacing),
+                verticalArrangement = Arrangement.spacedBy(cardSpacing),
                 content = content,
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -328,7 +335,6 @@ private fun Slot(
         is Slot.CardUiModel -> SetCard(
             card = slot,
             modifier = modifier
-                .padding(all = LocalSpacings.current.small)
                 .clip(MaterialTheme.shapes.small)
                 .clickable(enabled = isSelectable) { onAction(GameAction.SelectOrUnselectCard(slot)) }
                 .fillMaxWidth()
@@ -337,15 +343,32 @@ private fun Slot(
 
         is Slot.HoleUiModel -> Box(
             modifier = modifier
-                .padding(all = LocalSpacings.current.small)
                 .fillMaxWidth()
                 .aspectRatio(getCardAspectRation(isPortrait))
         )
     }
 }
 
+@Composable
 private fun getGridColumnsCount(isPortraitMode: Boolean): Int =
-    if (isPortraitMode) 4 else 3
+    when (rememberWindowSize()) {
+        WindowSize.PhoneInPortrait -> if (isPortraitMode) 4 else 3
+        WindowSize.PhoneInLandscape -> if (isPortraitMode) 8 else 6
+        WindowSize.TabletInPortrait -> if (isPortraitMode) 6 else 4
+        WindowSize.TabletInLandscape -> if (isPortraitMode) 6 else 4
+        WindowSize.DesktopInPortrait -> if (isPortraitMode) 4 else 3
+        WindowSize.DesktopInLandscape -> if (isPortraitMode) 6 else 4
+    }
+
+@Composable
+private fun cardSpacing(): Dp = when(rememberWindowSize()) {
+    WindowSize.PhoneInPortrait,
+    WindowSize.PhoneInLandscape,
+    WindowSize.TabletInPortrait,
+    WindowSize.TabletInLandscape -> LocalSpacings.current.medium
+    WindowSize.DesktopInPortrait,
+    WindowSize.DesktopInLandscape -> LocalSpacings.current.large
+}
 
 private fun getCardAspectRation(isPortraitMode: Boolean): Float =
     if (isPortraitMode) 9 / 16f else 16 / 9f
