@@ -13,8 +13,14 @@ sealed interface CreateGameResponse {
     data class Success(
         @SerialName("game_id")
         val gameId: Uuid,
-        @SerialName("pile_cards")
-        val pileCards: List<SetCard>? = null,
+        @SerialName("public_name")
+        val publicName: String,
+        @SerialName("date_started")
+        val dateStarted: String,
+        @SerialName("master_player_id")
+        val masterPlayerId: Uuid,
+        val status: String,
+        val pile: List<SetCard>? = null,
         val table: List<SetCard>? = null,
     ) : CreateGameResponse
 

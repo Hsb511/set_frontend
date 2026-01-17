@@ -15,7 +15,6 @@ sealed interface AuthSignResponse {
         val playerId: Uuid,
         @SerialName("session_token")
         val sessionToken: Uuid,
-        val username: String,
     ) : AuthSignResponse
 
     @Serializable

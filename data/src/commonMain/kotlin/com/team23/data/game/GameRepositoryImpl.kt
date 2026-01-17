@@ -81,7 +81,7 @@ class GameRepositoryImpl(
             is CreateGameResponse.Success -> mapToPlayingGame(
                 gameId = response.gameId,
                 table = response.table,
-                pile = response.pileCards,
+                pile = response.pile,
             )
 
             is CreateGameResponse.Failure -> throw Exception(response.error)
