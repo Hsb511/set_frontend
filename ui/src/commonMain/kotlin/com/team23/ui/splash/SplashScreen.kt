@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,11 @@ import org.koin.compose.koinInject
 @Composable
 fun SplashScreen() {
     val splashViewModel = koinInject<SplashViewModel>()
+
+    DisposableEffect(Unit) {
+        splashViewModel.start()
+        onDispose { }
+    }
 
     if (showSplashScreen()) {
         val card by remember { mutableStateOf(splashViewModel.getRandomCard()) }

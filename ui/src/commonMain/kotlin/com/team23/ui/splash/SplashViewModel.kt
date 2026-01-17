@@ -26,7 +26,7 @@ class SplashViewModel(
 ) {
     private val viewModelScope = CoroutineScope(dispatcher + coroutineName)
 
-    init {
+    fun start() {
         viewModelScope.launch {
             var screen: NavigationScreen = NavigationScreen.Splash
 
