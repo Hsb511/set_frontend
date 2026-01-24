@@ -2,6 +2,7 @@ package com.team23.ui.gameLobby
 
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -61,8 +62,23 @@ class GameLobbyViewModel(
         when (action) {
             is GameLobbyAction.CopyGameId -> handleCopyGameId(action.rawGameId)
             is GameLobbyAction.ChangeVisibility -> handleChangeVisibility(action.isPrivate)
-            is GameLobbyAction.StartGame -> TODO()
-            is GameLobbyAction.LeaveGame -> TODO()
+            is GameLobbyAction.StartGame -> handleStartGame()
+            is GameLobbyAction.LeaveGame -> handleLeaveGame()
+        }
+    }
+
+    private fun handleStartGame() {
+        // TODO FOR MOCK PURPOSES. HANDLE PROPERLY
+        viewModelScope.launch {
+            NavigationManager.handle(NavigationScreen.Game(forceCreate = false))
+        }
+    }
+
+
+    private fun handleLeaveGame() {
+        // TODO NOTIFY THE PLAYER LEFT THE LOBBY
+        viewModelScope.launch {
+            NavigationManager.popBackStack()
         }
     }
 
