@@ -1,6 +1,7 @@
 package com.team23.domain.game.repository
 
 import com.team23.domain.game.statemachine.GameState
+import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -20,4 +21,6 @@ interface GameRepository {
     // MULTI
     @OptIn(ExperimentalUuidApi::class)
     suspend fun createMultiGame(): Result<Uuid>
+
+    fun publicMultiGames(): Flow<List<String>>
 }

@@ -20,8 +20,7 @@ sealed interface GameSelectionUiModel {
             get() = multiGames.isNotEmpty()
 
         data class MultiGame(
-            val gameId: Uuid,
-            val hostName: String,
+            val publicName: String,
             val playersCount: Int,
             val type: Type,
         ) {

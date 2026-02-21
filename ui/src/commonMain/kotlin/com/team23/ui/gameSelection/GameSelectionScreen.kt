@@ -62,7 +62,7 @@ fun GameSelectionScreen() {
         lobbyViewModel.onStart()
     }
 
-    when (val lobbyUiModel = lobbyViewModel.lobbyUiModel.collectAsStateWithLifecycle().value) {
+    when (val lobbyUiModel = lobbyViewModel.gameSelectionUiModel.collectAsStateWithLifecycle().value) {
         is GameSelectionUiModel.Loading -> Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize()
@@ -379,7 +379,7 @@ private fun GameSelectionMultiTableHeader() {
     Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
         Row {
             Text(
-                text = "Host",
+                text = "Name",
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
             )
@@ -408,7 +408,7 @@ private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
                 .fillMaxWidth()
                 .clickable {
                     coroutineScope.launch {
-                        NavigationManager.handle(NavigationScreen.GameLobby(gameId = multiGame.gameId.toString()))
+                        // NavigationManager.handle(NavigationScreen.GameLobby(gameId = multiGame.gameId.toString()))
                     }
                 }
                 .padding(
@@ -417,7 +417,7 @@ private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
                 ),
         ) {
             Text(
-                text = multiGame.hostName,
+                text = multiGame.publicName,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
             )
@@ -491,8 +491,8 @@ private class GameSelectionPreviewProvider : PreviewParameterProvider<GameSelect
             multiGames = fixedRandomUuids.map { gameId ->
                 val playersCount = gameId.last().digitToInt()
                 MultiGame(
-                    gameId = Uuid.parse(gameId),
-                    hostName = "Guest#${gameId.take(8)}",
+                    // gameId = Uuid.parse(gameId),
+                    publicName = gameId.take(6),
                     playersCount = playersCount,
                     type = if (playersCount % 2 == 0) MultiGame.Type.TimeTrial else MultiGame.Type.Versus,
                 )

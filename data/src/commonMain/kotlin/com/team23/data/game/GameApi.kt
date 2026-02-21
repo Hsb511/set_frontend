@@ -6,6 +6,7 @@ import com.team23.data.game.model.request.UploadDeckRequest
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
+import com.team23.data.game.model.response.GetOpenGamesResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -28,6 +29,8 @@ interface GameApi {
     suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse
 
     suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse
+
+    suspend fun getOpenGames(sessionToken: Uuid): GetOpenGamesResponse
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -81,6 +84,18 @@ class GameApiImpl(
         } else {
             Logger.e("GameApi - uploadDeck Error - ${response.bodyAsText()}")
             response.body<UploadDeckResponse.Failure>()
+        }
+    }
+
+    override suspend fun getOpenGames(sessionToken: Uuid): GetOpenGamesResponse {
+        Logger.i("GameApi - /session/$sessionToken/get-open-games")
+        val response = client.get("/session/$sessionToken/get-open-games")
+        return if (response.status.isSuccess()) {
+            Logger.i("GameApi - getOpenGames Success - ${response.bodyAsText()}")
+            response.body<GetOpenGamesResponse.Success>()
+        } else {
+            Logger.e("GameApi - getOpenGames Error - ${response.bodyAsText()}")
+            response.body<GetOpenGamesResponse.Failure>()
         }
     }
 }

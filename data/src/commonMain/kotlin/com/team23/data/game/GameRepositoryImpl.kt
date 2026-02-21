@@ -8,11 +8,16 @@ import com.team23.data.game.model.request.UploadDeckRequest
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
+import com.team23.data.game.model.response.GetOpenGamesResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.model.Card
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.startup.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.shareIn
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -46,6 +51,19 @@ class GameRepositoryImpl(
 
     override suspend fun createMultiGame(): Result<Uuid> = runCatching {
         createMultiGameAndRetry(retry = true)
+    }
+
+    override fun publicMultiGames(): Flow<List<String>> = flow {
+        // TODO PING EVERY SECONDS?
+        runCatching {
+            val sessionToken = getCachedSessionToken()
+            val publicGames = when (val response = gameApi.getOpenGames(sessionToken)) {
+                is GetOpenGamesResponse.Success -> response.games
+                is GetOpenGamesResponse.Failure -> emptyList()
+                is GetOpenGamesResponse.InvalidSessionToken -> emptyList()
+            }
+            emit(publicGames)
+        }
     }
 
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
