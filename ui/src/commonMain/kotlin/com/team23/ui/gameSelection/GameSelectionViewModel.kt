@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -39,19 +40,27 @@ class GameSelectionViewModel(
     }
 
     private fun updateState(hasActiveSoloGame: Boolean, publicMultiGames: List<String> = emptyList()) {
-        _gameSelectionUiModel.value = when (val currentUiModel = _gameSelectionUiModel.value) {
-            is GameSelectionUiModel.Data -> currentUiModel.copy(hasAnOngoingSoloGame = hasActiveSoloGame)
-            is GameSelectionUiModel.Loading -> GameSelectionUiModel.Data(
-                hasAnOngoingSoloGame = hasActiveSoloGame,
-                multiGames = publicMultiGames.map { publicName ->
-                    GameSelectionUiModel.Data.MultiGame(
-                        publicName = publicName,
-                        playersCount = 23,
-                        type = GameSelectionUiModel.Data.MultiGame.Type.entries.random(),
-                    )
-                }
-            )
+        val multiGames = mapToMultiGames(publicMultiGames)
+        _gameSelectionUiModel.update { currentUiModel ->
+            when (currentUiModel) {
+                is GameSelectionUiModel.Data -> currentUiModel.copy(
+                    hasAnOngoingSoloGame = hasActiveSoloGame,
+                    multiGames = multiGames,
+                )
+                is GameSelectionUiModel.Loading -> GameSelectionUiModel.Data(
+                    hasAnOngoingSoloGame = hasActiveSoloGame,
+                    multiGames = multiGames
+                )
+            }
         }
+    }
+
+    private fun mapToMultiGames(publicNameGames: List<String>): List<GameSelectionUiModel.Data.MultiGame> = publicNameGames.map { publicName ->
+        GameSelectionUiModel.Data.MultiGame(
+            publicName = publicName,
+            playersCount = 0,
+            type = GameSelectionUiModel.Data.MultiGame.Type.TimeTrial,
+        )
     }
 
     fun onAction(action: GameSelectionAction) {
