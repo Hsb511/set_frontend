@@ -19,7 +19,7 @@ buildkonfig {
 
     val requestedTasks = gradle.startParameter.taskNames.joinToString(" ")
     val isReleaseBuild = requestedTasks.contains("Release", ignoreCase = true)
-    val baseUrl = if (isReleaseBuild) "https://set.souchefr.synology.me/" else "https://setstaging.souchefr.synology.me/"
+    val baseUrl = if (isReleaseBuild) "https://set.souche.eu/" else "https://setstaging.souche.eu/"
 
     defaultConfigs {
         buildConfigField(STRING, "VERSION_NAME", appVersionName)
