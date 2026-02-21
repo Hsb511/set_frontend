@@ -1,5 +1,6 @@
 package com.team23.ui.gameLobby
 
+import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
@@ -31,29 +32,22 @@ class GameLobbyViewModel(
     private val _gameLobbyUiEvent = MutableSharedFlow<GameLobbyUiEvent>()
     val gameLobbyUiEvent: SharedFlow<GameLobbyUiEvent> = _gameLobbyUiEvent
 
-    fun start(rawGameId: String?) {
+    fun start(gameName: String?, multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
         viewModelScope.launch {
-            if (rawGameId == null) {
-                createMultiGame()
+            if (gameName == null) {
+                createMultiGame(multiGameMode)
             } else {
-                val gameId = runCatching { Uuid.parse(rawGameId) }.getOrNull()
-
-                if (gameId == null) {
-                    NavigationManager.popBackStack()
-                    SnackbarManager.showMessage(SetSnackbarVisuals.FormatErrorMultiGameId(rawGameId))
-                } else {
-                    _gameLobbyUiModel.value = GameLobbyUiModel.Data(
-                        gameId = gameId.toString(),
-                        isHost = false,
-                        isPrivate = true,
-                        hostUsername = "Who's that?",
-                        allPlayers = listOf(
-                            GameLobbyUiModel.Data.Player(name = "Who's that?", isHost = true),
-                            GameLobbyUiModel.Data.Player(name = "You", isYou = true),
-                            GameLobbyUiModel.Data.Player(name = "You got hacked"),
-                        ),
-                    )
-                }
+                _gameLobbyUiModel.value = GameLobbyUiModel.Data(
+                    gameName = gameName,
+                    isHost = false,
+                    isPrivate = true,
+                    hostUsername = "Who's that?",
+                    allPlayers = listOf(
+                        GameLobbyUiModel.Data.Player(name = "Who's that?", isHost = true),
+                        GameLobbyUiModel.Data.Player(name = "You", isYou = true),
+                        GameLobbyUiModel.Data.Player(name = "You got hacked"),
+                    ),
+                )
             }
         }
     }
@@ -88,12 +82,16 @@ class GameLobbyViewModel(
         }
     }
 
-    private suspend fun createMultiGame() {
-        val gameId = gameRepository.createMultiGame().onFailure { error ->
+    private suspend fun createMultiGame(multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
+        val gameMode = when(multiGameMode) {
+            NavigationScreen.GameLobby.MultiGameMode.TimeTrial -> GameMode.TimeTrial
+            NavigationScreen.GameLobby.MultiGameMode.Versus -> GameMode.Versus
+        }
+        val gameId = gameRepository.createMultiGame(gameMode).onFailure { error ->
             SnackbarManager.showMessage(SetSnackbarVisuals.CannotCreateMultiGame(error.message))
         }.getOrElse { Uuid.random() }
         _gameLobbyUiModel.value = GameLobbyUiModel.Data(
-            gameId = gameId.toString(),
+            gameName = gameId.toString(),
             isHost = true,
             isPrivate = true,
             hostUsername = "You",

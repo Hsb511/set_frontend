@@ -8,6 +8,7 @@ data class CreateGameRequest(
 
     @SerialName("game_mode")
     val gameMode: GameMode,
+    val privacy: Privacy,
     @SerialName("response_mode")
     val responseMode: ResponseMode,
     val force: Boolean,
@@ -17,8 +18,20 @@ data class CreateGameRequest(
         @SerialName("solo")
         Solo,
 
-        @SerialName("multi")
-        Multi,
+        @SerialName("multi-parallel")
+        MultiParallel,
+
+        @SerialName("multi-synchronous")
+        MultiSynchronous,
+    }
+
+    @Serializable
+    enum class Privacy {
+        @SerialName("public")
+        Public,
+
+        @SerialName("private")
+        Private,
     }
 
 

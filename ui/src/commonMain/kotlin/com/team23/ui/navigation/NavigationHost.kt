@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -22,8 +23,11 @@ import com.team23.ui.game.GameScreen
 import com.team23.ui.gameLobby.GameLobbyScreen
 import com.team23.ui.gameSelection.GameSelectionScreen
 import com.team23.ui.settings.SettingsScreen
+import com.team23.ui.snackbar.SetSnackbarVisuals
+import com.team23.ui.snackbar.SnackbarManager
 import com.team23.ui.splash.SplashScreen
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.reflect.typeOf
 
@@ -70,8 +74,18 @@ fun NavigationHost(
             GameSelectionScreen()
         }
         composable<NavigationScreen.GameLobby> { gameLobby ->
-            val gameId = gameLobby.toRoute<NavigationScreen.GameLobby>().gameId
-            GameLobbyScreen(gameId)
+            val gameLobbyRoute = gameLobby.toRoute<NavigationScreen.GameLobby>()
+            val gameName = gameLobbyRoute.gameName
+            val multiGameMode = gameLobbyRoute.multiGameMode
+            if (multiGameMode == null) {
+                // This shouldn't happen
+                navController.popBackStack()
+                rememberCoroutineScope().launch {
+                    SnackbarManager.showMessage(SetSnackbarVisuals.CannotCreateGame("Something happened while creating or joining the game lobby"))
+                }
+            } else {
+                GameLobbyScreen(gameName, multiGameMode)
+            }
         }
         composable<NavigationScreen.Game> { game ->
             val forceCreate = game.toRoute<NavigationScreen.Game>().forceCreate

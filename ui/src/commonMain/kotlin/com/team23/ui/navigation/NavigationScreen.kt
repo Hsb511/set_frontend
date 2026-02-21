@@ -31,7 +31,13 @@ sealed class NavigationScreen(val name: String) {
     data object GameSelection: NavigationScreen(GAME_SELECTION_SCREEN_NAME)
 
     @Serializable
-    data class GameLobby(val gameId: String?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
+    data class GameLobby(val gameName: String?, val multiGameMode: MultiGameMode?): NavigationScreen(GAME_LOBBY_SCREEN_NAME) {
+
+        @Serializable
+        enum class MultiGameMode {
+            TimeTrial, Versus
+        }
+    }
 
     @Serializable
     data class Game(val forceCreate: Boolean): NavigationScreen(GAME_SCREEN_NAME)

@@ -4,7 +4,7 @@ sealed interface GameLobbyUiModel {
     data object Loading : GameLobbyUiModel
 
     data class Data(
-        val gameId: String,
+        val gameName: String,
         val isHost: Boolean,
         val isPrivate: Boolean,
         val hostUsername: String,

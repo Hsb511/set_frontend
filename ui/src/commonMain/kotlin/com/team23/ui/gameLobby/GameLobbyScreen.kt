@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.system.clipEntryOf
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -48,10 +49,10 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun GameLobbyScreen(gameId: String?) {
+fun GameLobbyScreen(gameName: String?, multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
     val gameLobbyVM = koinInject<GameLobbyViewModel>()
     LaunchedEffect(Unit) {
-        gameLobbyVM.start(gameId)
+        gameLobbyVM.start(gameName, multiGameMode)
     }
 
     when (val gameLobbyUiModel = gameLobbyVM.gameLobbyUiModel.collectAsState().value) {
@@ -103,7 +104,7 @@ private fun GameLobbyScreen(
     ) {
         TitleAndGameIdSection(
             gameLobbyUiModel = gameLobbyUiModel,
-            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId(gameLobbyUiModel.gameId)) }
+            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId(gameLobbyUiModel.gameName)) }
         )
 
         VisibilitySection(
@@ -155,7 +156,7 @@ private fun TitleAndGameIdSection(
             .padding(horizontal = LocalSpacings.current.medium)
     ) {
         Text(
-            text = gameLobbyUiModel.gameId,
+            text = gameLobbyUiModel.gameName,
             style = MaterialTheme.typography.bodyMedium.copy(
                 textAlign = TextAlign.Justify
             ),
@@ -315,7 +316,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
 
     override val values: Sequence<GameLobbyUiModel.Data> = sequenceOf(
         GameLobbyUiModel.Data(
-            gameId = gameId,
+            gameName = gameId,
             isHost = true,
             isPrivate = false,
             hostUsername = "Guest#12345678",
@@ -327,7 +328,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
             )
         ),
         GameLobbyUiModel.Data(
-            gameId = gameId,
+            gameName = gameId,
             isHost = false,
             isPrivate = true,
             hostUsername = "Guest#12345678",

@@ -57,8 +57,8 @@ class GameSelectionViewModel(
     fun onAction(action: GameSelectionAction) {
         when (action) {
             is GameSelectionAction.StartSolo -> startSoloGame(action.forceCreate)
-            is GameSelectionAction.CreateVersus -> createMultiGame()
-            is GameSelectionAction.CreateTimeTrial -> createMultiGame()
+            is GameSelectionAction.CreateVersus -> createMultiGame(NavigationScreen.GameLobby.MultiGameMode.Versus)
+            is GameSelectionAction.CreateTimeTrial -> createMultiGame(NavigationScreen.GameLobby.MultiGameMode.TimeTrial)
             is GameSelectionAction.JoinMulti -> joinMultiGame(action.rawGameId)
         }
     }
@@ -69,9 +69,9 @@ class GameSelectionViewModel(
         }
     }
 
-    private fun createMultiGame() {
+    private fun createMultiGame(multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.GameLobby(gameId = null))
+            NavigationManager.handle(NavigationScreen.GameLobby(gameName = null, multiGameMode = multiGameMode))
         }
     }
 
@@ -85,7 +85,8 @@ class GameSelectionViewModel(
         }
 
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.GameLobby(gameId = gameId.toString()))
+            // TODO HANDLE THAT
+            NavigationManager.handle(NavigationScreen.GameLobby(gameName = gameId.toString(), multiGameMode = NavigationScreen.GameLobby.MultiGameMode.TimeTrial))
         }
     }
 }

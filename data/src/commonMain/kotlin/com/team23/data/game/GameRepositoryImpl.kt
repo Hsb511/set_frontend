@@ -11,6 +11,7 @@ import com.team23.data.game.model.response.GetLastDeckResponse
 import com.team23.data.game.model.response.GetOpenGamesResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.startup.repository.AuthRepository
@@ -49,8 +50,8 @@ class GameRepositoryImpl(
         hasActiveSoloGameAndRetry(retry = true)
     }
 
-    override suspend fun createMultiGame(): Result<Uuid> = runCatching {
-        createMultiGameAndRetry(retry = true)
+    override suspend fun createMultiGame(gameMode: GameMode): Result<Uuid> = runCatching {
+        createMultiGameAndRetry(gameMode = gameMode, retry = true)
     }
 
     override fun publicMultiGames(): Flow<List<String>> = flow {
@@ -92,6 +93,7 @@ class GameRepositoryImpl(
         val sessionToken = getCachedSessionToken()
         val request = CreateGameRequest(
             gameMode = CreateGameRequest.GameMode.Solo,
+            privacy = CreateGameRequest.Privacy.Private,
             responseMode = CreateGameRequest.ResponseMode.Full,
             force = force,
         )
@@ -145,10 +147,16 @@ class GameRepositoryImpl(
         }
     }
 
-    private suspend fun createMultiGameAndRetry(retry: Boolean): Uuid {
+    private suspend fun createMultiGameAndRetry(gameMode: GameMode, retry: Boolean): Uuid {
         val sessionToken = getCachedSessionToken()
+        val requestGameMode = when (gameMode) {
+            GameMode.TimeTrial -> CreateGameRequest.GameMode.MultiParallel
+            GameMode.Versus -> CreateGameRequest.GameMode.MultiSynchronous
+        }
         val request = CreateGameRequest(
-            gameMode = CreateGameRequest.GameMode.Multi,
+            gameMode = requestGameMode,
+            // TODO DON'T HARDCODE THIS
+            privacy = CreateGameRequest.Privacy.Public,
             responseMode = CreateGameRequest.ResponseMode.Full,
             force = false,
         )
@@ -156,7 +164,7 @@ class GameRepositoryImpl(
             is CreateGameResponse.Success -> response.gameId
             is CreateGameResponse.Failure -> throw Exception(response.error)
             is CreateGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
-                createMultiGameAndRetry(retry = false)
+                createMultiGameAndRetry(gameMode = gameMode, retry = false)
             }
         }
     }
