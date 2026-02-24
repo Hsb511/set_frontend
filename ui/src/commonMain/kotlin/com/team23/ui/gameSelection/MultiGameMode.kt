@@ -9,7 +9,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class MultiGameMode {
     TimeTrial,
-    Versus,
+    Versus;
+
+    fun fromName(name: String?): MultiGameMode? = when(name) {
+        TimeTrial.name -> TimeTrial
+        Versus.name -> Versus
+        else -> null
+    }
 }
 
 val MultiGameMode.icon: ImageVector

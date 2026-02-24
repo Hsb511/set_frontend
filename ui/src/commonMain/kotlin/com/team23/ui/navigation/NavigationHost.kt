@@ -22,6 +22,7 @@ import com.team23.ui.auth.AuthTypeScreen
 import com.team23.ui.game.GameScreen
 import com.team23.ui.gameLobby.GameLobbyScreen
 import com.team23.ui.gameSelection.GameSelectionScreen
+import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.settings.SettingsScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
 import com.team23.ui.snackbar.SnackbarManager
@@ -76,7 +77,7 @@ fun NavigationHost(
         composable<NavigationScreen.GameLobby> { gameLobby ->
             val gameLobbyRoute = gameLobby.toRoute<NavigationScreen.GameLobby>()
             val gameName = gameLobbyRoute.gameName
-            val multiGameMode = gameLobbyRoute.multiGameMode
+            val multiGameMode = gameLobbyRoute.rawMultiGameMode?.let { name ->  MultiGameMode.valueOf(name)  }
             if (multiGameMode == null) {
                 // This shouldn't happen
                 navController.popBackStack()

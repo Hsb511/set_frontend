@@ -3,8 +3,6 @@ package com.team23.ui.gameSelection
 import com.team23.domain.game.repository.GameRepository
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
-import com.team23.ui.snackbar.SetSnackbarVisuals
-import com.team23.ui.snackbar.SnackbarManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GameSelectionViewModel(
@@ -80,14 +77,14 @@ class GameSelectionViewModel(
 
     private fun createMultiGame(multiGameMode: MultiGameMode) {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.GameLobby(gameName = null, multiGameMode = multiGameMode))
+            NavigationManager.handle(NavigationScreen.GameLobby(gameName = null, rawMultiGameMode = multiGameMode.name))
         }
     }
 
     private fun joinMultiGame(gameName: String) {
         viewModelScope.launch {
             // TODO HANDLE THAT
-            NavigationManager.handle(NavigationScreen.GameLobby(gameName = gameName, multiGameMode = MultiGameMode.TimeTrial))
+            NavigationManager.handle(NavigationScreen.GameLobby(gameName = gameName, rawMultiGameMode = MultiGameMode.TimeTrial.name))
         }
     }
 }

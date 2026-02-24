@@ -2,7 +2,6 @@ package com.team23.ui.navigation
 
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
-import com.team23.ui.gameSelection.MultiGameMode
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -32,7 +31,7 @@ sealed class NavigationScreen(val name: String) {
     data object GameSelection: NavigationScreen(GAME_SELECTION_SCREEN_NAME)
 
     @Serializable
-    data class GameLobby(val gameName: String?, val multiGameMode: MultiGameMode?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
+    data class GameLobby(val gameName: String?, val rawMultiGameMode: String?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
 
     @Serializable
     data class Game(val forceCreate: Boolean): NavigationScreen(GAME_SCREEN_NAME)
