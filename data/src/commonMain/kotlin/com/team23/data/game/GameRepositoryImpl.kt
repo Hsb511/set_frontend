@@ -4,13 +4,16 @@ import com.team23.data.card.CardDataMapper
 import com.team23.data.card.SetCard
 import com.team23.data.datastore.SetDataStore
 import com.team23.data.game.model.request.CreateGameRequest
+import com.team23.data.game.model.request.ParticipateInGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
 import com.team23.data.game.model.response.GetOpenGamesResponse
+import com.team23.data.game.model.response.ParticipateInGameResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.GameLobby
 import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
@@ -50,7 +53,7 @@ class GameRepositoryImpl(
         hasActiveSoloGameAndRetry(retry = true)
     }
 
-    override suspend fun createMultiGame(gameMode: GameMode): Result<Uuid> = runCatching {
+    override suspend fun createMultiGame(gameMode: GameMode): Result<Pair<GameState.Playing, String>> = runCatching {
         createMultiGameAndRetry(gameMode = gameMode, retry = true)
     }
 
@@ -65,6 +68,10 @@ class GameRepositoryImpl(
             }
             emit(publicGames)
         }
+    }
+
+    override suspend fun joinMultiGame(publicName: String): Result<Pair<GameState.Playing, List<String>>> = runCatching {
+        joinMultiGameAndRetry(publicName = publicName, retry = true)
     }
 
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
@@ -147,7 +154,7 @@ class GameRepositoryImpl(
         }
     }
 
-    private suspend fun createMultiGameAndRetry(gameMode: GameMode, retry: Boolean): Uuid {
+    private suspend fun createMultiGameAndRetry(gameMode: GameMode, retry: Boolean): Pair<GameState.Playing, String> {
         val sessionToken = getCachedSessionToken()
         val requestGameMode = when (gameMode) {
             GameMode.TimeTrial -> CreateGameRequest.GameMode.MultiParallel
@@ -161,10 +168,31 @@ class GameRepositoryImpl(
             force = false,
         )
         return when (val response = gameApi.createGame(sessionToken, request)) {
-            is CreateGameResponse.Success -> response.gameId
+            is CreateGameResponse.Success -> mapToPlayingGame(
+                gameId = response.gameId,
+                table = response.table,
+                pile = response.pile,
+            ) to response.publicName
             is CreateGameResponse.Failure -> throw Exception(response.error)
             is CreateGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
                 createMultiGameAndRetry(gameMode = gameMode, retry = false)
+            }
+        }
+    }
+
+    private suspend fun joinMultiGameAndRetry(publicName: String, retry: Boolean): Pair<GameState.Playing, List<String>> {
+        val sessionToken = getCachedSessionToken()
+        val request = ParticipateInGameRequest(publicName)
+        return when (val response = gameApi.participateInGame(sessionToken, request)) {
+            is ParticipateInGameResponse.Success -> mapToPlayingGame(
+                gameId = response.gameId,
+                table = response.table,
+                pile = response.pile,
+                pit = response.pit,
+            ) to response.participants
+            is ParticipateInGameResponse.Failure -> throw Exception(response.error)
+            is ParticipateInGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                joinMultiGameAndRetry(publicName = publicName, retry = false)
             }
         }
     }

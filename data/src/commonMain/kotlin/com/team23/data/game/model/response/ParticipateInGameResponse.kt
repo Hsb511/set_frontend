@@ -18,6 +18,7 @@ sealed interface ParticipateInGameResponse {
         val participants: List<String>,
         val pile: List<SetCard>? = null,
         val table: List<SetCard>? = null,
+        val pit: List<List<SetCard>> = emptyList(),
         @SerialName("websocket_url")
         val websocketUrl: String
     ) : ParticipateInGameResponse

@@ -2,11 +2,13 @@ package com.team23.data.game
 
 import co.touchlab.kermit.Logger
 import com.team23.data.game.model.request.CreateGameRequest
+import com.team23.data.game.model.request.ParticipateInGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
 import com.team23.data.game.model.response.GetOpenGamesResponse
+import com.team23.data.game.model.response.ParticipateInGameResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -23,14 +25,11 @@ import kotlin.uuid.Uuid
 interface GameApi {
 
     suspend fun getGame(sessionToken: Uuid): GetGameResponse
-
     suspend fun getLastDeck(sessionToken: Uuid): GetLastDeckResponse
-
     suspend fun createGame(sessionToken: Uuid, request: CreateGameRequest): CreateGameResponse
-
     suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse
-
     suspend fun getOpenGames(sessionToken: Uuid): GetOpenGamesResponse
+    suspend fun participateInGame(sessionToken: Uuid, request: ParticipateInGameRequest): ParticipateInGameResponse
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -74,8 +73,9 @@ class GameApiImpl(
     }
 
     override suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse {
-        Logger.i("GameApi - /session/$sessionToken/upload-deck - request: ${Json.encodeToString(request)}")
-        val response = client.post("/session/$sessionToken/upload-deck") {
+        val urlString = "/session/$sessionToken/upload-deck"
+        Logger.d("GameApi - $urlString - request: ${Json.encodeToString(request)}")
+        val response = client.post(urlString) {
             setBody(request)
         }
         return if (response.status.isSuccess()) {
@@ -88,14 +88,30 @@ class GameApiImpl(
     }
 
     override suspend fun getOpenGames(sessionToken: Uuid): GetOpenGamesResponse {
-        Logger.i("GameApi - /session/$sessionToken/get-open-games")
-        val response = client.get("/session/$sessionToken/get-open-games")
+        val urlString = "/session/$sessionToken/get-open-games"
+        Logger.d("GameApi - $urlString")
+        val response = client.get(urlString)
         return if (response.status.isSuccess()) {
             Logger.i("GameApi - getOpenGames Success - ${response.bodyAsText()}")
             response.body<GetOpenGamesResponse.Success>()
         } else {
             Logger.e("GameApi - getOpenGames Error - ${response.bodyAsText()}")
             response.body<GetOpenGamesResponse.Failure>()
+        }
+    }
+
+    override suspend fun participateInGame(sessionToken: Uuid, request: ParticipateInGameRequest): ParticipateInGameResponse {
+        val urlString = "/session/$sessionToken/participate-in-game"
+        Logger.i("GameApi - $urlString - request: ${Json.encodeToString(request)}")
+        val response = client.post(urlString) {
+            setBody(request)
+        }
+        return if (response.status.isSuccess()) {
+            Logger.i("GameApi - participateInGame Success - ${response.bodyAsText()}")
+            response.body<ParticipateInGameResponse.Success>()
+        } else {
+            Logger.e("GameApi - participateInGame Error - ${response.bodyAsText()}")
+            response.body<ParticipateInGameResponse.Failure>()
         }
     }
 }

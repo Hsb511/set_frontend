@@ -252,7 +252,7 @@ private fun GamePlayerRow(
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.width(48.dp)
             )
-        } else if (player.isYou) {
+        } else if (player.isMe) {
             Text(
                 text = "You",
                 style = MaterialTheme.typography.bodySmall,
@@ -321,7 +321,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
             isPrivate = false,
             hostUsername = "Guest#12345678",
             allPlayers = listOf(
-                GameLobbyUiModel.Data.Player("Guest#12345678", isHost = true, isYou = true),
+                GameLobbyUiModel.Data.Player("Guest#12345678", isHost = true, isMe = true),
                 GameLobbyUiModel.Data.Player("JohnDoe"),
                 GameLobbyUiModel.Data.Player("JaneDoe"),
                 GameLobbyUiModel.Data.Player("Wow23"),
@@ -336,7 +336,7 @@ private class GameLobbyPreviewProvider : PreviewParameterProvider<GameLobbyUiMod
                 GameLobbyUiModel.Data.Player("Guest#12345678", isHost = true),
                 GameLobbyUiModel.Data.Player("JohnDoe"),
                 GameLobbyUiModel.Data.Player("JaneDoe"),
-                GameLobbyUiModel.Data.Player("Wow23", isYou = true),
+                GameLobbyUiModel.Data.Player("Wow23", isMe = true),
             )
         )
     )

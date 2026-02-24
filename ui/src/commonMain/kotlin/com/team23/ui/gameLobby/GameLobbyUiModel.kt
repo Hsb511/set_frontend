@@ -5,15 +5,15 @@ sealed interface GameLobbyUiModel {
 
     data class Data(
         val gameName: String,
-        val isHost: Boolean,
-        val isPrivate: Boolean,
+        val isHost: Boolean = false,
+        val isPrivate: Boolean = false,
         val hostUsername: String,
         val allPlayers: List<Player>,
     ) : GameLobbyUiModel {
         data class Player(
             val name: String,
             val isHost: Boolean = false,
-            val isYou: Boolean = false,
+            val isMe: Boolean = false,
         )
     }
 }

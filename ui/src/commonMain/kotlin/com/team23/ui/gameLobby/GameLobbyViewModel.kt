@@ -1,7 +1,7 @@
 package com.team23.ui.gameLobby
 
 import com.team23.domain.game.model.GameMode
-import com.team23.domain.game.repository.GameRepository
+import com.team23.domain.game.usecase.CreateOrJoinLobbyUseCase
 import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
@@ -16,11 +16,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GameLobbyViewModel(
-    private val gameRepository: GameRepository,
+    private val createOrJoinLobbyUseCase: CreateOrJoinLobbyUseCase,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
@@ -35,20 +34,30 @@ class GameLobbyViewModel(
 
     fun start(gameName: String?, multiGameMode: MultiGameMode) {
         viewModelScope.launch {
-            if (gameName == null) {
-                createMultiGame(multiGameMode)
-            } else {
+            val gameMode = when(multiGameMode) {
+                MultiGameMode.TimeTrial -> GameMode.TimeTrial
+                MultiGameMode.Versus -> GameMode.Versus
+            }
+            createOrJoinLobbyUseCase.invoke(gameName, gameMode).onSuccess { gameLobby ->
                 _gameLobbyUiModel.value = GameLobbyUiModel.Data(
-                    gameName = gameName,
-                    isHost = false,
-                    isPrivate = true,
-                    hostUsername = "Who's that?",
-                    allPlayers = listOf(
-                        GameLobbyUiModel.Data.Player(name = "Who's that?", isHost = true),
-                        GameLobbyUiModel.Data.Player(name = "You", isYou = true),
-                        GameLobbyUiModel.Data.Player(name = "You got hacked"),
-                    ),
+                    gameName = gameLobby.publicName,
+                    hostUsername = gameLobby.players.first().name,
+                    allPlayers = gameLobby.players.map { player ->
+                        GameLobbyUiModel.Data.Player(
+                            name = player.name,
+                            isHost = player.isHost,
+                            isMe = player.isMe,
+                        )
+                    },
                 )
+            }.onFailure { failure ->
+                NavigationManager.popBackStack()
+                val snackbar = if (gameName == null) {
+                    SetSnackbarVisuals.CannotCreateMultiGame(failure.message)
+                } else {
+                    SetSnackbarVisuals.CannotJoinMultiGame(gameName, failure.message)
+                }
+                SnackbarManager.showMessage(snackbar)
             }
         }
     }
@@ -81,27 +90,6 @@ class GameLobbyViewModel(
         viewModelScope.launch {
             _gameLobbyUiEvent.emit(GameLobbyUiEvent.CopyToClipboard(rawGameId))
         }
-    }
-
-    private suspend fun createMultiGame(multiGameMode: MultiGameMode) {
-        val gameMode = when(multiGameMode) {
-            MultiGameMode.TimeTrial -> GameMode.TimeTrial
-            MultiGameMode.Versus -> GameMode.Versus
-        }
-        val gameId = gameRepository.createMultiGame(gameMode).onFailure { error ->
-            SnackbarManager.showMessage(SetSnackbarVisuals.CannotCreateMultiGame(error.message))
-        }.getOrElse { Uuid.random() }
-        _gameLobbyUiModel.value = GameLobbyUiModel.Data(
-            gameName = gameId.toString(),
-            isHost = true,
-            isPrivate = true,
-            hostUsername = "You",
-            allPlayers = listOf(
-                GameLobbyUiModel.Data.Player(name = "You", isHost = true, isYou = true),
-                GameLobbyUiModel.Data.Player(name = "Who's that?"),
-                GameLobbyUiModel.Data.Player(name = "You got hacked"),
-            ),
-        )
     }
 
     private fun handleChangeVisibility(private: Boolean) {

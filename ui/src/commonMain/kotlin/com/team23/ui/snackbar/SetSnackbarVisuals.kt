@@ -53,7 +53,7 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
         override val message: String = "Cannot create multi game. We are using a random Uuid for mocking purposes: $errorMessage"
     }
 
-    data class FormatErrorMultiGameId(val gameId: String): ShortSnackbarVisuals() {
-        override val message: String = "The format of gameId $gameId is not corret"
+    data class CannotJoinMultiGame(val publicName: String, val errorMessage: String?): ShortSnackbarVisuals() {
+        override val message: String = "Cannot join multi game $publicName: $errorMessage"
     }
 }
