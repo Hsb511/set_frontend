@@ -2,6 +2,7 @@ package com.team23.ui.gameLobby
 
 import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.repository.GameRepository
+import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
@@ -32,7 +33,7 @@ class GameLobbyViewModel(
     private val _gameLobbyUiEvent = MutableSharedFlow<GameLobbyUiEvent>()
     val gameLobbyUiEvent: SharedFlow<GameLobbyUiEvent> = _gameLobbyUiEvent
 
-    fun start(gameName: String?, multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
+    fun start(gameName: String?, multiGameMode: MultiGameMode) {
         viewModelScope.launch {
             if (gameName == null) {
                 createMultiGame(multiGameMode)
@@ -82,10 +83,10 @@ class GameLobbyViewModel(
         }
     }
 
-    private suspend fun createMultiGame(multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
+    private suspend fun createMultiGame(multiGameMode: MultiGameMode) {
         val gameMode = when(multiGameMode) {
-            NavigationScreen.GameLobby.MultiGameMode.TimeTrial -> GameMode.TimeTrial
-            NavigationScreen.GameLobby.MultiGameMode.Versus -> GameMode.Versus
+            MultiGameMode.TimeTrial -> GameMode.TimeTrial
+            MultiGameMode.Versus -> GameMode.Versus
         }
         val gameId = gameRepository.createMultiGame(gameMode).onFailure { error ->
             SnackbarManager.showMessage(SetSnackbarVisuals.CannotCreateMultiGame(error.message))

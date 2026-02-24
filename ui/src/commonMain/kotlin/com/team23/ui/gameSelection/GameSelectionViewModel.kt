@@ -59,16 +59,16 @@ class GameSelectionViewModel(
         GameSelectionUiModel.Data.MultiGame(
             publicName = publicName,
             playersCount = 0,
-            type = GameSelectionUiModel.Data.MultiGame.Type.TimeTrial,
+            gameMode = MultiGameMode.TimeTrial,
         )
     }
 
     fun onAction(action: GameSelectionAction) {
         when (action) {
             is GameSelectionAction.StartSolo -> startSoloGame(action.forceCreate)
-            is GameSelectionAction.CreateVersus -> createMultiGame(NavigationScreen.GameLobby.MultiGameMode.Versus)
-            is GameSelectionAction.CreateTimeTrial -> createMultiGame(NavigationScreen.GameLobby.MultiGameMode.TimeTrial)
-            is GameSelectionAction.JoinMulti -> joinMultiGame(action.rawGameId)
+            is GameSelectionAction.CreateVersus -> createMultiGame(MultiGameMode.Versus)
+            is GameSelectionAction.CreateTimeTrial -> createMultiGame(MultiGameMode.TimeTrial)
+            is GameSelectionAction.JoinMulti -> joinMultiGame(action.publicName)
         }
     }
 
@@ -78,24 +78,16 @@ class GameSelectionViewModel(
         }
     }
 
-    private fun createMultiGame(multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
+    private fun createMultiGame(multiGameMode: MultiGameMode) {
         viewModelScope.launch {
             NavigationManager.handle(NavigationScreen.GameLobby(gameName = null, multiGameMode = multiGameMode))
         }
     }
 
-    private fun joinMultiGame(rawGameId: String) {
-        val gameId = runCatching { Uuid.parse(rawGameId) }.getOrNull()
-        if (gameId == null) {
-            viewModelScope.launch {
-                SnackbarManager.showMessage(SetSnackbarVisuals.FormatErrorMultiGameId(rawGameId))
-            }
-            return
-        }
-
+    private fun joinMultiGame(gameName: String) {
         viewModelScope.launch {
             // TODO HANDLE THAT
-            NavigationManager.handle(NavigationScreen.GameLobby(gameName = gameId.toString(), multiGameMode = NavigationScreen.GameLobby.MultiGameMode.TimeTrial))
+            NavigationManager.handle(NavigationScreen.GameLobby(gameName = gameName, multiGameMode = MultiGameMode.TimeTrial))
         }
     }
 }

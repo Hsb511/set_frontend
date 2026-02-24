@@ -26,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,19 +39,15 @@ import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.component.AdaptativeContainer
 import com.team23.ui.gameSelection.GameSelectionUiModel.Data.MultiGame
-import com.team23.ui.navigation.NavigationManager
-import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.WindowSize
 import com.team23.ui.theming.rememberWindowSize
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
@@ -210,6 +205,7 @@ private fun MultiSection(
                 MultiPublicGamesSection(
                     windowSize = windowSize,
                     multiGames = lobbyUiModel.multiGames,
+                    onAction = onAction,
                 )
             }
         }
@@ -231,18 +227,18 @@ private fun MultiCreateAndJoinSection(
             onAction = onAction,
         )
 
-        var multiGameUuid by remember { mutableStateOf("") }
-        val isMultiGameUuidValid = runCatching { Uuid.parse(multiGameUuid) }.isSuccess
+        var multiGameName by remember { mutableStateOf("") }
+        val isMultiGameNameValid = Regex("[A-Z]{6}").matches(multiGameName)
 
         TextField(
-            value = multiGameUuid,
-            onValueChange = { multiGameUuid = it },
+            value = multiGameName,
+            onValueChange = { multiGameName = it },
             supportingText = {
-                Text(text = "Format: 12345678-1234-1234-1234-1234567890ab")
+                Text(text = "6 uppercase letters")
             },
             label = {
                 Text(
-                    text = "Enter/paste UUID to join game",
+                    text = "Enter/paste name to join game",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -255,10 +251,10 @@ private fun MultiCreateAndJoinSection(
             uiModel = ActionButtonUiModel(
                 text = "\uD83D\uDEA7 Join multi game \uD83D\uDEA7",
                 size = ActionButtonUiModel.Size.Small,
-                enabled = isMultiGameUuidValid,
+                enabled = isMultiGameNameValid,
                 maxLines = 1,
             ),
-            onClick = { onAction(GameSelectionAction.JoinMulti(multiGameUuid)) },
+            onClick = { onAction(GameSelectionAction.JoinMulti(multiGameName)) },
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -268,6 +264,7 @@ private fun MultiCreateAndJoinSection(
 private fun MultiPublicGamesSection(
     windowSize: WindowSize,
     multiGames: List<MultiGame>,
+    onAction: (GameSelectionAction) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
@@ -288,7 +285,7 @@ private fun MultiPublicGamesSection(
                 GameSelectionMultiTableHeader()
             }
             items(multiGames) { multiGame ->
-                GameSelectionMultiTableItem(multiGame)
+                GameSelectionMultiTableItem(multiGame, onAction)
             }
         }
     }
@@ -400,16 +397,13 @@ private fun GameSelectionMultiTableHeader() {
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
+private fun GameSelectionMultiTableItem(multiGame: MultiGame, onAction: (GameSelectionAction) -> Unit) {
     Column {
-        val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    coroutineScope.launch {
-                        // NavigationManager.handle(NavigationScreen.GameLobby(gameId = multiGame.gameId.toString()))
-                    }
+                    onAction(GameSelectionAction.JoinMulti(publicName = multiGame.publicName))
                 }
                 .padding(
                     vertical = LocalSpacings.current.medium,
@@ -431,9 +425,9 @@ private fun GameSelectionMultiTableItem(multiGame: MultiGame) {
                 modifier = Modifier.weight(THIRD_COLUMN_WEIGHT),
             ) {
                 Icon(
-                    imageVector = multiGame.type.imageVector,
+                    imageVector = multiGame.gameMode.icon,
                     tint = MaterialTheme.colorScheme.onBackground,
-                    contentDescription = multiGame.type.name,
+                    contentDescription = multiGame.gameMode.name,
                 )   
             }
         }
@@ -494,7 +488,7 @@ private class GameSelectionPreviewProvider : PreviewParameterProvider<GameSelect
                     // gameId = Uuid.parse(gameId),
                     publicName = gameId.take(6),
                     playersCount = playersCount,
-                    type = if (playersCount % 2 == 0) MultiGame.Type.TimeTrial else MultiGame.Type.Versus,
+                    gameMode = if (playersCount % 2 == 0) MultiGameMode.TimeTrial else MultiGameMode.Versus,
                 )
             },
         ),

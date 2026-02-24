@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
-import com.team23.ui.navigation.NavigationScreen
+import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.system.clipEntryOf
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -49,7 +49,7 @@ import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
 @Composable
-fun GameLobbyScreen(gameName: String?, multiGameMode: NavigationScreen.GameLobby.MultiGameMode) {
+fun GameLobbyScreen(gameName: String?, multiGameMode: MultiGameMode) {
     val gameLobbyVM = koinInject<GameLobbyViewModel>()
     LaunchedEffect(Unit) {
         gameLobbyVM.start(gameName, multiGameMode)
