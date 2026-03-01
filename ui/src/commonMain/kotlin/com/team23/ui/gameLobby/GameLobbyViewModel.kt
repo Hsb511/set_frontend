@@ -58,16 +58,7 @@ class GameLobbyViewModel(
             createOrJoinLobby(gameName, multiGameMode)
             _gameLobbyUiModel.value = GameLobbyUiModel.Loading.Connecting
             launch {
-                gameRepository.multiGameMessages.collect { message ->
-                    updateServerOffset(message.timestamp)
-                    when (message) {
-                        is MultiGameMessage.Connected -> _gameLobbyUiModel.value = GameLobbyUiModel.Loading.UpdatingData
-                        is MultiGameMessage.LobbyData -> updateLobbyData(message)
-                        is MultiGameMessage.GameStart -> showCountDownAndNavigateToGame(message.gameId, message.startTime)
-                        is MultiGameMessage.Error -> handleErrorMessage(message.message)
-                        is MultiGameMessage.Default -> Unit
-                    }
-                }
+                gameRepository.multiGameMessages.collect(::handleMultiGameMessage)
             }
             launch {
                 gameRepository.switchToWebSocket()
@@ -119,14 +110,35 @@ class GameLobbyViewModel(
         }
     }
 
+    private suspend fun handleMultiGameMessage(message: MultiGameMessage) {
+        updateServerOffset(message.timestamp)
+        when (message) {
+            is MultiGameMessage.Connected -> _gameLobbyUiModel.value = GameLobbyUiModel.Loading.UpdatingData
+            is MultiGameMessage.LobbyData -> updateLobbyData(message)
+            is MultiGameMessage.GameStart -> showCountDownAndNavigateToGame(message.gameId, message.startTime)
+            is MultiGameMessage.Error -> handleErrorMessage(message.message)
+            is MultiGameMessage.Default -> Unit
+        }
+    }
+
     private var serverOffset: Duration = Duration.ZERO
+    private var hasOffset = false
 
     private fun updateServerOffset(serverTimestamp: Instant, receivedAt: Instant = Clock.System.now()) {
-        val sample = serverTimestamp - receivedAt // offset to add to local time to get server time
+        val sample = serverTimestamp - receivedAt
 
-        // Smooth it: 20% new sample, 80% previous (tune as you like)
-        val alpha = 0.2
-        serverOffset = (serverOffset * (1.0 - alpha)) + (sample * alpha)
+        if (!hasOffset) {
+            serverOffset = sample
+            hasOffset = true
+            return
+        }
+
+        if (sample > serverOffset) {
+            serverOffset = sample
+        } else {
+            val slowAlpha = 0.02
+            serverOffset = (serverOffset * (1.0 - slowAlpha)) + (sample * slowAlpha)
+        }
     }
 
     private fun serverNow(): Instant = Clock.System.now() + serverOffset
@@ -136,26 +148,42 @@ class GameLobbyViewModel(
 
         countdownJob?.cancel()
         countdownJob = viewModelScope.launch {
+            var lastShown: Int? = null
+
             while (isActive) {
                 val nowServer = serverNow()
-                val secondsUntilStart = (startTime - nowServer).inWholeSeconds
+                val remaining = startTime - nowServer
+                val seconds = ceilSeconds(remaining)
 
-                if (secondsUntilStart in 1..3) {
+                val display = when (seconds) {
+                    3 -> 3
+                    2 -> 2
+                    1 -> 1
+                    else -> 0
+                }
+
+                if (display != 0 && display != lastShown) {
+                    lastShown = display
                     _gameLobbyUiModel.update { currentValue ->
                         if (currentValue is GameLobbyUiModel.Data) {
-                            currentValue.copy(countDown = secondsUntilStart.toInt())
+                            currentValue.copy(countDown = display)
                         } else currentValue
                     }
                 }
 
-                if (secondsUntilStart <= 0) {
-                    break
-                }
+                if (seconds <= 0) break
 
-                delay(200.milliseconds)
+                delay(150.milliseconds)
             }
+
             NavigationManager.handle(NavigationScreen.Game(false))
         }
+    }
+
+    private fun ceilSeconds(remaining: Duration): Int {
+        val ms = remaining.inWholeMilliseconds
+        if (ms <= 0) return 0
+        return ((ms + 999) / 1000).toInt() // ceil
     }
 
     private suspend fun handleErrorMessage(errorMessage: String) {
