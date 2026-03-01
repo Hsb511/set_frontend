@@ -6,6 +6,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -13,7 +15,7 @@ import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
-
+import kotlin.time.Duration.Companion.seconds
 
 internal actual fun platformModule() = module {
     single { AndroidSetDataStore() as SetDataStore }
@@ -28,6 +30,11 @@ actual fun createHttpClient(): HttpClient {
                     isLenient = true
                 }
             )
+        }
+
+        install(WebSockets) {
+            pingInterval = 30.seconds
+            maxFrameSize = Long.MAX_VALUE
         }
 
         install(DefaultRequest) {

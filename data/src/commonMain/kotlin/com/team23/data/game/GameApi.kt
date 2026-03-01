@@ -102,7 +102,7 @@ class GameApiImpl(
 
     override suspend fun participateInGame(sessionToken: Uuid, request: ParticipateInGameRequest): ParticipateInGameResponse {
         val urlString = "/session/$sessionToken/participate-in-game"
-        Logger.i("GameApi - $urlString - request: ${Json.encodeToString(request)}")
+        Logger.d("GameApi - $urlString - request: ${Json.encodeToString(request)}")
         val response = client.post(urlString) {
             setBody(request)
         }

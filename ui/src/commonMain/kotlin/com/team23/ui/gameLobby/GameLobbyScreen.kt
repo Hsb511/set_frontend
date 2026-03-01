@@ -56,17 +56,13 @@ fun GameLobbyScreen(gameName: String?, multiGameMode: MultiGameMode) {
     }
 
     when (val gameLobbyUiModel = gameLobbyVM.gameLobbyUiModel.collectAsState().value) {
+        is GameLobbyUiModel.Loading -> GameLobbyLoadingScreen(
+            gameLobbyUiModel = gameLobbyUiModel,
+        )
         is GameLobbyUiModel.Data -> GameLobbyScreen(
             gameLobbyUiModel = gameLobbyUiModel,
             onAction = gameLobbyVM::onAction,
         )
-
-        is GameLobbyUiModel.Loading -> Column(
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(text = "Multi game data are being loaded")
-            CircularProgressIndicator()
-        }
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -87,6 +83,21 @@ fun GameLobbyScreen(gameName: String?, multiGameMode: MultiGameMode) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun GameLobbyLoadingScreen(gameLobbyUiModel: GameLobbyUiModel.Loading) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .padding(all = LocalSpacings.current.large),
+    ) {
+        Text(text = gameLobbyUiModel.text)
+        CircularProgressIndicator()
     }
 }
 

@@ -56,4 +56,8 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
     data class CannotJoinMultiGame(val publicName: String, val errorMessage: String?): ShortSnackbarVisuals() {
         override val message: String = "Cannot join multi game $publicName: $errorMessage"
     }
+
+    data class MultiGameMessageError(val errorMessage: String): ShortSnackbarVisuals() {
+        override val message: String = errorMessage
+    }
 }

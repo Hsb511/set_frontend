@@ -10,6 +10,8 @@ import com.team23.data.card.CardDataMapper
 import com.team23.data.game.GameApi
 import com.team23.data.game.GameApiImpl
 import com.team23.data.game.GameRepositoryImpl
+import com.team23.data.game.GameWs
+import com.team23.data.game.GameWsImpl
 import com.team23.data.user.UserRepositoryImpl
 import com.team23.domain.admin.AdminRepository
 import com.team23.domain.game.repository.GameRepository
@@ -29,10 +31,11 @@ val dataModule = module {
     single { AdminApiImpl(get()) as AdminApi }
     single { AuthApiImpl(get()) as AuthApi }
     single { GameApiImpl(get()) as GameApi }
+    single { GameWsImpl(get()) as GameWs }
 
     single { AdminRepositoryImpl(get()) as AdminRepository }
     single { AuthRepositoryImpl(get(), get()) as AuthRepository }
-    single { GameRepositoryImpl(get(), get(), get(), get()) as GameRepository }
+    single { GameRepositoryImpl(get(), get(), get(), get(), get()) as GameRepository }
     single { UserRepositoryImpl(get()) as UserRepository }
 }
 

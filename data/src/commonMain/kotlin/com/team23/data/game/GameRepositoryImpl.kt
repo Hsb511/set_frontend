@@ -1,8 +1,10 @@
 package com.team23.data.game
 
+import co.touchlab.kermit.Logger
 import com.team23.data.card.CardDataMapper
 import com.team23.data.card.SetCard
 import com.team23.data.datastore.SetDataStore
+import com.team23.data.game.model.GameWsEvent
 import com.team23.data.game.model.request.CreateGameRequest
 import com.team23.data.game.model.request.ParticipateInGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
@@ -13,21 +15,21 @@ import com.team23.data.game.model.response.GetOpenGamesResponse
 import com.team23.data.game.model.response.ParticipateInGameResponse
 import com.team23.data.game.model.response.UploadDeckResponse
 import com.team23.domain.game.model.Card
-import com.team23.domain.game.model.GameLobby
 import com.team23.domain.game.model.GameMode
+import com.team23.domain.game.model.MultiGameMessage
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.startup.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.map
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 class GameRepositoryImpl(
     private val gameApi: GameApi,
+    private val gameWs: GameWs,
     private val authRepository: AuthRepository,
     private val setDataStore: SetDataStore,
     private val cardDataMapper: CardDataMapper,
@@ -53,6 +55,9 @@ class GameRepositoryImpl(
         hasActiveSoloGameAndRetry(retry = true)
     }
 
+    override val multiGameMessages: Flow<MultiGameMessage>
+        get() = gameWs.events.map(::mapToMultiGameMessage)
+
     override suspend fun createMultiGame(gameMode: GameMode): Result<Pair<GameState.Playing, String>> = runCatching {
         createMultiGameAndRetry(gameMode = gameMode, retry = true)
     }
@@ -72,6 +77,12 @@ class GameRepositoryImpl(
 
     override suspend fun joinMultiGame(publicName: String): Result<Pair<GameState.Playing, List<String>>> = runCatching {
         joinMultiGameAndRetry(publicName = publicName, retry = true)
+    }
+
+    override suspend fun switchToWebSocket(): Result<Unit> = runCatching {
+        gameWs.connect(getCachedSessionToken())
+    }.onFailure { throwable ->
+        Logger.d("GameRepositoryImpl - switchToWebSocket - failure: $throwable")
     }
 
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
@@ -236,6 +247,18 @@ class GameRepositoryImpl(
             set.map(cardDataMapper::toBase10Code)
         },
     )
+
+    private fun mapToMultiGameMessage(event: GameWsEvent) = when(event) {
+        is GameWsEvent.Connected -> MultiGameMessage.Connected
+        is GameWsEvent.LobbyUpdate -> MultiGameMessage.LobbyData(
+            hostUsername = event.masterUsername,
+            players = event.participants,
+        )
+        is GameWsEvent.Error -> MultiGameMessage.Error(event.message)
+        is GameWsEvent.GameStartTime -> MultiGameMessage.Default
+        is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default
+        is GameWsEvent.Pong ->  MultiGameMessage.Default
+    }
 
     private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {
         if (retry && tryRefreshSessionToken()) {
