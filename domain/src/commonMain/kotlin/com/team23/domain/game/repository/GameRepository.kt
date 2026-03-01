@@ -4,8 +4,11 @@ import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.model.MultiGameMessage
 import com.team23.domain.game.statemachine.GameState
 import kotlinx.coroutines.flow.Flow
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 interface GameRepository {
 
     // SOLO
@@ -30,4 +33,6 @@ interface GameRepository {
     suspend fun joinMultiGame(publicName: String): Result<Pair<GameState.Playing, List<String>>>
 
     suspend fun switchToWebSocket(): Result<Unit>
+
+    suspend fun startGame(gameId: Uuid, startTime: Instant)
 }

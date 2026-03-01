@@ -12,6 +12,10 @@ import io.ktor.http.Url
 import io.ktor.http.encodedPath
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,6 +32,7 @@ interface GameWs {
 
     suspend fun connect(sessionToken: Uuid)
     suspend fun disconnect()
+    suspend fun send(action: GameWsAction)
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -35,6 +40,9 @@ class GameWsImpl(
     private val client: HttpClient,
 ) : GameWs {
 
+    private val _events = MutableSharedFlow<GameWsEvent>(extraBufferCapacity = 64)
+    override val events: SharedFlow<GameWsEvent> = _events
+    private val _outgoing = MutableSharedFlow<GameWsAction>(extraBufferCapacity = 64)
 
     private val wsEventJson = Json {
         classDiscriminator = "type"
@@ -45,35 +53,55 @@ class GameWsImpl(
         classDiscriminator = "action"
         ignoreUnknownKeys = true
     }
-
-    private val _events = MutableSharedFlow<GameWsEvent>(extraBufferCapacity = 64)
-    override val events: SharedFlow<GameWsEvent> = _events
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var wsJob: Job? = null
 
     override suspend fun connect(sessionToken: Uuid) {
-        val base = Url(BuildKonfig.BASE_URL)
+        // prevent multiple concurrent connections
+        wsJob?.cancel()
+        wsJob = scope.launch {
+            val base = Url(BuildKonfig.BASE_URL)
 
-        client.webSocket(
-            request = {
-                url {
-                    protocol = if (base.protocol == URLProtocol.HTTPS) URLProtocol.WSS else URLProtocol.WS
-                    host = base.host
-                    port = base.port
-                    encodedPath = "/session/$sessionToken/ws"
+            client.webSocket(
+                request = {
+                    url {
+                        protocol = if (base.protocol == URLProtocol.HTTPS) URLProtocol.WSS else URLProtocol.WS
+                        host = base.host
+                        port = base.port
+                        encodedPath = "/session/$sessionToken/ws"
+                    }
                 }
-            }
-        ) {
-            coroutineScope {
-                launch { handleKeepalive() }
-
-                launch { receiveEvents() }
+            ) {
+                // inside session
+                coroutineScope {
+                    launch { handleKeepalive() }
+                    launch { sendLoop() }
+                    launch { receiveEvents() }
+                }
             }
         }
     }
 
-    private suspend fun DefaultClientWebSocketSession.handleKeepalive() {
+    override suspend fun disconnect() {
+
+    }
+
+    override suspend fun send(action: GameWsAction) {
+        _outgoing.emit(action)
+    }
+
+    private suspend fun handleKeepalive() {
         while (true) {
             delay(30.seconds)
-            send(GameWsAction.Heartbeat)
+            _outgoing.emit(GameWsAction.Heartbeat)
+        }
+    }
+
+    private suspend fun DefaultClientWebSocketSession.sendLoop() {
+        _outgoing.collect { action ->
+            val payload = wsActionJson.encodeToString(action)
+            Logger.d("GameWs - sending: $payload")
+            send(Frame.Text(payload))
         }
     }
 
@@ -82,7 +110,6 @@ class GameWsImpl(
             for (frame in incoming) {
                 when (frame) {
                     is Frame.Text -> {
-                        Logger.d("GameWs - frame text received: $frame")
                         val text = frame.readText()
                         Logger.d("GameWs - frame text received: $text")
                         runCatching {
@@ -93,8 +120,6 @@ class GameWsImpl(
                             _events.emit(event)
                         }.onFailure { throwable ->
                             Logger.d("GameWs - error while parsing frame text: $throwable")
-                            // If you want, emit an Error event or just log
-                            // _events.emit(GameWsEvent.Error("Failed to decode: ${err.message}", -1, Clock.System.now()))
                         }
                     }
 
@@ -103,22 +128,11 @@ class GameWsImpl(
                         break
                     }
 
-                    else -> {
-                        Logger.d("GameWs - something else received: $frame")
-                    }
+                    else -> Logger.d("GameWs - something else received: $frame")
                 }
             }
         } catch (throwable: Throwable) {
             Logger.d("GameWs - catching receiving events failure: $throwable")
         }
-    }
-
-    private suspend fun DefaultClientWebSocketSession.send(action: GameWsAction) {
-        val payload = wsActionJson.encodeToString<GameWsAction>(action)
-        send(Frame.Text(payload))
-    }
-
-    override suspend fun disconnect() {
-
     }
 }

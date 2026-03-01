@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.team23.data.card.CardDataMapper
 import com.team23.data.card.SetCard
 import com.team23.data.datastore.SetDataStore
+import com.team23.data.game.model.GameWsAction
 import com.team23.data.game.model.GameWsEvent
 import com.team23.data.game.model.request.CreateGameRequest
 import com.team23.data.game.model.request.ParticipateInGameRequest
@@ -23,6 +24,7 @@ import com.team23.domain.startup.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -83,6 +85,16 @@ class GameRepositoryImpl(
         gameWs.connect(getCachedSessionToken())
     }.onFailure { throwable ->
         Logger.d("GameRepositoryImpl - switchToWebSocket - failure: $throwable")
+    }
+
+    override suspend fun startGame(gameId: Uuid, startTime: Instant) {
+        val action = GameWsAction.GameStart(
+            data = GameWsAction.GameStart.Data(
+                gameId = gameId,
+                startTime = startTime,
+            )
+        )
+        gameWs.send(action)
     }
 
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
@@ -249,15 +261,16 @@ class GameRepositoryImpl(
     )
 
     private fun mapToMultiGameMessage(event: GameWsEvent) = when(event) {
-        is GameWsEvent.Connected -> MultiGameMessage.Connected
+        is GameWsEvent.Connected -> MultiGameMessage.Connected(event.timestamp)
         is GameWsEvent.LobbyUpdate -> MultiGameMessage.LobbyData(
+            timestamp = event.timestamp,
             hostUsername = event.masterUsername,
             players = event.participants,
         )
-        is GameWsEvent.Error -> MultiGameMessage.Error(event.message)
-        is GameWsEvent.GameStartTime -> MultiGameMessage.Default
-        is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default
-        is GameWsEvent.Pong ->  MultiGameMessage.Default
+        is GameWsEvent.Error -> MultiGameMessage.Error(event.timestamp, event.message)
+        is GameWsEvent.GameStartTime -> MultiGameMessage.GameStart(event.timestamp, gameId = event.gameId, startTime = event.startTime)
+        is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default(event.timestamp)
+        is GameWsEvent.Pong ->  MultiGameMessage.Default(event.timestamp)
     }
 
     private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {

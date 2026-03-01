@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -106,35 +108,53 @@ private fun GameLobbyScreen(
     gameLobbyUiModel: GameLobbyUiModel.Data,
     onAction: (GameLobbyAction) -> Unit = {},
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .fillMaxSize()
-            .padding(all = LocalSpacings.current.large),
-    ) {
-        TitleAndGameIdSection(
-            gameLobbyUiModel = gameLobbyUiModel,
-            onGameIdClicked = { onAction(GameLobbyAction.CopyGameId(gameLobbyUiModel.gameName)) }
-        )
+    Box {
 
-        VisibilitySection(
-            isPrivate = gameLobbyUiModel.isPrivate,
-            isHost = gameLobbyUiModel.isHost,
-            onChangeVisibility = { isPrivate -> onAction(GameLobbyAction.ChangeVisibility(isPrivate)) },
-        )
-
-        PlayersSection(allPlayers = gameLobbyUiModel.allPlayers)
-
-        Spacer(Modifier.weight(1f))
-
-        GameActionButton(
-            isHost = gameLobbyUiModel.isHost,
-            onStartGame = { onAction(GameLobbyAction.StartGame) },
-            onLeaveGame = { onAction(GameLobbyAction.LeaveGame) },
+        Column(
+            verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
             modifier = Modifier
-                .fillMaxWidth()
-        )
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .padding(all = LocalSpacings.current.large),
+        ) {
+            TitleAndGameIdSection(
+                gameLobbyUiModel = gameLobbyUiModel,
+                onGameIdClicked = { onAction(GameLobbyAction.CopyGameId(gameLobbyUiModel.gameName)) }
+            )
+
+            VisibilitySection(
+                isPrivate = gameLobbyUiModel.isPrivate,
+                isHost = gameLobbyUiModel.isHost,
+                onChangeVisibility = { isPrivate -> onAction(GameLobbyAction.ChangeVisibility(isPrivate)) },
+            )
+
+            PlayersSection(allPlayers = gameLobbyUiModel.allPlayers)
+
+            Spacer(Modifier.weight(1f))
+
+            GameActionButton(
+                isHost = gameLobbyUiModel.isHost,
+                onStartGame = { onAction(GameLobbyAction.StartGame) },
+                onLeaveGame = { onAction(GameLobbyAction.LeaveGame) },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+
+        if (gameLobbyUiModel.countDown != null) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .background(Color.DarkGray.copy(alpha = 0.3f))
+                    .fillMaxSize()
+            ) {
+                Text(
+                    text = gameLobbyUiModel.countDown.toString(),
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
     }
 }
 

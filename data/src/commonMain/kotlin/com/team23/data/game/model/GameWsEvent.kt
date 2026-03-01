@@ -29,27 +29,34 @@ sealed interface GameWsEvent {
         val timestamp: Instant,
     ): GameWsEvent
 
-    @Serializable @SerialName("heartbeat_ack")
+    @Serializable
+    @SerialName("heartbeat_ack")
     data class HeartbeatAck(
         val timestamp: Instant,
     ) : GameWsEvent
 
-    @Serializable @SerialName("pong")
+    @Serializable
+    @SerialName("pong")
     data class Pong(
         val timestamp: Instant,
     ) : GameWsEvent
 
-    @Serializable @SerialName("error")
+    @Serializable
+    @SerialName("error")
     data class Error(
         val message: String,
-        @SerialName("error_code") val errorCode: Int,
+        @SerialName("error_code")
+        val errorCode: Int,
         val timestamp: Instant,
     ) : GameWsEvent
 
-    @Serializable @SerialName("game_start_time")
+    @Serializable
+    @SerialName("game_start_time")
     data class GameStartTime(
-        @SerialName("game_id") val gameId: String,
-        @SerialName("start_time") val startTime: Instant,
+        @SerialName("game_id")
+        val gameId: Uuid,
+        @SerialName("start_time")
+        val startTime: Instant,
         val timestamp: Instant,
     ) : GameWsEvent
 }

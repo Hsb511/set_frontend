@@ -1,5 +1,8 @@
 package com.team23.ui.gameLobby
 
+import kotlin.uuid.ExperimentalUuidApi
+
+@OptIn(ExperimentalUuidApi::class)
 sealed interface GameLobbyUiModel {
     enum class Loading(val text: String) : GameLobbyUiModel {
         Default("Loading multi game lobby..."),
@@ -15,6 +18,7 @@ sealed interface GameLobbyUiModel {
         val isPrivate: Boolean = false,
         val hostUsername: String = "",
         val allPlayers: List<Player> = emptyList(),
+        val countDown: Int? = null,
     ) : GameLobbyUiModel {
         data class Player(
             val name: String,

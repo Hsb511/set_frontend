@@ -1,13 +1,26 @@
 package com.team23.domain.game.model
 
-sealed interface MultiGameMessage {
+import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-    data object Connected: MultiGameMessage
+@OptIn(ExperimentalUuidApi::class)
+sealed interface MultiGameMessage {
+    val timestamp: Instant
+
+    data class Connected(override val timestamp: Instant) : MultiGameMessage
     data class LobbyData(
+        override val timestamp: Instant,
         val hostUsername: String,
         val players: List<String>,
-    ): MultiGameMessage
+    ) : MultiGameMessage
 
-    data class Error(val message: String): MultiGameMessage
-    data object Default: MultiGameMessage
+    data class GameStart(
+        override val timestamp: Instant,
+        val gameId: Uuid,
+        val startTime: Instant,
+    ) : MultiGameMessage
+
+    data class Error(override val timestamp: Instant, val message: String) : MultiGameMessage
+    data class Default(override val timestamp: Instant) : MultiGameMessage
 }

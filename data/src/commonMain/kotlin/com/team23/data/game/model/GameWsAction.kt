@@ -9,6 +9,7 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 @Serializable
 sealed interface GameWsAction {
+
     @Serializable
     @SerialName("heartbeat")
     data object Heartbeat : GameWsAction
@@ -21,13 +22,14 @@ sealed interface GameWsAction {
     @SerialName("game_start")
     data class GameStart(
         val data: Data
-    ) {
+    ): GameWsAction {
+
         @Serializable
         data class Data(
+            @SerialName("game_id")
             val gameId: Uuid,
+            @SerialName("start_time")
             val startTime: Instant,
         )
     }
-
-
 }
