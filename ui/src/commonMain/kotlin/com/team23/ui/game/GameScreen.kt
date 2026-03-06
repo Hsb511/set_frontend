@@ -141,7 +141,7 @@ private fun GameScreen(
     var slotWidthPx by remember { mutableStateOf(0) }
     var positionsByIndex: Map<Int, IntOffset> by remember { mutableStateOf(emptyMap()) }
     val resetNonce = remember { mutableIntStateOf(0) }
-    val completionType = remember { mutableStateOf<GameCompletionType?>(null) }
+    val completionType = remember { mutableStateOf<EndGameUiModel?>(null) }
 
     Box(modifier = modifier) {
         GameContainer(
@@ -196,7 +196,7 @@ private fun GameScreen(
         }
         completionType.value?.let { completionType ->
             EndGameDialog(
-                completionType = completionType,
+                endGameUiModel = completionType,
                 onAction = onAction,
             )
         }

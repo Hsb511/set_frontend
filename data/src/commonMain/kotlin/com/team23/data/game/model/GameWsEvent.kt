@@ -59,4 +59,14 @@ sealed interface GameWsEvent {
         val startTime: Instant,
         val timestamp: Instant,
     ) : GameWsEvent
+
+    @Serializable
+    @SerialName("deck_uploaded")
+    data class DeckUploaded(
+        @SerialName("public_name")
+        val publicName: String,
+        val username: String,
+        val turn: Int,
+        val timestamp: Instant,
+    ) : GameWsEvent
 }

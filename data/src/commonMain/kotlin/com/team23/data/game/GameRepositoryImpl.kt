@@ -270,7 +270,8 @@ class GameRepositoryImpl(
         is GameWsEvent.Error -> MultiGameMessage.Error(event.timestamp, event.message)
         is GameWsEvent.GameStartTime -> MultiGameMessage.GameStart(event.timestamp, gameId = event.gameId, startTime = event.startTime)
         is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default(event.timestamp)
-        is GameWsEvent.Pong ->  MultiGameMessage.Default(event.timestamp)
+        is GameWsEvent.Pong -> MultiGameMessage.Default(event.timestamp)
+        is GameWsEvent.DeckUploaded -> MultiGameMessage.Default(event.timestamp)
     }
 
     private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {

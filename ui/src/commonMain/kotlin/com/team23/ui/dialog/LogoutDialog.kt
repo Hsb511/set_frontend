@@ -42,11 +42,10 @@ fun LogoutDialog(
                 Text(text = "Yes")
             }
         },
-        text = {
+        title = {
             Text(
                 text = "Are you sure you want to log out?",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.fillMaxWidth(),
             )
         },

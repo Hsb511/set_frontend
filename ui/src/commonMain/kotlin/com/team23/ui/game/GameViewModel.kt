@@ -16,6 +16,7 @@ import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
 import com.team23.ui.game.GameAction.Restart
 import com.team23.ui.game.GameAction.SelectOrUnselectCard
+import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.snackbar.SetSnackbarVisuals
@@ -73,6 +74,7 @@ class GameViewModel(
         started = SharingStarted.Eagerly,
         initialValue = GameUiModel()
     )
+    private var multiGameMode: MultiGameMode? = null
 
     private val _gameUiEvent: MutableSharedFlow<GameUiEvent> = MutableSharedFlow()
     val gameUiEvent: SharedFlow<GameUiEvent> = merge(
@@ -108,6 +110,7 @@ class GameViewModel(
     }
 
     private fun initMultiGame(multiType: NavigationScreen.Game.Type.Multi) {
+        multiGameMode = multiType.mode
         _gameStateFlow.value = GameState.Playing(
             gameId = multiType.gameId,
             deck = multiType.deck.map(cardUiMapper::toDomainModel),
@@ -215,7 +218,11 @@ class GameViewModel(
     }
 
     private suspend fun sendCompletionEvent(isConfirmed: Boolean) {
-        val type = if (isConfirmed) GameCompletionType.Restart else GameCompletionType.Retry
+        val type = when {
+            multiGameMode == MultiGameMode.TimeTrial -> EndGameUiModel.TimeTrial
+            isConfirmed -> EndGameUiModel.Restart
+            else -> EndGameUiModel.Retry
+        }
         _gameUiEvent.emit(GameUiEvent.GameCompletion(type))
     }
 
