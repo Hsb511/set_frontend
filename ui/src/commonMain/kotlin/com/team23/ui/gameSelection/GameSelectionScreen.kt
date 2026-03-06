@@ -33,6 +33,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
@@ -43,9 +46,6 @@ import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.WindowSize
 import com.team23.ui.theming.rememberWindowSize
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 

@@ -24,15 +24,15 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.team23.ui.auth.AuthAction.Auth
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.navigation.NavigationScreen.AuthCredentials.AuthType
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 

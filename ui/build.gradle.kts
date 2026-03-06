@@ -85,11 +85,12 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.ui.tooling.preview)
         }
 
         androidMain.dependencies {
             implementation(libs.androidx.ui.tooling)
+            implementation(libs.androidx.ui.tooling.preview)
             implementation(libs.androidx.poolingcontainer)
             implementation(libs.androidx.activity)
             implementation(libs.androidx.activity.compose)

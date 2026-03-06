@@ -14,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.team23.ui.shape.DiamondShape
 import com.team23.ui.shape.FillingTypeUiModel
@@ -23,9 +26,6 @@ import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
 import com.team23.ui.theming.orange
 import com.team23.ui.theming.white95
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import com.team23.ui.card.Slot.CardUiModel.Color as CardColor
 import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
