@@ -1,10 +1,13 @@
 package com.team23.ui.gameLobby
 
+import com.team23.domain.game.model.Card
 import com.team23.domain.game.model.GameMode
 import com.team23.domain.game.model.MultiGameMessage
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.usecase.CreateOrJoinLobbyUseCase
+import com.team23.ui.card.CardUiMapper
+import com.team23.ui.game.GameUiMapper
 import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
@@ -35,6 +38,7 @@ import kotlin.uuid.Uuid
 class GameLobbyViewModel(
     private val createOrJoinLobbyUseCase: CreateOrJoinLobbyUseCase,
     private val gameRepository: GameRepository,
+    private val cardUiMapper: CardUiMapper,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
@@ -176,7 +180,13 @@ class GameLobbyViewModel(
                 delay(150.milliseconds)
             }
 
-            NavigationManager.handle(NavigationScreen.Game(false))
+            val type = NavigationScreen.Game.Type.Multi(
+                gameId = gameId,
+                deck = game.deck.filterIsInstance<Card.Data>().map(cardUiMapper::toUiModel),
+                table = game.table.filterIsInstance<Card.Data>().map(cardUiMapper::toUiModel),
+                mode = MultiGameMode.TimeTrial,
+            )
+            NavigationManager.handle(NavigationScreen.Game(type))
         }
     }
 

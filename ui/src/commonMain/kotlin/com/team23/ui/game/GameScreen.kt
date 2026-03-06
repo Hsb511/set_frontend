@@ -63,6 +63,7 @@ import com.team23.ui.card.SetCard
 import com.team23.ui.card.Slot
 import com.team23.ui.debug.isDebug
 import com.team23.ui.dialog.EndGameDialog
+import com.team23.ui.navigation.NavigationScreen
 import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.system.rememberSystemScreenController
 import com.team23.ui.theming.LocalSpacings
@@ -79,19 +80,19 @@ import com.team23.ui.card.Slot.CardUiModel.Shape as CardShape
 
 @Composable
 fun GameScreen(
-    forceCreate: Boolean,
+    type: NavigationScreen.Game.Type,
 ) {
     val gameVM = koinInject<GameViewModel>()
     val systemScreenController = rememberSystemScreenController()
 
     val isInitialStart = rememberSaveable { mutableStateOf(true) }
 
-    DisposableEffect(forceCreate) {
+    DisposableEffect(type) {
         if (isInitialStart.value) {
-            gameVM.start(forceCreate)
+            gameVM.start(type)
             isInitialStart.value = false
         } else {
-            gameVM.start(false)
+            gameVM.start(NavigationScreen.Game.Type.Solo(forceCreate = false))
         }
 
         systemScreenController.setKeepScreenOn()

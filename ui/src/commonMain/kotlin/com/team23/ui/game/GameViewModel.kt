@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
+import kotlin.uuid.ExperimentalUuidApi
 
 class GameViewModel(
     private val stateMachine: GameStateMachine,
@@ -85,9 +88,12 @@ class GameViewModel(
             .launchIn(viewModelScope)
     }
 
-    fun start(forceCreate: Boolean) {
+    fun start(type: NavigationScreen.Game.Type) {
         viewModelScope.launch {
-            initSoloGame(forceCreate)
+            when (type) {
+                is NavigationScreen.Game.Type.Solo -> initSoloGame(type.forceCreate)
+                is NavigationScreen.Game.Type.Multi -> initMultiGame(type)
+            }
         }
         viewModelScope.launch {
             isPortraitFlow.value = runCatching {
@@ -99,6 +105,14 @@ class GameViewModel(
                 userRepository.getUserPreference(Preference.DisableAnimation)?.not()
             }.getOrNull() ?: true
         }
+    }
+
+    private fun initMultiGame(multiType: NavigationScreen.Game.Type.Multi) {
+        _gameStateFlow.value = GameState.Playing(
+            gameId = multiType.gameId,
+            deck = multiType.deck.map(cardUiMapper::toDomainModel),
+            table = multiType.table.map(cardUiMapper::toDomainModel),
+        )
     }
 
     fun stop() {

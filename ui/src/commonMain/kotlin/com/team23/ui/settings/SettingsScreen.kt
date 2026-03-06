@@ -123,13 +123,13 @@ private fun SettingsPreferencesSection(
     )
 
     SettingsRowCheckBox(
-        label = "Force dark mode",
+        label = "Force dark type",
         checked = preferences.forceDarkMode,
         onValueChanged = { onAction(SettingsAction.ToggleForceDarkMode(preferences.forceDarkMode)) }
     )
 
     SettingsRowCheckBox(
-        label = "Force light mode",
+        label = "Force light type",
         checked = preferences.forceLightMode,
         onValueChanged = { onAction(SettingsAction.ToggleForceLightMode(preferences.forceLightMode)) }
     )

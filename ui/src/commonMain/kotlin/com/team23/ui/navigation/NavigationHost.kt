@@ -88,9 +88,11 @@ fun NavigationHost(
                 GameLobbyScreen(gameName, multiGameMode)
             }
         }
-        composable<NavigationScreen.Game> { game ->
-            val forceCreate = game.toRoute<NavigationScreen.Game>().forceCreate
-            GameScreen(forceCreate = forceCreate)
+        composable<NavigationScreen.Game>(
+            typeMap = mapOf(typeOf<NavigationScreen.Game.Type>() to SerializableNavType(NavigationScreen.Game.Type.serializer()))
+        ) { game ->
+            val initialMode = game.toRoute<NavigationScreen.Game>().type
+            GameScreen(type = initialMode)
         }
         composable(
             route = NavigationScreen.Settings.name,

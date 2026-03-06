@@ -71,7 +71,7 @@ class GameSelectionViewModel(
 
     private fun startSoloGame(forceCreate: Boolean) {
         viewModelScope.launch {
-            NavigationManager.handle(NavigationScreen.Game(forceCreate))
+            NavigationManager.handle(NavigationScreen.Game(NavigationScreen.Game.Type.Solo(forceCreate)))
         }
     }
 

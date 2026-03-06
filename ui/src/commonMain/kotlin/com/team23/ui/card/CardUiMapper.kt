@@ -28,6 +28,8 @@ class CardUiMapper {
             isPortraitMode = isPortrait,
         )
 
+    fun toUiModel(card: Card.Data) = toUiModel(card, isSelected = false, isPortrait = false)
+
     private fun toUiColor(color: Card.Data.Color): Slot.CardUiModel.Color = when (color) {
         Card.Data.Color.PRIMARY -> Slot.CardUiModel.Color.Primary
         Card.Data.Color.SECONDARY -> Slot.CardUiModel.Color.Secondary

@@ -4,7 +4,10 @@ import com.team23.domain.game.model.Card
 import com.team23.domain.game.statemachine.GameState
 import com.team23.ui.card.CardUiMapper
 import com.team23.ui.card.Slot
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class GameUiMapper(
     private val cardUiMapper: CardUiMapper,
 ) {

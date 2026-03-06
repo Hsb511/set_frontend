@@ -5,16 +5,20 @@ import com.team23.ui.shape.FillingTypeUiModel
 import com.team23.ui.theming.officeGreen
 import com.team23.ui.theming.purple
 import com.team23.ui.theming.red
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface Slot {
     val id: Int
     val isPortraitMode: Boolean
 
+    @Serializable
     data class HoleUiModel(
         override val id: Int,
         override val isPortraitMode: Boolean,
     ) : Slot
 
+    @Serializable
     data class CardUiModel(
         override val isPortraitMode: Boolean,
         val patternAmount: Int,
@@ -29,6 +33,7 @@ sealed interface Slot {
             100 * fillingType.ordinal +
             1000 * shape.ordinal
 
+        @Serializable
         enum class Color {
             Primary, Secondary, Tertiary;
 
@@ -40,6 +45,7 @@ sealed interface Slot {
             }
         }
 
+        @Serializable
         enum class Shape {
             Diamond, Oval, Squiggle
         }

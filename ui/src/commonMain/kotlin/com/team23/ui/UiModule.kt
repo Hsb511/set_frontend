@@ -77,6 +77,7 @@ val uiModule = module {
         GameLobbyViewModel(
             createOrJoinLobbyUseCase = get(),
             gameRepository = get(),
+            cardUiMapper = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

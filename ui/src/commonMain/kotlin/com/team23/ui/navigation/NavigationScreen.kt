@@ -2,8 +2,12 @@ package com.team23.ui.navigation
 
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
+import com.team23.domain.game.model.Card
+import com.team23.ui.card.Slot
+import com.team23.ui.gameSelection.MultiGameMode
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Serializable
 @OptIn(ExperimentalUuidApi::class)
@@ -34,7 +38,23 @@ sealed class NavigationScreen(val name: String) {
     data class GameLobby(val gameName: String?, val rawMultiGameMode: String?): NavigationScreen(GAME_LOBBY_SCREEN_NAME)
 
     @Serializable
-    data class Game(val forceCreate: Boolean): NavigationScreen(GAME_SCREEN_NAME)
+    data class Game(val type: Type): NavigationScreen(GAME_SCREEN_NAME) {
+
+        @Serializable
+        sealed interface Type {
+
+            @Serializable
+            data class Solo(val forceCreate: Boolean): Type
+
+            @Serializable
+            data class Multi(
+                val gameId: Uuid,
+                val deck: List<Slot.CardUiModel>,
+                val table: List<Slot.CardUiModel>,
+                val mode: MultiGameMode,
+            ): Type
+        }
+    }
 
     @Serializable
     data object Settings: NavigationScreen("Settings")

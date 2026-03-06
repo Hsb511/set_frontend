@@ -1,7 +1,9 @@
 package com.team23.ui.game
 
 import com.team23.ui.card.Slot
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GameUiModel(
     val cardsInDeck: List<Slot> = emptyList(),
     val playingCards: List<Slot> = emptyList(),
