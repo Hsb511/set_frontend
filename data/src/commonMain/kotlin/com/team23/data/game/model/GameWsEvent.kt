@@ -69,4 +69,29 @@ sealed interface GameWsEvent {
         val turn: Int,
         val timestamp: Instant,
     ) : GameWsEvent
+
+    @Serializable
+    @SerialName("game_completed")
+    data class GameCompleted(
+        @SerialName("public_name")
+        val publicName: String,
+        @SerialName("winner_username")
+        val winnerUsername: String,
+        val summary: Summary,
+        val timestamp: Instant,
+    ) : GameWsEvent {
+        @Serializable
+        data class Summary(
+            @SerialName("total_turns")
+            val totalTurns: Int,
+            @SerialName("final_pile_count")
+            val finalPileCount: Int,
+            @SerialName("final_table_count")
+            val finalTableCount: Int,
+            @SerialName("final_pit_sets")
+            val finalPitSets: Int,
+            @SerialName("player_scores")
+            val playerScores: Map<String, Int>,
+        )
+    }
 }

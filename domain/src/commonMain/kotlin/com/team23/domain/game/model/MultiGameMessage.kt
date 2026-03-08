@@ -23,4 +23,9 @@ sealed interface MultiGameMessage {
 
     data class Error(override val timestamp: Instant, val message: String) : MultiGameMessage
     data class Default(override val timestamp: Instant) : MultiGameMessage
+    data class GameCompleted(
+        override val timestamp: Instant,
+        val winnerUsername: String,
+        val scores: Map<String, Int>,
+    ) : MultiGameMessage
 }

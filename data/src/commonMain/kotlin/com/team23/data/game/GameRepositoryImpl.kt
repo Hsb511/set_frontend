@@ -272,6 +272,7 @@ class GameRepositoryImpl(
         is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default(event.timestamp)
         is GameWsEvent.Pong -> MultiGameMessage.Default(event.timestamp)
         is GameWsEvent.DeckUploaded -> MultiGameMessage.Default(event.timestamp)
+        is GameWsEvent.GameCompleted -> MultiGameMessage.GameCompleted(event.timestamp, event.winnerUsername, event.summary.playerScores)
     }
 
     private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {

@@ -121,7 +121,8 @@ class GameLobbyViewModel(
             is MultiGameMessage.LobbyData -> updateLobbyData(message)
             is MultiGameMessage.GameStart -> showCountDownAndNavigateToGame(message.gameId, message.startTime)
             is MultiGameMessage.Error -> handleErrorMessage(message.message)
-            is MultiGameMessage.Default -> Unit
+            is MultiGameMessage.Default,
+            is MultiGameMessage.GameCompleted -> Unit
         }
     }
 
