@@ -9,6 +9,7 @@ import com.team23.data.game.model.GameWsEvent
 import com.team23.data.game.model.request.CreateGameRequest
 import com.team23.data.game.model.request.ParticipateInGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
+import com.team23.data.game.model.response.AbandonGameResponse
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
@@ -95,6 +96,10 @@ class GameRepositoryImpl(
             )
         )
         gameWs.send(action)
+    }
+
+    override suspend fun leaveGame(): Result<Unit> = runCatching {
+        abandonGameAndRetry(retry = true)
     }
 
     private suspend fun getOngoingSoloGameAndRetry(retry: Boolean): GameState.Playing {
@@ -216,6 +221,17 @@ class GameRepositoryImpl(
             is ParticipateInGameResponse.Failure -> throw Exception(response.error)
             is ParticipateInGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
                 joinMultiGameAndRetry(publicName = publicName, retry = false)
+            }
+        }
+    }
+
+    private suspend fun abandonGameAndRetry(retry: Boolean) {
+        val sessionToken = getCachedSessionToken()
+        return when (val response = gameApi.abandonGame(sessionToken)) {
+            is AbandonGameResponse.Success -> Unit
+            is AbandonGameResponse.Failure -> throw Exception(response.error)
+            is AbandonGameResponse.InvalidSessionToken -> handleRetryMechanism(retry) {
+                abandonGameAndRetry(retry = false)
             }
         }
     }

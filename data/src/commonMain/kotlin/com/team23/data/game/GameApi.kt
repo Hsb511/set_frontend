@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import com.team23.data.game.model.request.CreateGameRequest
 import com.team23.data.game.model.request.ParticipateInGameRequest
 import com.team23.data.game.model.request.UploadDeckRequest
+import com.team23.data.game.model.response.AbandonGameResponse
 import com.team23.data.game.model.response.CreateGameResponse
 import com.team23.data.game.model.response.GetGameResponse
 import com.team23.data.game.model.response.GetLastDeckResponse
@@ -30,6 +31,7 @@ interface GameApi {
     suspend fun uploadDeck(sessionToken: Uuid, request: UploadDeckRequest): UploadDeckResponse
     suspend fun getOpenGames(sessionToken: Uuid): GetOpenGamesResponse
     suspend fun participateInGame(sessionToken: Uuid, request: ParticipateInGameRequest): ParticipateInGameResponse
+    suspend fun abandonGame(sessionToken: Uuid): AbandonGameResponse
 }
 
 @OptIn(ExperimentalUuidApi::class)
@@ -112,6 +114,19 @@ class GameApiImpl(
         } else {
             Logger.e("GameApi - participateInGame Error - ${response.bodyAsText()}")
             response.body<ParticipateInGameResponse.Failure>()
+        }
+    }
+
+    override suspend fun abandonGame(sessionToken: Uuid): AbandonGameResponse {
+        val urlString = "/session/$sessionToken/abandon-game"
+        Logger.d("GameApi - $urlString")
+        val response = client.post(urlString)
+        return if (response.status.isSuccess()) {
+            Logger.i("GameApi - abandonGame Success - ${response.bodyAsText()}")
+            response.body<AbandonGameResponse.Success>()
+        } else {
+            Logger.e("GameApi - abandonGame Error - ${response.bodyAsText()}")
+            response.body<AbandonGameResponse.Failure>()
         }
     }
 }

@@ -35,4 +35,6 @@ interface GameRepository {
     suspend fun switchToWebSocket(): Result<Unit>
 
     suspend fun startGame(gameId: Uuid, startTime: Instant)
+
+    suspend fun leaveGame(): Result<Unit>
 }

@@ -60,4 +60,12 @@ sealed interface SetSnackbarVisuals: SnackbarVisuals {
     data class MultiGameMessageError(val errorMessage: String): ShortSnackbarVisuals() {
         override val message: String = errorMessage
     }
+
+    data class LeaveGameSuccess(val gameName: String): ShortSnackbarVisuals() {
+        override val message: String = "You successfully left game $gameName"
+    }
+
+    data class LeaveGameError(val gameName: String, val errorMessage: String): ShortSnackbarVisuals() {
+        override val message: String = "Something wrong happened while leaving the game $gameName - $errorMessage"
+    }
 }

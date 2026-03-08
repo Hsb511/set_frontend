@@ -135,7 +135,7 @@ private fun GameLobbyScreen(
             GameActionButton(
                 isHost = gameLobbyUiModel.isHost,
                 onStartGame = { onAction(GameLobbyAction.StartGame) },
-                onLeaveGame = { onAction(GameLobbyAction.LeaveGame) },
+                onLeaveGame = { onAction(GameLobbyAction.LeaveGame(gameLobbyUiModel.gameName)) },
                 modifier = Modifier
                     .fillMaxWidth()
             )

@@ -16,35 +16,47 @@ class CreateOrJoinLobbyUseCase(
         return if (publicName == null) {
             createGame(gameMode)
         } else {
-            joinGame(publicName, gameMode)
+            joinOrRejoinGame(publicName, gameMode)
         }
     }
 
     private suspend fun createGame(gameMode: GameMode): Result<GameLobby> {
         val currentUsername = userRepository.getUserInfo().getOrNull()?.username
-        return  gameRepository.createMultiGame(gameMode).map { (game, publicName) ->
+        return gameRepository.createMultiGame(gameMode).map { (game, publicName) ->
             GameLobby(
                 game = game,
                 publicName = publicName,
                 gameMode = gameMode,
-                players = currentUsername?.let { listOf(
-                    GameLobby.Player(name = currentUsername, isMe = true, isHost = true)
-                ) } ?: emptyList()
+                players = currentUsername?.let {
+                    listOf(
+                        GameLobby.Player(name = currentUsername, isMe = true, isHost = true)
+                    )
+                } ?: emptyList()
             )
         }
     }
 
-    private suspend fun joinGame(publicName: String, gameMode: GameMode): Result<GameLobby> {
+    private suspend fun joinOrRejoinGame(publicName: String, gameMode: GameMode): Result<GameLobby> {
         val currentUsername = userRepository.getUserInfo().getOrNull()?.username
-        return gameRepository.joinMultiGame(publicName).map { (game, playerNames) ->
-            GameLobby(
-                game = game,
-                publicName = publicName,
-                gameMode = gameMode,
-                players = playerNames.mapIndexed { index, playerName ->
-                    GameLobby.Player(name = playerName, isMe = playerName == currentUsername, isHost = index == 0)
-                }
-            )
+        return joinGame(publicName, gameMode, currentUsername).onFailure {
+            gameRepository.leaveGame().onSuccess {
+                return joinGame(publicName, gameMode, currentUsername)
+            }
         }
+    }
+
+    private suspend fun joinGame(
+        publicName: String,
+        gameMode: GameMode,
+        currentUsername: String?,
+    ) = gameRepository.joinMultiGame(publicName).map { (game, playerNames) ->
+        GameLobby(
+            game = game,
+            publicName = publicName,
+            gameMode = gameMode,
+            players = playerNames.mapIndexed { index, playerName ->
+                GameLobby.Player(name = playerName, isMe = playerName == currentUsername, isHost = index == 0)
+            }
+        )
     }
 }

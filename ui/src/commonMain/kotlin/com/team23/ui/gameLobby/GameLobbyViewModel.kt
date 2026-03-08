@@ -7,7 +7,6 @@ import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameState
 import com.team23.domain.game.usecase.CreateOrJoinLobbyUseCase
 import com.team23.ui.card.CardUiMapper
-import com.team23.ui.game.GameUiMapper
 import com.team23.ui.gameSelection.MultiGameMode
 import com.team23.ui.navigation.NavigationManager
 import com.team23.ui.navigation.NavigationScreen
@@ -75,7 +74,7 @@ class GameLobbyViewModel(
             is GameLobbyAction.CopyGameId -> handleCopyGameId(action.rawGameId)
             is GameLobbyAction.ChangeVisibility -> handleChangeVisibility(action.isPrivate)
             is GameLobbyAction.StartGame -> handleStartGame()
-            is GameLobbyAction.LeaveGame -> handleLeaveGame()
+            is GameLobbyAction.LeaveGame -> handleLeaveGame(action.gameName)
         }
     }
 
@@ -228,10 +227,16 @@ class GameLobbyViewModel(
         }
     }
 
-    private fun handleLeaveGame() {
-        // TODO NOTIFY THE PLAYER LEFT THE LOBBY
+    private fun handleLeaveGame(gameName: String) {
         viewModelScope.launch {
-            NavigationManager.popBackStack()
+            gameRepository.leaveGame()
+                .onSuccess {
+                    SnackbarManager.showMessage(SetSnackbarVisuals.LeaveGameSuccess(gameName))
+                    NavigationManager.popBackStack()
+                }
+                .onFailure { failure ->
+                    SnackbarManager.showMessage(SetSnackbarVisuals.LeaveGameError(gameName, failure.message.orEmpty()))
+                }
         }
     }
 
