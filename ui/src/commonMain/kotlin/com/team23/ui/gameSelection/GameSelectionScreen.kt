@@ -1,22 +1,15 @@
 package com.team23.ui.gameSelection
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,11 +29,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.team23.ui.button.ActionButton
 import com.team23.ui.button.ActionButtonUiModel
 import com.team23.ui.component.AdaptativeContainer
+import com.team23.ui.component.VerticalTableRow
+import com.team23.ui.component.VerticalTableWithHeader
 import com.team23.ui.gameSelection.GameSelectionUiModel.Data.MultiGame
 import com.team23.ui.theming.LocalSpacings
 import com.team23.ui.theming.SetTheme
@@ -186,7 +180,7 @@ private fun MultiSection(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large)
     ) {
         Text(
-            text = "\uD83D\uDEA7 MULTI \uD83D\uDEA7",
+            text = "MULTI",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -249,7 +243,7 @@ private fun MultiCreateAndJoinSection(
 
         ActionButton(
             uiModel = ActionButtonUiModel(
-                text = "\uD83D\uDEA7 Join multi game \uD83D\uDEA7",
+                text = "Join multi game",
                 size = ActionButtonUiModel.Size.Small,
                 enabled = isMultiGameNameValid,
                 maxLines = 1,
@@ -270,24 +264,50 @@ private fun MultiPublicGamesSection(
         verticalArrangement = Arrangement.spacedBy(LocalSpacings.current.large),
     ) {
         Text(
-            text = "\uD83D\uDEA7 Ongoing games:\uD83D\uDEA7",
+            text = "Public games:",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(1),
-            contentPadding = PaddingValues(all = LocalSpacings.current.small),
-            modifier = multiGamesModifier(windowSize)
-        ) {
-            stickyHeader {
-                GameSelectionMultiTableHeader()
-            }
-            items(multiGames) { multiGame ->
-                GameSelectionMultiTableItem(multiGame, onAction)
-            }
-        }
+        VerticalTableWithHeader(
+            header = VerticalTableRow(
+                cells = listOf(
+                    VerticalTableRow.Cell(
+                        content = VerticalTableRow.Cell.Content.Text("Name"),
+                        weight = FIRST_COLUMN_WEIGHT,
+                    ),
+                    VerticalTableRow.Cell(
+                        content = VerticalTableRow.Cell.Content.Text("Players"),
+                        weight = SECOND_COLUMN_WEIGHT,
+                    ),
+                    VerticalTableRow.Cell(
+                        content = VerticalTableRow.Cell.Content.Text("Type"),
+                        weight = THIRD_COLUMN_WEIGHT,
+                    ),
+                )
+            ),
+            rows = multiGames.map { multiGame ->
+                VerticalTableRow(
+                    onClick = { onAction(GameSelectionAction.JoinMulti(multiGame.publicName)) },
+                    cells = listOf(
+                        VerticalTableRow.Cell(
+                            content = VerticalTableRow.Cell.Content.Text(multiGame.publicName),
+                            weight = FIRST_COLUMN_WEIGHT,
+                        ),
+                        VerticalTableRow.Cell(
+                            content = VerticalTableRow.Cell.Content.Text(multiGame.playersCount.toString()),
+                            weight = SECOND_COLUMN_WEIGHT,
+                        ),
+                        VerticalTableRow.Cell(
+                            content = VerticalTableRow.Cell.Content.Icon(multiGame.gameMode.icon, multiGame.gameMode.name),
+                            weight = THIRD_COLUMN_WEIGHT,
+                        ),
+                    )
+                )
+            },
+            modifier = multiGamesModifier(windowSize),
+        )
     }
 }
 
@@ -368,70 +388,6 @@ private fun CreateMultiButtonWithDescription(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth(),
         )
-    }
-}
-
-@Composable
-private fun GameSelectionMultiTableHeader() {
-    Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
-        Row {
-            Text(
-                text = "Name",
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
-            )
-            Text(
-                text = "Players",
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(SECOND_COLUMN_WEIGHT),
-            )
-            Text(
-                text = "Type",
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(THIRD_COLUMN_WEIGHT),
-            )
-        }
-        HorizontalDivider(thickness = 2.dp)
-    }
-}
-
-@OptIn(ExperimentalUuidApi::class)
-@Composable
-private fun GameSelectionMultiTableItem(multiGame: MultiGame, onAction: (GameSelectionAction) -> Unit) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onAction(GameSelectionAction.JoinMulti(publicName = multiGame.publicName))
-                }
-                .padding(
-                    vertical = LocalSpacings.current.medium,
-                    horizontal = LocalSpacings.current.small
-                ),
-        ) {
-            Text(
-                text = multiGame.publicName,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(FIRST_COLUMN_WEIGHT),
-            )
-            Text(
-                text = multiGame.playersCount.toString(),
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.weight(SECOND_COLUMN_WEIGHT),
-            )
-            Box(
-                contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.weight(THIRD_COLUMN_WEIGHT),
-            ) {
-                Icon(
-                    imageVector = multiGame.gameMode.icon,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    contentDescription = multiGame.gameMode.name,
-                )   
-            }
-        }
-        HorizontalDivider()
     }
 }
 
