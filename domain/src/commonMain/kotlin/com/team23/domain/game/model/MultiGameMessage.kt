@@ -1,5 +1,6 @@
 package com.team23.domain.game.model
 
+import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -26,6 +27,11 @@ sealed interface MultiGameMessage {
     data class GameCompleted(
         override val timestamp: Instant,
         val winnerUsername: String,
-        val scores: Map<String, Int>,
-    ) : MultiGameMessage
+        val scores: Scores,
+    ) : MultiGameMessage {
+        sealed class Scores(val label: String) {
+            data class WithTurns(val turnsByPlayer: Map<String, Int>): Scores("turns")
+            data class WithTimes(val timesByPlayer:  Map<String, Duration>): Scores("times")
+        }
+    }
 }

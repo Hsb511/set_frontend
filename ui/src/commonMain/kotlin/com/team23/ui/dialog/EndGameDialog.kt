@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.team23.ui.component.VerticalTableRow
+import com.team23.ui.component.VerticalTableWithHeader
 import com.team23.ui.game.EndGameUiModel
 import com.team23.ui.game.GameAction
 import com.team23.ui.theming.LocalSpacings
@@ -31,6 +33,7 @@ fun EndGameDialog(
     when (endGameUiModel.content) {
         is EndGameUiModel.Content.Action -> EndGameDialogWithAction(endGameUiModel.content, endGameUiModel.label, onAction)
         is EndGameUiModel.Content.Loader -> EndGameDialogWithLoader(endGameUiModel.label)
+        is EndGameUiModel.Content.Table -> EndGameDialogWithTable(endGameUiModel.label, endGameUiModel.content.header, endGameUiModel.content.data)
     }
 }
 
@@ -115,6 +118,69 @@ private fun EndGameDialogWithLoader(
                 )
                 CircularProgressIndicator(
                     modifier = Modifier.padding(vertical = LocalSpacings.current.large)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EndGameDialogWithTable(
+    dialogDescription: String,
+    tableHeader: List<String>,
+    tableData: List<List<String>>,
+) {
+    BasicAlertDialog(
+        onDismissRequest = { },
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = LocalSpacings.current.extraLarge),
+            ) {
+                Text(
+                    text = "Game is finished",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Text(
+                    text = dialogDescription,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                VerticalTableWithHeader(
+                    header = VerticalTableRow(
+                        cells = tableHeader.map { header ->
+                            VerticalTableRow.Cell(
+                                content = VerticalTableRow.Cell.Content.Text(header),
+                                weight = 1f / tableHeader.size,
+                            )
+                        },
+                    ),
+                    rows = tableData.map { row ->
+                        VerticalTableRow(
+                            cells = row.map { cell ->
+                                VerticalTableRow.Cell(
+                                    content = VerticalTableRow.Cell.Content.Text(cell),
+                                    weight = 1f / row.size,
+                                )
+                            },
+                        )
+                    }
                 )
             }
         }

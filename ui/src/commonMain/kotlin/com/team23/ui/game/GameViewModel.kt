@@ -4,6 +4,7 @@ package com.team23.ui.game
 
 import androidx.compose.material3.SnackbarVisuals
 import com.team23.domain.game.model.Card
+import com.team23.domain.game.model.MultiGameMessage
 import com.team23.domain.game.repository.GameRepository
 import com.team23.domain.game.statemachine.GameEvent
 import com.team23.domain.game.statemachine.GameSideEffect
@@ -107,6 +108,9 @@ class GameViewModel(
                 userRepository.getUserPreference(Preference.DisableAnimation)?.not()
             }.getOrNull() ?: true
         }
+        viewModelScope.launch {
+            gameRepository.multiGameMessages.collect(::handleMultiGameMessage)
+        }
     }
 
     private fun initMultiGame(multiType: NavigationScreen.Game.Type.Multi) {
@@ -199,6 +203,26 @@ class GameViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun handleMultiGameMessage(message: MultiGameMessage) {
+        when (message) {
+            is MultiGameMessage.GameCompleted -> handleGameCompletionWithScores(message)
+            else -> Unit
+        }
+    }
+
+    private suspend fun handleGameCompletionWithScores(message: MultiGameMessage.GameCompleted) {
+        val data = when (val scores = message.scores) {
+            is MultiGameMessage.GameCompleted.Scores.WithTimes -> TODO()
+            is MultiGameMessage.GameCompleted.Scores.WithTurns -> TODO()
+        }
+        val endGame = EndGameUiModel.Scores(
+            winnerUsername = message.winnerUsername,
+            header = listOf("Player", message.scores.label),
+            data = data,
+        )
+        _gameUiEvent.emit(GameUiEvent.GameCompletion(endGame))
     }
 
     private fun createTimerJob() {

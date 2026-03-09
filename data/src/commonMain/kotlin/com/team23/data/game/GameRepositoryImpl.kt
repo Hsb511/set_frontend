@@ -288,7 +288,12 @@ class GameRepositoryImpl(
         is GameWsEvent.HeartbeatAck -> MultiGameMessage.Default(event.timestamp)
         is GameWsEvent.Pong -> MultiGameMessage.Default(event.timestamp)
         is GameWsEvent.DeckUploaded -> MultiGameMessage.Default(event.timestamp)
-        is GameWsEvent.GameCompleted -> MultiGameMessage.GameCompleted(event.timestamp, event.winnerUsername, event.summary.playerScores)
+        is GameWsEvent.GameCompleted -> MultiGameMessage.GameCompleted(event.timestamp, event.winnerUsername, mapScore(event.summary.playerScores))
+    }
+
+    private fun mapScore(playerScores: Map<String, Int>): MultiGameMessage.GameCompleted.Scores {
+        // TODO HANDLE SCORES WITH TIMES
+        return MultiGameMessage.GameCompleted.Scores.WithTurns(playerScores)
     }
 
     private suspend fun <T> handleRetryMechanism(retry: Boolean, run: suspend () -> T): T {
