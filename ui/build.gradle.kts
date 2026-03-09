@@ -29,7 +29,7 @@ buildkonfig {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 
     androidLibrary {
         namespace = "com.team23.ui"
@@ -86,6 +86,10 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(libs.compose.ui.tooling.preview)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
 
         androidMain.dependencies {

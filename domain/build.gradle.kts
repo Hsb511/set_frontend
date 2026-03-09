@@ -6,6 +6,8 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(17)
+
     jvm()
 
     val xcfName = "uiKit"

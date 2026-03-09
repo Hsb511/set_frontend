@@ -16,7 +16,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
 
     androidLibrary {
         namespace = "com.team23.shared"

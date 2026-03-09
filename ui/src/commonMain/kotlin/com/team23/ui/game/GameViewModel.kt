@@ -52,6 +52,7 @@ class GameViewModel(
     private val userRepository: UserRepository,
     private val gameUiMapper: GameUiMapper,
     private val cardUiMapper: CardUiMapper,
+    private val endGameUiMapper: EndGameUiMapper,
     dispatcher: CoroutineDispatcher,
     coroutineName: CoroutineName,
 ) {
@@ -213,15 +214,7 @@ class GameViewModel(
     }
 
     private suspend fun handleGameCompletionWithScores(message: MultiGameMessage.GameCompleted) {
-        val data = when (val scores = message.scores) {
-            is MultiGameMessage.GameCompleted.Scores.WithTimes -> TODO()
-            is MultiGameMessage.GameCompleted.Scores.WithTurns -> TODO()
-        }
-        val endGame = EndGameUiModel.Scores(
-            winnerUsername = message.winnerUsername,
-            header = listOf("Player", message.scores.label),
-            data = data,
-        )
+        val endGame = endGameUiMapper.toEndGameScores(message)
         _gameUiEvent.emit(GameUiEvent.GameCompletion(endGame))
     }
 
@@ -242,12 +235,8 @@ class GameViewModel(
     }
 
     private suspend fun sendCompletionEvent(isConfirmed: Boolean) {
-        val type = when {
-            multiGameMode == MultiGameMode.TimeTrial -> EndGameUiModel.TimeTrial
-            isConfirmed -> EndGameUiModel.Restart
-            else -> EndGameUiModel.Retry
-        }
-        _gameUiEvent.emit(GameUiEvent.GameCompletion(type))
+        val endGame =  endGameUiMapper.toSimpleEndGame(multiGameMode, isConfirmed)
+        _gameUiEvent.emit(GameUiEvent.GameCompletion(endGame))
     }
 
     private fun mapToEvent(sideEffect: GameSideEffect): GameUiEvent? = when (sideEffect) {

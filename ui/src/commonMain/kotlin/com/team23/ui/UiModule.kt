@@ -2,6 +2,7 @@ package com.team23.ui
 
 import com.team23.ui.auth.AuthTypeViewModel
 import com.team23.ui.card.CardUiMapper
+import com.team23.ui.game.EndGameUiMapper
 import com.team23.ui.game.GameUiMapper
 import com.team23.ui.game.GameViewModel
 import com.team23.ui.auth.AuthViewModel
@@ -19,6 +20,7 @@ import org.koin.dsl.module
 val uiModule = module {
 
     factoryOf(::CardUiMapper)
+    factoryOf(::EndGameUiMapper)
     factoryOf(::GameUiMapper)
 
     single {
@@ -91,6 +93,7 @@ val uiModule = module {
             userRepository = get(),
             gameUiMapper = get(),
             cardUiMapper = get(),
+            endGameUiMapper = get(),
             dispatcher = Dispatchers.Default,
             coroutineName = CoroutineName("viewmodel"),
         )

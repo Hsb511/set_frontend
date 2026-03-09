@@ -70,7 +70,7 @@ android {
 
     kotlin {
         compilerOptions {
-            jvmToolchain(11)
+            jvmToolchain(17)
         }
     }
 }
